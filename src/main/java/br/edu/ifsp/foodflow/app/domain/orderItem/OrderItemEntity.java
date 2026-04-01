@@ -20,6 +20,7 @@ public class OrderItemEntity {
     private List<AddOnEntity> additions;
     private UserEntity waiter;
     private String observations;
+    private OrderItemStatusENUM status;
 
     public OrderItemEntity(UUID id, MenuItemEntity item, List<AddOnEntity> additions, UserEntity waiter, String observations) {
         this.id = id;
@@ -27,5 +28,6 @@ public class OrderItemEntity {
         this.additions = additions;
         this.waiter = waiter;
         this.observations = observations;
+        this.status = OrderItemStatusENUM.PENDING;
     }
 }
