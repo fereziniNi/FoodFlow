@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,15 +18,21 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private TableEntity table;
-    private List<OrderItemEntity> tableOrders;
+    private List<OrderItemEntity> orderItems;
     private LocalDateTime createdAt;
     private Boolean active;
 
-    public OrderEntity(UUID id, TableEntity table, List<OrderItemEntity> tableOrders, LocalDateTime createdAt, Boolean active) {
-        this.id = id;
+    public OrderEntity(TableEntity table) {
+        if (table == null) {
+            throw new IllegalArgumentException("Um pedido não pode ser aberto sem uma mesa.");
+        }
         this.table = table;
-        this.tableOrders = tableOrders;
-        this.createdAt = createdAt;
-        this.active = active;
+        this.orderItems = new ArrayList<>();
+        this.createdAt = LocalDateTime.now();
+        this.active = true;
+    }
+
+    public void addOrderItem(OrderItemEntity item) {
+        this.orderItems.add(item);
     }
 }
