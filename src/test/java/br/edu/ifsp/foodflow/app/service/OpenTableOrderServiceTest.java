@@ -62,4 +62,19 @@ class OpenTableOrderServiceTest {
         assertEquals(1, order.getTable().getTableNumber(), "O número da mesa deve ser 1");
     }
 
+    @Test
+    @DisplayName("Deve lançar IllegalStateException se já existir uma comanda ativa para a mesa")
+    void shouldThrowExceptionIfActiveOrderExists() {
+        TableEntity table = new TableEntity(1);
+        OrderEntity activeOrder = new OrderEntity(table);
+
+        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> service.openOrder(1));
+
+        assertEquals("Já existe uma comanda ativa para esta mesa.", exception.getMessage());
+    }
+
 }
