@@ -1,5 +1,8 @@
 package br.edu.ifsp.foodflow.app.service;
 
+import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,9 @@ class OpenTableOrderServiceTest {
     @Mock
     private TableRepository tableRepository;
 
+    @Mock
+    private OrderRepository orderRepository;
+
     @Test
     @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
     void shouldThrowExceptionWhenTableIsNull() {
@@ -39,6 +45,19 @@ class OpenTableOrderServiceTest {
                 () -> service.openOrder(999));
 
         assertEquals("Mesa não encontrada.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve criar um pedido quando a mesa existir")
+    void shouldCreateOrderWhenTableExists() {
+        TableEntity table = new TableEntity(1);
+
+        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
+
+        OrderEntity order = service.openOrder(1);
+
+        assertEquals(1, order.getTable().getTableNumber(), "O número da mesa deve ser 1");
     }
 
 }
