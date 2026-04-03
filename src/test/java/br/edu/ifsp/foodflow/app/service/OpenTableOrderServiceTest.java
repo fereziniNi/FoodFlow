@@ -53,7 +53,8 @@ class OpenTableOrderServiceTest {
         TableEntity table = new TableEntity(1);
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
-        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
+        when(orderRepository.save(any(OrderEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         OrderEntity order = service.openOrder(1);
 
