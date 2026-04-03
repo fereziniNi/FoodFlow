@@ -22,6 +22,10 @@ public class OpenTableOrderService {
         TableEntity table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Mesa não encontrada."));
 
+        orderRepository.findActiveOrderByTable(table).ifPresent(order -> {
+            throw new IllegalStateException("Já existe uma comanda ativa para esta mesa.");
+        });
+
         OrderEntity newOrder = new OrderEntity(table);
         orderRepository.save(newOrder);
         return newOrder;
