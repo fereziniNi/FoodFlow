@@ -5,6 +5,7 @@ import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,11 +34,13 @@ class OpenTableOrderServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    UUID aleatoryId = UUID.randomUUID();
+
     @Test
     @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
     void shouldThrowExceptionWhenTableIsNull() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> service.openOrder(null));
+                () -> service.openOrder(null, aleatoryId));
 
         assertEquals("O ID da mesa é obrigatório.", exception.getMessage());
     }
@@ -47,7 +51,7 @@ class OpenTableOrderServiceTest {
         when(tableRepository.findById(999)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> service.openOrder(999));
+                () -> service.openOrder(999, aleatoryId));
 
         assertEquals("Mesa não encontrada.", exception.getMessage());
     }
@@ -61,7 +65,7 @@ class OpenTableOrderServiceTest {
         when(orderRepository.save(any(OrderEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderEntity order = service.openOrder(1);
+        OrderEntity order = service.openOrder(1, aleatoryId);
 
         assertEquals(1, order.getTable().getTableNumber(), "O número da mesa deve ser 1");
     }
@@ -76,7 +80,7 @@ class OpenTableOrderServiceTest {
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                () -> service.openOrder(1));
+                () -> service.openOrder(1, aleatoryId));
 
         assertEquals("Já existe uma comanda ativa para esta mesa.", exception.getMessage());
     }
@@ -84,7 +88,9 @@ class OpenTableOrderServiceTest {
     @Test
     @DisplayName("Deve lançar IllegalStateException se o id do user for nulo")
     void shouldThrowExceptionIfUserIdIsNull() {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> service.openOrder(1, null));
+
+        assertEquals("O ID do usuário é obrigatório.", exception.getMessage());
     }
 }
