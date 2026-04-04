@@ -93,4 +93,21 @@ class OpenTableOrderServiceTest {
 
         assertEquals("O ID do usuário é obrigatório.", exception.getMessage());
     }
+
+
+    @Test
+    @DisplayName("Deve lançar exceção quando o usuário não estiver cadastrado")
+    void shouldThrowExceptionWhenUserIsNotRegistered() {
+
+        TableEntity table = new TableEntity(1);
+
+        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
+        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.openOrder(1, aleatoryId));
+
+        assertEquals("Usuário não encontrado", exception.getMessage());
+    }
 }
