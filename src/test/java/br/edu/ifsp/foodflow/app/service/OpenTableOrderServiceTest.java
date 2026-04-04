@@ -34,8 +34,16 @@ class OpenTableOrderServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    UUID aleatoryId = UUID.randomUUID();
+    private final UUID aleatoryId = UUID.randomUUID();
 
+    private UserEntity createExistingUser() {
+        return new UserEntity(
+                "Teste Nome",
+                "usuarioTeste",
+                "teste@email.com",
+                "senha123"
+        );
+    }
     @Test
     @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
     void shouldThrowExceptionWhenTableIsNull() {
@@ -74,7 +82,7 @@ class OpenTableOrderServiceTest {
     @DisplayName("Deve lançar IllegalStateException se já existir uma comanda ativa para a mesa")
     void shouldThrowExceptionIfActiveOrderExists() {
         TableEntity table = new TableEntity(1);
-        OrderEntity activeOrder = new OrderEntity(table);
+        OrderEntity activeOrder = new OrderEntity(table, createExistingUser());
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
@@ -103,7 +111,6 @@ class OpenTableOrderServiceTest {
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
-        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> service.openOrder(1, aleatoryId));

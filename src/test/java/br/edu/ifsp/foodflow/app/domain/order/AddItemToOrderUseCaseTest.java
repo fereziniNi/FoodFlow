@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,7 +31,10 @@ public class AddItemToOrderUseCaseTest {
         UUID menuItemId = UUID.randomUUID();
 
         TableEntity table = new TableEntity(10);
-        OrderEntity orderEntity = new OrderEntity(table);
+
+        UserEntity userEntity =new UserEntity("Teste Nome","usuarioTeste","teste@email.com","senha123"
+        );
+        OrderEntity orderEntity = new OrderEntity(table, userEntity);
 
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0);
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, UUID.randomUUID());
