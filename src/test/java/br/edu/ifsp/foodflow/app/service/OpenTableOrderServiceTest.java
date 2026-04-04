@@ -117,4 +117,23 @@ class OpenTableOrderServiceTest {
 
         assertEquals("Usuário não encontrado", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Deve criar um pedido quando a mesa e o usuário existirem")
+    void shouldCreateOrderWhenTableAndUserExist() {
+        TableEntity table = new TableEntity(1);
+        UserEntity user = createExistingUser(); // sua função que cria o user
+
+        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
+        when(orderRepository.save(any(OrderEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        OrderEntity order = service.openOrder(1, user.getId());
+
+        assertNotNull(order, "A ordem não deve ser nula");
+        assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");
+        assertEquals(user.getId(), order.getUser().getId(), "Usuário incorreto");
+    }
 }
