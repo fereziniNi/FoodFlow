@@ -4,6 +4,7 @@ import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
+import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,9 @@ class OpenTableOrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
@@ -77,4 +81,10 @@ class OpenTableOrderServiceTest {
         assertEquals("Já existe uma comanda ativa para esta mesa.", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("Deve lançar IllegalStateException se o id do user for nulo")
+    void shouldThrowExceptionIfUserIdIsNull() {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+    }
 }

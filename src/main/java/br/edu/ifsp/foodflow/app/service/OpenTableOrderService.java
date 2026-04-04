@@ -25,7 +25,7 @@ public class OpenTableOrderService {
         orderRepository.findActiveOrderByTable(table).ifPresent(order -> {
             throw new IllegalStateException("Já existe uma comanda ativa para esta mesa.");
         });
-
+1
         OrderEntity newOrder = new OrderEntity(table);
         orderRepository.save(newOrder);
         return newOrder;
