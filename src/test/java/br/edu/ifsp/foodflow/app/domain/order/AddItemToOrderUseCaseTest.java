@@ -1,6 +1,5 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.addOn.AddOnRepository;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
@@ -9,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +30,9 @@ public class AddItemToOrderUseCaseTest {
     @InjectMocks private AddItemToOrderUseCase sut;
 
     @Test
+    @DisplayName("Dado que o usuário esteja registrado e uma determinada mesa possua uma comanda ativa, " +
+                 "quando o usuário adicionar um item à comanda, então o item deve ser registrado " +
+                 "na comanda e o preço da comanda ser atualizado.")
     void shouldAddItemAnExistingOrder(){
         UUID orderId = UUID.randomUUID();
         UUID menuItemId = UUID.randomUUID();
@@ -46,11 +49,14 @@ public class AddItemToOrderUseCaseTest {
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
         when(userRepository.findById(waiterId)).thenReturn(Optional.of(userEntity));
 
+        assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(0);
+
         OrderResponse response = sut.execute(orderId, request);
 
         assertThat(response).isNotNull();
         assertThat(orderEntity.getOrderItems().getFirst().getMenuItem().getName()).isEqualTo("X-Tudo");
         assertThat(orderEntity.getOrderItems().getFirst().getObservations()).isEqualTo("Sem milho");
+        assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(40);
         verify(orderRepository, times(1)).save(orderEntity);
     }
 }
