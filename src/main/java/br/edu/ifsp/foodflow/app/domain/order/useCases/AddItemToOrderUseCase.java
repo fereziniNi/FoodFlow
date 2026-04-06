@@ -35,6 +35,7 @@ public class AddItemToOrderUseCase {
         OrderItemEntity orderItem = validateOrderItem(item);
 
         order.addOrderItem(orderItem);
+        orderRepository.save(order);
         return new OrderResponse(order.getId(), order.getTable().getTableNumber(), order.getCreatedAt(), order.getActive(), order.getTotalPriceOfOrder());
     }
 
