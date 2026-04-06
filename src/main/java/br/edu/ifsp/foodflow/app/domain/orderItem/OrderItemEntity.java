@@ -20,7 +20,8 @@ public class OrderItemEntity {
     private List<AddOnEntity> additions;
     private UserEntity waiter;
     private String observations;
-    private OrderItemStatusENUM status;
+    private OrderItemStatus status;
+    private double price;
 
     public OrderItemEntity(UUID id, MenuItemEntity menuItem, List<AddOnEntity> additions, UserEntity waiter, String observations) {
         this.id = id;
@@ -28,6 +29,7 @@ public class OrderItemEntity {
         this.additions = additions;
         this.waiter = waiter;
         this.observations = observations;
-        this.status = OrderItemStatusENUM.PENDING;
+        this.status = OrderItemStatus.PENDING;
+        this.price = menuItem.getPrice() + additions.stream().mapToDouble(AddOnEntity::getPrice).sum();
     }
 }

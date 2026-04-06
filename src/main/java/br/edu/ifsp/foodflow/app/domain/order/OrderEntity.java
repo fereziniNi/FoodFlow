@@ -24,7 +24,7 @@ public class OrderEntity {
 
     public OrderEntity(TableEntity table) {
         if (table == null) {
-            throw new IllegalArgumentException("Um pedido não pode ser aberto sem uma mesa.");
+            throw new IllegalArgumentException("Uma comanda não pode ser aberta sem uma mesa.");
         }
         this.table = table;
         this.orderItems = new ArrayList<>();
@@ -34,5 +34,9 @@ public class OrderEntity {
 
     public void addOrderItem(OrderItemEntity item) {
         this.orderItems.add(item);
+    }
+
+    public double getTotalPriceOfOrder(){
+        return orderItems.stream().mapToDouble(OrderItemEntity::getPrice).sum();
     }
 }

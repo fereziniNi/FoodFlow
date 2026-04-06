@@ -10,10 +10,10 @@ public class TableEntity {
     @Id
     private Integer tableNumber;
     @Enumerated(EnumType.STRING)
-    private TableStatusENUM status;
+    private TableStatus status;
 
     public TableEntity(Integer number) {
         this.tableNumber = number;
-        this.status = TableStatusENUM.AVAILABLE;
+        this.status = TableStatus.AVAILABLE;
     }
 }
