@@ -39,8 +39,8 @@ public class AddItemToOrderUseCaseTest {
         UUID waiterId = UUID.randomUUID();
 
         TableEntity table = new TableEntity(10);
-        OrderEntity orderEntity = new OrderEntity(table);
         UserEntity userEntity = new UserEntity("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234");
+        OrderEntity orderEntity = new OrderEntity(table, userEntity);
 
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0);
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
@@ -54,6 +54,7 @@ public class AddItemToOrderUseCaseTest {
         OrderResponse response = sut.execute(orderId, request);
 
         assertThat(response).isNotNull();
+
         assertThat(orderEntity.getOrderItems().getFirst().getMenuItem().getName()).isEqualTo("X-Tudo");
         assertThat(orderEntity.getOrderItems().getFirst().getObservations()).isEqualTo("Sem milho");
         assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(40);

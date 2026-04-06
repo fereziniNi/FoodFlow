@@ -2,6 +2,7 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,12 +22,14 @@ public class OrderEntity {
     private List<OrderItemEntity> orderItems;
     private LocalDateTime createdAt;
     private Boolean active;
+    private UserEntity user;
 
-    public OrderEntity(TableEntity table) {
-        if (table == null) {
-            throw new IllegalArgumentException("Uma comanda não pode ser aberta sem uma mesa.");
-        }
+    public OrderEntity(TableEntity table, UserEntity user) {
+        if (table == null)throw new IllegalArgumentException("Um pedido não pode ser aberto sem uma mesa.");
+        if (user == null) throw new IllegalArgumentException("Um pedido deve ter um usuário responsável.");
+
         this.table = table;
+        this.user = user;
         this.orderItems = new ArrayList<>();
         this.createdAt = LocalDateTime.now();
         this.active = true;
