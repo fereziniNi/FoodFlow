@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.service;
+package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
@@ -6,7 +6,6 @@ import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
-import org.hibernate.query.Order;
 
 import java.util.UUID;
 

@@ -2,6 +2,7 @@ package br.edu.ifsp.foodflow.app.service;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+import br.edu.ifsp.foodflow.app.domain.order.useCases.OpenTableOrderService;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
@@ -122,7 +123,7 @@ class OpenTableOrderServiceTest {
     @DisplayName("Deve criar um pedido quando a mesa e o usuário existirem")
     void shouldCreateOrderWhenTableAndUserExist() {
         TableEntity table = new TableEntity(1);
-        UserEntity user = createExistingUser(); // sua função que cria o user
+        UserEntity user = createExistingUser();
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
