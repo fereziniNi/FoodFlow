@@ -106,4 +106,28 @@ class GetTableOrderUseCaseTest {
         assertEquals(0.0, result.getTotal());
     }
 
+    @Test
+    @DisplayName("Deve aplicar desconto correto no OrderDTO")
+    void shouldApplyDiscountCorrectly() {
+        UUID orderId = UUID.randomUUID();
+
+        TableEntity table = new TableEntity(1);
+        UserEntity user = new UserEntity("João Silva", "João", "joao@gmail.com", "1234");
+
+        OrderEntity order = new OrderEntity(table, user);
+
+        MenuItemEntity menuItem1 = new MenuItemEntity(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
+        OrderItemEntity item1 = new OrderItemEntity(UUID.randomUUID(), menuItem1, List.of(), user, "");
+
+        order.addOrderItem(item1);
+
+        when(orderRepository.findById(orderId))
+                .thenReturn(Optional.of(order));
+
+        OrderDTO result = service.getOrderById(orderId);
+
+        assertEquals(120.0, result.getTotal());
+        assertEquals(0.05, result.getDiscount());
+    }
+
 }
