@@ -103,12 +103,20 @@ public class AddItemToOrderUseCaseTest {
 
         OrderEntity mockOrder = mock(OrderEntity.class);
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
-        UserEntity userEntity = mock(UserEntity.class);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
 
         UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(orderId, request));
         assertEquals("O item solicitado encontra-se indisponível.", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda informada seja nula, quando o usuário tentar adicionar um item, então o " +
+                 "sistema deve disparar uma exceção informando que a comanda deve ser válida.")
+    void shouldThrowExceptionWhenOrderIdIsNull(){
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> sut.execute(null, request));
+        assertEquals("O ID do pedido não pode ser nulo", exception.getMessage());
     }
 }
