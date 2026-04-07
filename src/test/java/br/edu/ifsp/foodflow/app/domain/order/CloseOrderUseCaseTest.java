@@ -2,6 +2,10 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 
 import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import jakarta.persistence.Table;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +30,15 @@ public class CloseOrderUseCaseTest {
     @Mock
     private OrderRepository orderRepository;
 
+    private UserEntity user;
+    private  TableEntity table;
+
+    @BeforeEach
+    void setup(){
+        table = new TableEntity(1);
+        user = new UserEntity("João Silva","João","joao@gmail.com","1234");
+    }
+
 
     @Test
     @DisplayName("Dado que a comanda informada é nula, quando o cliente tentar fechá-la, então deve ser lançado " +
@@ -39,11 +52,23 @@ public class CloseOrderUseCaseTest {
     @Test
     @DisplayName("Dado que a comanda não existe, quando o cliente tentar fechá-la, então deve ser lançado um erro" +
             " de comanda inexistente")
-    void shouldThrowsIllegalArgumentExceptionWhenOrderNotExists(){
+    void shouldThrowsNoSuchElementExceptionWhenOrderNotExists(){
         UUID randomUUID = UUID.randomUUID();
         when(orderRepository.existsById(randomUUID)).thenReturn(false);
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda já está fechada, quando o cliente tentar fechá-la novamente, então um erro deve " +
+            "ser lançado informando que a comanda já está fechada.")
+    void shouldThrowsIllegalStateExceptionWhenOrderNotExists(){
+        UUID randomUUID = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(table,user);
+        order.markAsClosed();
+        when(orderRepository.existsById(randomUUID)).thenReturn(true);
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }
 
 }
