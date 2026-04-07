@@ -32,6 +32,9 @@ public class CloseOrderUseCase {
             throw new IllegalArgumentException("O número de pessoas para divisão do pedido deve ser maior que zero");
         }
 
+        order.markAsClosed();
+        orderRepository.save(order);
+
         double discount = order.getDiscountPercentage();
         double total = order.getTotalPriceOfOrder();
         double totalWithDiscount = total *(1 - discount);
