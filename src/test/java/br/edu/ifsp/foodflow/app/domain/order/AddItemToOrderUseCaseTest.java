@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -118,5 +119,15 @@ public class AddItemToOrderUseCaseTest {
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
         NullPointerException exception = assertThrows(NullPointerException.class, () -> sut.execute(null, request));
         assertEquals("O ID do pedido não pode ser nulo", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda informada seja inexistente, quando o usuário tentar adicionar um item, " +
+                 "então o sistema deve disparar uma exceção informando que a comanda deve ser válida.")
+    void shouldThrowExceptionWhenOrderIdNotExists(){
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> sut.execute(orderId, request));
+        assertEquals("Pedido não encontrado para o ID: " + orderId, exception.getMessage());
     }
 }
