@@ -32,7 +32,7 @@ public class CloseOrderUseCase {
 
         double discount = order.getDiscountPercentage();
         double total = order.getTotalPriceOfOrder();
-        double totalWithDiscount = total *(1 + discount);
+        double totalWithDiscount = total *(1 - discount);
         return new CloseOrderResponse(
                 orderId,
                 order.getTable().getTableNumber(),

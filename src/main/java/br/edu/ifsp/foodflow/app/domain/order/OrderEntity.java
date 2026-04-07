@@ -49,6 +49,8 @@ public class OrderEntity {
     }
 
     public double getDiscountPercentage() {
+        double total = getTotalPriceOfOrder();
+        if (total >= 100 && total < 200) return 0.05;
         return 0.0;
     }
 
