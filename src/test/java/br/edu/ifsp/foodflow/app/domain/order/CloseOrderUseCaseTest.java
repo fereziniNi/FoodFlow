@@ -191,9 +191,8 @@ public class CloseOrderUseCaseTest {
     }
 
     @Test
-    @DisplayName("Dado que a comanda está aberta, quando o cliente fechar a comanda informando N pessoas " +
-            "para divisão da conta, então deve ser disponibilizado um resumo de pagamento com o valor por " +
-            "pessoa igual ao total com desconto dividido por N.")
+    @DisplayName("Dado que a comanda está aberta, quando o cliente fechar a comanda, então a comanda " +
+            "deve ter seu status alterado para fechada.")
     void shouldMarkOrderAsClosedWhenOrderIsClosed() {
         order.addOrderItem(item);
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
