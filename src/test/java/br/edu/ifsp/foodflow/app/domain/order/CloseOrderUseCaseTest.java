@@ -70,4 +70,16 @@ public class CloseOrderUseCaseTest {
         assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }
 
+    @Test
+    @DisplayName("\n" +
+            "Como usuário, eu quero fechar a comanda e calcular o total com desconto podendo dividi-lo igualmente " +
+            "entre os clientes, para que cada um saiba o valor correto a pagar.")
+    void shouldThrowsIllegalArgumentExceptionWhenNumberOfPeopleIsLowerThan1(){
+        UUID randomUUID = UUID.randomUUID();
+        OrderEntity order = new OrderEntity(table,user);
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        assertThatIllegalArgumentException()
+                .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,-1));
+    }
+
 }
