@@ -2,6 +2,7 @@ package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -16,7 +17,7 @@ public class CloseOrderUseCase {
         this.orderRepository = orderRepository;
     }
 
-    public void closeOrder(UUID orderId, int numberOfPeople ){
+    public CloseOrderResponse closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
 
         OrderEntity order = orderRepository.findById(orderId)
@@ -28,6 +29,16 @@ public class CloseOrderUseCase {
         if(numberOfPeople < 1) {
             throw new IllegalArgumentException("O número de pessoas para divisão do pedido deve ser maior que zero");
         }
+
+        return new CloseOrderResponse(
+                orderId,
+                order.getTable().getTableNumber(),
+                order.getCreatedAt(),
+                0.0,
+                0.0,
+                0.0,
+                0.0
+        );
 
     }
 }
