@@ -6,7 +6,6 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 public class CloseOrderUseCase {
@@ -24,6 +23,9 @@ public class CloseOrderUseCase {
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID:" + orderId));
         if(!order.getActive()){
             throw new IllegalStateException("Pedido já finalizado para o ID:"+ orderId);
+        }
+        if(order.getOrderItems().isEmpty()){
+            throw new IllegalStateException("Pedido sem itens não pode ser finalizado para o ID:"+ orderId);
         }
 
         if(numberOfPeople < 1) {
