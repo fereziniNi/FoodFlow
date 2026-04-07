@@ -33,6 +33,7 @@ public class CloseOrderUseCase {
         }
 
         order.markAsClosed();
+        order.getTable().markAsAvailable();
         orderRepository.save(order);
 
         double discount = order.getDiscountPercentage();
