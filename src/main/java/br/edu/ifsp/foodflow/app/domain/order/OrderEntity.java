@@ -52,6 +52,7 @@ public class OrderEntity {
         double total = getTotalPriceOfOrder();
         if (total >= 100 && total < 200) return 0.05;
         if (total >= 200 && total < 250) return 0.10;
+        if (total >= 250) return 0.20;
         return 0.0;
     }
 
