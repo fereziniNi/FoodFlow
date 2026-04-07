@@ -32,7 +32,7 @@ class GetTableOrderUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> service.getOrderById(null));
 
-        assertEquals("O ID do pedido é obrigatório.", exception.getMessage());
+        assertEquals("O Id do pedido é obrigatório.", exception.getMessage());
     }
 
     @Test
@@ -43,7 +43,7 @@ class GetTableOrderUseCaseTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> service.getOrderById(notExistId));
 
-        assertEquals("Pedido não encontrada.", exception.getMessage());
+        assertEquals("Pedido não encontrado.", exception.getMessage());
     }
 
 }

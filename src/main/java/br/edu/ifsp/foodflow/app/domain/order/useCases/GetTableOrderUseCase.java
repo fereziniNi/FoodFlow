@@ -14,9 +14,9 @@ public class GetTableOrderUseCase {
 
 
     public OrderEntity getOrderById(UUID orderId){
-        if(orderId == null) throw new IllegalArgumentException("O ID da mesa é obrigatório.");
+        if(orderId == null) throw new IllegalArgumentException("O Id do pedido é obrigatório.");
 
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
     }
 }
