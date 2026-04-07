@@ -16,4 +16,11 @@ public class TableEntity {
         this.tableNumber = number;
         this.status = TableStatus.AVAILABLE;
     }
+
+    public void markAsAvailable() {
+        this.status = TableStatus.AVAILABLE;
+    }
+
+
+
 }
