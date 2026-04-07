@@ -11,6 +11,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 
 import java.util.*;
 
@@ -45,7 +46,7 @@ public class AddItemToOrderUseCase {
         MenuItemEntity menuItem = menuItemRepository.findById(item.menuItemId())
                 .orElseThrow(() -> new NoSuchElementException("Item do menu não encontrado para o ID: " + item.menuItemId()));
         UserEntity waiter = userRepository.findById(item.waiterId())
-                .orElseThrow(() -> new NoSuchElementException("Garçom não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("O garçom informado não foi encontrado."));
 
         List<AddOnEntity> addOns = new ArrayList<>();
         if (item.addOnIds() != null && !item.addOnIds().isEmpty()) {
