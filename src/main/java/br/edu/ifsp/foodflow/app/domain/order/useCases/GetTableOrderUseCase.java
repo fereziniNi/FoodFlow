@@ -2,6 +2,8 @@ package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.mapper.OrderMapper;
 
 import java.util.UUID;
 
@@ -13,10 +15,13 @@ public class GetTableOrderUseCase {
     }
 
 
-    public OrderEntity getOrderById(UUID orderId){
-        if(orderId == null) throw new IllegalArgumentException("O Id do pedido é obrigatório.");
+    public OrderDTO getOrderById(UUID orderId) {
+        if(orderId == null)
+            throw new IllegalArgumentException("O Id do pedido é obrigatório.");
 
-        return orderRepository.findById(orderId)
+        OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
+
+        return OrderMapper.toDTO(order);
     }
 }
