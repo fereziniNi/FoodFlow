@@ -8,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -129,5 +130,17 @@ public class AddItemToOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> sut.execute(orderId, request));
         assertEquals("Pedido não encontrado para o ID: " + orderId, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda informada esteja encerrada, quando o usuário tentar adicionar um item, " +
+                 "então receberá uma informação de que é impossível adicionar um item a uma " +
+                 "comanda encerrada e a operação não será concluída.")
+    void shouldThrowExceptionWhenAddOrderItemToAFinishedOrder(){
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        when(mock(OrderEntity.class).getActive()).thenReturn(false);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+        OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(orderId, request));
+        assertEquals("Pedido já finalizado para o ID: " + orderId, exception.getMessage());
     }
 }
