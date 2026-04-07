@@ -1,6 +1,8 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 
+import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
@@ -82,6 +84,16 @@ public class CloseOrderUseCaseTest {
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         assertThatIllegalArgumentException()
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,numberOfPeople));
+    }
+    @Test                                                                                                                                                                               @DisplayName("Dado que a comanda está aberta e o total é menor que R$ 100,00, quando o cliente fechar a comanda, " +                                                                        "então deve retornar o resumo sem desconto")
+    void shouldReturnCloseOrderResponseWithoutDiscount() {
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID,1);
+        assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(0);
+        assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0);
+        assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(0);
+        assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(0);
+
     }
 
 }
