@@ -9,6 +9,7 @@ import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,21 +28,28 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AddItemToOrderUseCaseTest {
+    private UUID orderId;
+    private UUID menuItemId;
+    private UUID waiterId;
+
     @Mock private OrderRepository orderRepository;
     @Mock private MenuItemRepository menuItemRepository;
     @Mock private UserRepository userRepository;
 
     @InjectMocks private AddItemToOrderUseCase sut;
 
+    @BeforeEach
+    void setup(){
+        orderId = UUID.randomUUID();
+        menuItemId = UUID.randomUUID();
+        waiterId = UUID.randomUUID();
+    }
+
     @Test
     @DisplayName("Dado que o usuário esteja registrado e uma determinada mesa possua uma comanda ativa, " +
                  "quando o usuário adicionar um item à comanda, então o item deve ser registrado " +
                  "na comanda e o preço da comanda ser atualizado.")
     void shouldAddItemAnExistingOrder(){
-        UUID orderId = UUID.randomUUID();
-        UUID menuItemId = UUID.randomUUID();
-        UUID waiterId = UUID.randomUUID();
-
         TableEntity table = new TableEntity(10);
         UserEntity userEntity = new UserEntity("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234");
         OrderEntity orderEntity = new OrderEntity(table, userEntity);
@@ -69,18 +77,14 @@ public class AddItemToOrderUseCaseTest {
     @DisplayName("Dado que o usuário não esteja registrado, quando tentar adicionar um item à alguma comanda, " +
                  "então a operação deve ser bloqueada e o sistema retornar erro de usuário não identificado.\n")
     void shouldThrowExceptionWhenWaiterIsNotRegistered() {
-        UUID orderId = UUID.randomUUID();
-        UUID menuItemId = UUID.randomUUID();
-        UUID unregisteredWaiterId = UUID.randomUUID();
-
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, unregisteredWaiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
         MenuItemEntity mockMenuItem = mock(MenuItemEntity.class);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(mockMenuItem));
-        when(userRepository.findById(unregisteredWaiterId)).thenReturn(Optional.empty());
+        when(userRepository.findById(waiterId)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(orderId, request));
 
