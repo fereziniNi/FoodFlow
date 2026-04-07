@@ -11,6 +11,9 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 
 import java.util.*;
 
@@ -32,6 +35,9 @@ public class AddItemToOrderUseCase {
         OrderEntity order = orderRepository.findById(orderUUID)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderUUID));
 
+        System.out.println(order.getActive());
+        if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderUUID);
+
         OrderItemEntity orderItem = validateOrderItem(item);
 
         order.addOrderItem(orderItem);
@@ -44,8 +50,11 @@ public class AddItemToOrderUseCase {
 
         MenuItemEntity menuItem = menuItemRepository.findById(item.menuItemId())
                 .orElseThrow(() -> new NoSuchElementException("Item do menu não encontrado para o ID: " + item.menuItemId()));
+
+        if (menuItem.getAvailableQuantity() <= 0) throw new UnavailableItemException("O item solicitado encontra-se indisponível.");
+
         UserEntity waiter = userRepository.findById(item.waiterId())
-                .orElseThrow(() -> new NoSuchElementException("Garçom não encontrado."));
+                .orElseThrow(() -> new UserNotFoundException("O garçom informado não foi encontrado."));
 
         List<AddOnEntity> addOns = new ArrayList<>();
         if (item.addOnIds() != null && !item.addOnIds().isEmpty()) {
