@@ -24,6 +24,8 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda informada é nula, quando o cliente tentar fechá-la, então deve ser lançado " +
             "um erro de comanda nula")
     void shouldThrowsNullPointerExceptionWhenOrderIdIsNull(){
-        assertThatNullPointerException().isThrownBy(()->closeOrderUseCase.closeOrder(null,2));
+        assertThatNullPointerException()
+                .isThrownBy(()->closeOrderUseCase.closeOrder(null,2))
+                .withMessage("O ID do pedido não pode ser nulo");
     }
 }
