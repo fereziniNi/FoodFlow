@@ -79,15 +79,29 @@ public class CloseOrderUseCaseTest {
         assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }
 
+    @Test
+    @DisplayName("Dado que a comanda está aberta e não possui itens, quando o cliente tentar fechar a comanda, " +
+            "então deve ser lançado um erro informando que a comanda não possui itens.")
+    void shouldReturnIllegalStateExceptionWhenOrderNotHaveItems() {
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
+    }
+
+
     @ParameterizedTest(name = "[{index}]: número de pessoas igual a {0} should throws IllegalArgumentException")
     @ValueSource(ints = {-1,0})
     @DisplayName("Dado que a comanda está aberta e o número de pessoas informado para divisão da conta é zero" +
             " ou negativo, quando o cliente tentar fechar a comanda, deve ser lançado um erro de argumento inválido")
     void shouldThrowsIllegalArgumentExceptionWhenNumberOfPeopleIsLowerThan1(int numberOfPeople){
+        MenuItemEntity menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "desc", 80.0);
+        OrderItemEntity item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
+        order.addOrderItem(item);
+
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         assertThatIllegalArgumentException()
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,numberOfPeople));
     }
+
     @Test
     @DisplayName("Dado que a comanda está aberta e o total está abaixo de R$ 100,00, quando o cliente fechar a comanda," +
             "deve ser disponibilizado um resumo de pagamento sem desconto aplicado"  )
