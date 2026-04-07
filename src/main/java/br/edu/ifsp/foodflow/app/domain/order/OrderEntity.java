@@ -48,4 +48,9 @@ public class OrderEntity {
         return orderItems.stream().mapToDouble(OrderItemEntity::getPrice).sum();
     }
 
+    public double getDiscountPercentage() {
+        return 0.0;
+    }
+
+
 }

@@ -30,14 +30,17 @@ public class CloseOrderUseCase {
             throw new IllegalArgumentException("O número de pessoas para divisão do pedido deve ser maior que zero");
         }
 
+        double discount = order.getDiscountPercentage();
+        double total = order.getTotalPriceOfOrder();
+        double totalWithDiscount = total *(1 + discount);
         return new CloseOrderResponse(
                 orderId,
                 order.getTable().getTableNumber(),
                 order.getCreatedAt(),
-                0.0,
-                0.0,
-                0.0,
-                0.0
+                total,
+                discount,
+                totalWithDiscount,
+                totalWithDiscount/numberOfPeople
         );
 
     }
