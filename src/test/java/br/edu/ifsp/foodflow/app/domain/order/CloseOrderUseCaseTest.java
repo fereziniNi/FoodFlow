@@ -1,9 +1,11 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import jakarta.persistence.Table;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,14 +88,20 @@ public class CloseOrderUseCaseTest {
         assertThatIllegalArgumentException()
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,numberOfPeople));
     }
-    @Test                                                                                                                                                                               @DisplayName("Dado que a comanda está aberta e o total é menor que R$ 100,00, quando o cliente fechar a comanda, " +                                                                        "então deve retornar o resumo sem desconto")
+    @Test
+    @DisplayName("Dado que a comanda está aberta e o total está abaixo de R$ 100,00, quando o cliente fechar a comanda," +
+            "deve ser disponibilizado um resumo de pagamento sem desconto aplicado"  )
     void shouldReturnCloseOrderResponseWithoutDiscount() {
+        MenuItemEntity menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "desc", 80.0);
+        OrderItemEntity item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
+        order.addOrderItem(item);
+
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID,1);
-        assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(0);
+        assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(80);
         assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0);
-        assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(0);
-        assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(0);
+        assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(80.00);
+        assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(80.00);
 
     }
 
