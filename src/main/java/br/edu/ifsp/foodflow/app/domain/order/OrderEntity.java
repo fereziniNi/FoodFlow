@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,7 +40,21 @@ public class OrderEntity {
         this.orderItems.add(item);
     }
 
+    public void markAsClosed(){
+        this.active = false;
+    }
+
     public double getTotalPriceOfOrder(){
         return orderItems.stream().mapToDouble(OrderItemEntity::getPrice).sum();
     }
+
+    public double getDiscountPercentage() {
+        double total = getTotalPriceOfOrder();
+        if (total >= 250) return 0.20;
+        if (total >= 200) return 0.10;
+        if (total >= 100) return 0.05;
+        return 0.0;
+    }
+
+
 }
