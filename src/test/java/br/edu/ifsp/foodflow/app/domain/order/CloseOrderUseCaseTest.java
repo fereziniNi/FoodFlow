@@ -54,7 +54,7 @@ public class CloseOrderUseCaseTest {
             " de comanda inexistente")
     void shouldThrowsNoSuchElementExceptionWhenOrderNotExists(){
         UUID randomUUID = UUID.randomUUID();
-        when(orderRepository.existsById(randomUUID)).thenReturn(false);
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.empty());
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }
@@ -66,7 +66,6 @@ public class CloseOrderUseCaseTest {
         UUID randomUUID = UUID.randomUUID();
         OrderEntity order = new OrderEntity(table,user);
         order.markAsClosed();
-        when(orderRepository.existsById(randomUUID)).thenReturn(true);
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }

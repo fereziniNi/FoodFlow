@@ -18,11 +18,10 @@ public class CloseOrderUseCase {
 
     public void closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
-        if(!orderRepository.existsById(orderId))
-            throw new NoSuchElementException("Pedido não encontrado para o ID:" + orderId);
 
-        Optional<OrderEntity> order = orderRepository.findById(orderId);
-        if(!order.get().getActive()){
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID:" + orderId));
+        if(!order.getActive()){
             throw new IllegalStateException("Pedido já finalizado para o ID:"+ orderId);
         }
 
