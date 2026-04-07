@@ -9,9 +9,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,12 +34,16 @@ public class CloseOrderUseCaseTest {
     private OrderRepository orderRepository;
 
     private UserEntity user;
-    private  TableEntity table;
+    private TableEntity table;
+    private OrderEntity order;
+    private UUID randomUUID;
 
     @BeforeEach
     void setup(){
+        randomUUID = UUID.randomUUID();
         table = new TableEntity(1);
         user = new UserEntity("João Silva","João","joao@gmail.com","1234");
+        order = new OrderEntity(table,user);
     }
 
 
@@ -53,7 +60,6 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda não existe, quando o cliente tentar fechá-la, então deve ser lançado um erro" +
             " de comanda inexistente")
     void shouldThrowsNoSuchElementExceptionWhenOrderNotExists(){
-        UUID randomUUID = UUID.randomUUID();
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.empty());
         assertThatExceptionOfType(NoSuchElementException.class)
                 .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
@@ -63,23 +69,19 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda já está fechada, quando o cliente tentar fechá-la novamente, então um erro deve " +
             "ser lançado informando que a comanda já está fechada.")
     void shouldThrowsIllegalStateExceptionWhenOrderNotExists(){
-        UUID randomUUID = UUID.randomUUID();
-        OrderEntity order = new OrderEntity(table,user);
         order.markAsClosed();
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         assertThatIllegalStateException().isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,2));
     }
 
-    @Test
-    @DisplayName("\n" +
-            "Como usuário, eu quero fechar a comanda e calcular o total com desconto podendo dividi-lo igualmente " +
-            "entre os clientes, para que cada um saiba o valor correto a pagar.")
-    void shouldThrowsIllegalArgumentExceptionWhenNumberOfPeopleIsLowerThan1(){
-        UUID randomUUID = UUID.randomUUID();
-        OrderEntity order = new OrderEntity(table,user);
+    @ParameterizedTest(name = "[{index}]: número de pessoas igual a {0} should throws IllegalArgumentException")
+    @ValueSource(ints = {-1,0})
+    @DisplayName("Dado que a comanda está aberta e o número de pessoas informado para divisão da conta é zero" +
+            " ou negativo, quando o cliente tentar fechar a comanda, deve ser lançado um erro de argumento inválido")
+    void shouldThrowsIllegalArgumentExceptionWhenNumberOfPeopleIsLowerThan1(int numberOfPeople){
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         assertThatIllegalArgumentException()
-                .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,-1));
+                .isThrownBy(()->closeOrderUseCase.closeOrder(randomUUID,numberOfPeople));
     }
 
 }
