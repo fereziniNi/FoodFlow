@@ -25,6 +25,9 @@ public class CloseOrderUseCase {
             throw new IllegalStateException("Pedido já finalizado para o ID:"+ orderId);
         }
 
+        if(numberOfPeople < 1) {
+            throw new IllegalArgumentException("O número de pessoas para divisão do pedido deve ser maior que zero");
+        }
 
     }
 }
