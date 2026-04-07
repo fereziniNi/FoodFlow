@@ -82,4 +82,28 @@ class GetTableOrderUseCaseTest {
         assertEquals(100.0, result.getTotal());
     }
 
+    @Test
+    @DisplayName("Deve retornar OrderDTO com lista de itens vazia quando o pedido não tiver itens")
+    void shouldReturnEmptyItemsWhenOrderHasNoItems() {
+        UUID orderId = UUID.randomUUID();
+
+        TableEntity table = new TableEntity(1);
+        UserEntity user = new UserEntity("João Silva", "João", "joao@gmail.com", "1234");
+
+        OrderEntity order = new OrderEntity(table, user);
+
+        when(orderRepository.findById(orderId))
+                .thenReturn(Optional.of(order));
+
+        OrderDTO result = service.getOrderById(orderId);
+
+        assertNotNull(result);
+        assertEquals(order.getId(), result.getOrderId());
+        assertEquals(table.getTableNumber(), result.getTableNumber());
+        assertEquals(user.getName(), result.getUserName());
+        assertNotNull(result.getItems());
+        assertTrue(result.getItems().isEmpty());
+        assertEquals(0.0, result.getTotal());
+    }
+
 }
