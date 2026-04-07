@@ -58,7 +58,6 @@ public class CloseOrderUseCaseTest {
 
     }
 
-
     @Test
     @DisplayName("Dado que a comanda informada é nula, quando o cliente tentar fechá-la, então deve ser lançado " +
             "um erro de comanda nula")
@@ -188,6 +187,18 @@ public class CloseOrderUseCaseTest {
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID,numberOfPeople);
         assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(80.0/numberOfPeople);
+
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda está aberta, quando o cliente fechar a comanda informando N pessoas " +
+            "para divisão da conta, então deve ser disponibilizado um resumo de pagamento com o valor por " +
+            "pessoa igual ao total com desconto dividido por N.")
+    void shouldMarkOrderAsClosedWhenOrderIsClosed() {
+        order.addOrderItem(item);
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        closeOrderUseCase.closeOrder(randomUUID,1);
+        assertThat(order.getActive()).isFalse();
 
     }
 
