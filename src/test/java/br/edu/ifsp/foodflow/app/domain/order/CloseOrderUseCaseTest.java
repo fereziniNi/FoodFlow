@@ -7,6 +7,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import jakarta.persistence.Table;
 import org.junit.jupiter.api.BeforeEach;
@@ -198,6 +199,17 @@ public class CloseOrderUseCaseTest {
         when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
         closeOrderUseCase.closeOrder(randomUUID,1);
         assertThat(order.getActive()).isFalse();
+
+    }
+
+    @Test
+    @DisplayName("Dado que a comanda está aberta, quando o cliente fechar a comanda, então a mesa "+
+            "deve ter seu status alterado para disponível.")
+    void shouldMarkTableAsAvailableWhenOrderIsClosed() {
+        order.addOrderItem(item);
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        closeOrderUseCase.closeOrder(randomUUID,1);
+        assertThat(order.getTable().getStatus()).isEqualTo(TableStatus.AVAILABLE);
 
     }
 
