@@ -15,11 +15,13 @@ public class MenuItemEntity {
     private String name;
     private String description;
     private Double price;
+    private Integer availableQuantity;
 
-    public MenuItemEntity(UUID id, String name, String description, Double price) {
+    public MenuItemEntity(UUID id, String name, String description, Double price, Integer availableQuantity) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.availableQuantity = availableQuantity;
     }
 }

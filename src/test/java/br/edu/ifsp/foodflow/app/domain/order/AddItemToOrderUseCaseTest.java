@@ -8,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,7 +54,7 @@ public class AddItemToOrderUseCaseTest {
         UserEntity userEntity = new UserEntity("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234");
         OrderEntity orderEntity = new OrderEntity(table, userEntity);
 
-        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0);
+        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
@@ -80,10 +80,10 @@ public class AddItemToOrderUseCaseTest {
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
-        MenuItemEntity mockMenuItem = mock(MenuItemEntity.class);
+        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
-        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(mockMenuItem));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
         when(userRepository.findById(waiterId)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(orderId, request));
@@ -107,7 +107,6 @@ public class AddItemToOrderUseCaseTest {
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
-        when(userRepository.findById(waiterId)).thenReturn(Optional.of(userEntity));
 
         UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(orderId, request));
         assertEquals("O item solicitado encontra-se indisponível.", exception.getMessage());
