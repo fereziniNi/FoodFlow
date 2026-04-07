@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GetTableOrderUseCaseTest {
     @InjectMocks
-    private GetTableOrderUseCase service = new GetTableOrderUseCase();
+    private GetTableOrderUseCase service;
 
     @Mock
     private OrderRepository orderRepository;
