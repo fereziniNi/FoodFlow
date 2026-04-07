@@ -9,12 +9,12 @@ import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 
 import java.util.UUID;
 
-public class OpenTableOrderService {
+public class OpenTableOrderUseCase {
     private final TableRepository tableRepository;
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
 
-    public OpenTableOrderService(TableRepository tableRepository, OrderRepository orderRepository, UserRepository userRepository) {
+    public OpenTableOrderUseCase(TableRepository tableRepository, OrderRepository orderRepository, UserRepository userRepository) {
         this.tableRepository = tableRepository;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
