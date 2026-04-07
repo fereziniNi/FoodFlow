@@ -1,11 +1,23 @@
 package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
 public class CloseOrderUseCase {
 
+    private final OrderRepository orderRepository;
+
+    public CloseOrderUseCase(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+
     public void closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
+        if(!orderRepository.existsById(orderId))
+            throw new NoSuchElementException("Pedido não encontrado para o ID:" + orderId);
+
     }
 }
