@@ -82,6 +82,7 @@ public class AddItemToOrderUseCaseTest {
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
+        when(mockOrder.getActive()).thenReturn(true);
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
@@ -104,6 +105,7 @@ public class AddItemToOrderUseCaseTest {
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
+        when(mockOrder.getActive()).thenReturn(true);
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
@@ -138,8 +140,9 @@ public class AddItemToOrderUseCaseTest {
                  "comanda encerrada e a operação não será concluída.")
     void shouldThrowExceptionWhenAddOrderItemToAFinishedOrder(){
         AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
-        when(mock(OrderEntity.class).getActive()).thenReturn(false);
-        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+        OrderEntity mockOrder = mock(OrderEntity.class);
+        when(mockOrder.getActive()).thenReturn(false);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(orderId, request));
         assertEquals("Pedido já finalizado para o ID: " + orderId, exception.getMessage());
     }
