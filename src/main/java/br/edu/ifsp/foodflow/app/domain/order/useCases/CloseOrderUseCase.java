@@ -6,6 +6,6 @@ import java.util.UUID;
 public class CloseOrderUseCase {
 
     public void closeOrder(UUID orderId, int numberOfPeople ){
-        Objects.requireNonNull(orderId);
+        Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
     }
 }
