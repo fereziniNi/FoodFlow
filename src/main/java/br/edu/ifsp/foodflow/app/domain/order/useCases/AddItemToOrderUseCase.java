@@ -11,6 +11,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 
@@ -33,6 +34,9 @@ public class AddItemToOrderUseCase {
         Objects.requireNonNull(orderUUID, "O ID do pedido não pode ser nulo");
         OrderEntity order = orderRepository.findById(orderUUID)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderUUID));
+
+        System.out.println(order.getActive());
+        if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderUUID);
 
         OrderItemEntity orderItem = validateOrderItem(item);
 
