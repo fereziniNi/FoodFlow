@@ -93,4 +93,23 @@ public class AddItemToOrderUseCaseTest {
         verify(orderRepository, never()).save(any());
         verify(mockOrder, never()).addOrderItem(any());
     }
+
+    @Test
+    @DisplayName("Dado que uma mesa possua uma comanda ativa e um item esteja marcado como indisponível, " +
+                 "quando o usuário tentar adicionar esse item à comanda, então a operação deve falhar e " +
+                 "o sistema informar a indisponibilidade do produto.")
+    void shouldThrowExceptionWhenItemIsUnavailable(){
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+
+        OrderEntity mockOrder = mock(OrderEntity.class);
+        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
+        UserEntity userEntity = mock(UserEntity.class);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
+        when(userRepository.findById(waiterId)).thenReturn(Optional.of(userEntity));
+
+        UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(orderId, request));
+        assertEquals("O item solicitado encontra-se indisponível.", exception.getMessage());
+    }
 }
