@@ -8,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,10 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,5 +63,30 @@ public class AddItemToOrderUseCaseTest {
         assertThat(orderEntity.getOrderItems().getFirst().getObservations()).isEqualTo("Sem milho");
         assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(40);
         verify(orderRepository, times(1)).save(orderEntity);
+    }
+
+    @Test
+    @DisplayName("Dado que o usuário não esteja registrado, quando tentar adicionar um item à alguma comanda, " +
+                 "então a operação deve ser bloqueada e o sistema retornar erro de usuário não identificado.\n")
+    void shouldThrowExceptionWhenWaiterIsNotRegistered() {
+        UUID orderId = UUID.randomUUID();
+        UUID menuItemId = UUID.randomUUID();
+        UUID unregisteredWaiterId = UUID.randomUUID();
+
+        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, unregisteredWaiterId);
+
+        OrderEntity mockOrder = mock(OrderEntity.class);
+        MenuItemEntity mockMenuItem = mock(MenuItemEntity.class);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(mockMenuItem));
+        when(userRepository.findById(unregisteredWaiterId)).thenReturn(Optional.empty());
+
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(orderId, request));
+
+        assertEquals("O garçom informado não foi encontrado.", exception.getMessage());
+
+        verify(orderRepository, never()).save(any());
+        verify(mockOrder, never()).addOrderItem(any());
     }
 }
