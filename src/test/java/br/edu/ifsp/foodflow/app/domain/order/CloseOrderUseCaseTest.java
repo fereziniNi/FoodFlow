@@ -108,7 +108,7 @@ public class CloseOrderUseCaseTest {
     @Test
     @DisplayName("Dado que a comanda está aberta e o total está entre R$ 100,00 e R$ 199,99, quando o cliente fechar " +
             "a comanda, deve ser disponibilizado um resumo de pagamento com 5% de desconto aplicado."  )
-    void shouldReturnCloseOrderResponseWithDiscountOf5Percent() {
+    void shouldReturnCloseOrderResponseWithDiscountOfFivePercent() {
         MenuItemEntity menuItem = new MenuItemEntity(UUID.randomUUID(), "Pizza", "marguerita", 80.0);
         OrderItemEntity item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
 
@@ -124,6 +124,31 @@ public class CloseOrderUseCaseTest {
         CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID,2);
         assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(130);
         assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0.05);
+        assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
+        assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(totalWithDiscount/2);
+
+    }
+
+
+    @Test
+    @DisplayName("Dado que a comanda está aberta e o total está entre R$ 200,00 e R$ 249,99, quando o cliente fechar " +
+            "a comanda, deve ser disponibilizado um resumo de pagamento com 10% de desconto aplicado"  )
+    void shouldReturnCloseOrderResponseWithDiscountTenPercent() {
+        MenuItemEntity menuItem = new MenuItemEntity(UUID.randomUUID(), "Pizza", "marguerita", 80.0);
+        OrderItemEntity item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
+
+        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 140.0);
+        OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+
+        order.addOrderItem(item);
+        order.addOrderItem(item2);
+
+        double totalWithDiscount = 220*0.90;
+
+        when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+        CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID,2);
+        assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(220);
+        assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0.10);
         assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
         assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(totalWithDiscount/2);
 
