@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@AllArgsConstructor
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,6 +40,10 @@ public class OrderEntity {
 
     public void addOrderItem(OrderItemEntity item) {
         this.orderItems.add(item);
+    }
+
+    public void removeOrderItem(OrderItemEntity item){
+        this.orderItems.remove(item);
     }
 
     public void markAsClosed(){
