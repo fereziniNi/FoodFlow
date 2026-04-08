@@ -44,6 +44,9 @@ public class OrderEntity {
     }
 
     public void removeOrderItem(OrderItemEntity item){
+        if (!this.active)
+            throw new IllegalStateException("Não é possível alterar uma comanda já encerrada.");
+
         if (item.getStatus() != OrderItemStatus.PENDING)
             throw new IllegalStateException("Não é possível remover um item que já está em preparo ou finalizado.");
         this.orderItems.remove(item);
