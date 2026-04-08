@@ -5,6 +5,7 @@ import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,7 +112,7 @@ class OpenTableOrderUseCaseTest {
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> service.openOrder(1, aleatoryId));
 
         assertEquals("Usuário não encontrado", exception.getMessage());
