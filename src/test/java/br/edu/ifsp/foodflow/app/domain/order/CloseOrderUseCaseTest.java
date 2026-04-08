@@ -8,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -85,7 +86,7 @@ public class CloseOrderUseCaseTest {
         void shouldThrowsIllegalStateExceptionWhenOrderNotExists() {
             order.markAsClosed();
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            assertThatIllegalStateException().isThrownBy(() -> closeOrderUseCase.closeOrder(randomUUID, 2));
+            assertThatExceptionOfType(OrderAlreadyClosedException.class).isThrownBy(() -> closeOrderUseCase.closeOrder(randomUUID, 2));
         }
 
         @Test
