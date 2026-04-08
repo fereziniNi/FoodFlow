@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -150,6 +152,23 @@ class OpenTableOrderUseCaseTest {
 
             assertNotNull(order, "A ordem não deve ser nula");
             assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");
+        }
+    }
+
+    @Nested
+    @Tag("Functional")
+    @DisplayName("Testes criados com a técnica funcional")
+    class FunctionalTests{
+        @ParameterizedTest
+        @CsvSource({"-1","0"})
+        @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for negativo ou zero")
+        void shouldThrowExceptionForInvalidTableId(int invalidTableId) {
+            UUID validUserId = UUID.randomUUID();
+
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> service.openOrder(invalidTableId, validUserId));
+
+            assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
         }
     }
 }
