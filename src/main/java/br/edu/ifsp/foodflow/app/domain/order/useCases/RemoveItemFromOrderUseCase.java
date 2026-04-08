@@ -12,6 +12,7 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 public class RemoveItemFromOrderUseCase {
@@ -25,6 +26,8 @@ public class RemoveItemFromOrderUseCase {
 
     public OrderResponse execute(RemoveItemFromOrderRequest request){
         UUID orderId = request.orderId();
+        Objects.requireNonNull(orderId, "O ID da comanda é obrigatório e deve ser válido.");
+
         UUID orderItemId = request.orderItemId();
 
         OrderEntity order = orderRepository.findById(orderId)
