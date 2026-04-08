@@ -4,6 +4,7 @@ import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.order.mapper.OrderMapper;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class GetOrderUseCase {
             throw new IllegalArgumentException("O Id do pedido é obrigatório.");
 
         OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
 
         return OrderMapper.toDTO(order);
     }
