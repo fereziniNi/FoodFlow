@@ -3,6 +3,7 @@ package br.edu.ifsp.foodflow.app.domain.order.useCases;
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -22,7 +23,7 @@ public class CloseOrderUseCase {
         OrderEntity order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID:" + orderId));
         if(!order.getActive()){
-            throw new IllegalStateException("Pedido já finalizado para o ID:"+ orderId);
+            throw new OrderAlreadyClosedException("Pedido já finalizado para o ID:"+ orderId);
         }
         if(order.getOrderItems().isEmpty()){
             throw new IllegalStateException("Pedido sem itens não pode ser finalizado para o ID:"+ orderId);
