@@ -251,6 +251,16 @@ public class CloseOrderUseCaseTest {
 
 
         }
+        @Test
+        @DisplayName("Deve retornar o valor correto por pessoa ao dividir a comanda com número" +
+                "de pessoas acima do limite mínimo válido")
+        void shouldReturnCorrectTotalPerPersonWhenNumberOfPeopleIsAboveMinimumBoundary(){
+            order.addOrderItem(item);
+            when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 2);
+            assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(80.0 / 2);
+
+        }
 
     }
 
