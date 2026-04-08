@@ -138,4 +138,20 @@ public class RemoveItemFromOrderUseCaseTest {
         assertEquals(35.0, order.getTotalPriceOfOrder(), "O preço interno da entidade deve ser atualizado para 35.0");
         assertEquals(1, order.getOrderItems().size());
     }
+
+    @Test
+    @DisplayName("Dado que o ID da comanda no request é nulo, quando o usuário tentar remover um item, " +
+                 "então o sistema deve lançar uma IllegalArgumentException.")
+    void shouldThrowExceptionWhenOrderIdIsNull() {
+        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(null, orderItemId);
+
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> {
+            sut.execute(request);
+        });
+
+        assertEquals("O ID da comanda é obrigatório e deve ser válido.", exception.getMessage());
+
+        verifyNoInteractions(orderRepository);
+        verifyNoInteractions(orderItemRepository);
+    }
 }
