@@ -59,8 +59,8 @@ public class CloseOrderUseCaseTest {
     }
 
     @Nested
-    @DisplayName("Testes criados com TDD")
     @Tag("TDD")
+    @DisplayName("Testes criados com TDD")
     class TDDTests {
 
         @Test
@@ -220,9 +220,10 @@ public class CloseOrderUseCaseTest {
 
         }
     }
+
     @Nested
-    @DisplayName("Testes criados com a técnica funcional")
     @Tag("Functional")
+    @DisplayName("Testes criados com a técnica funcional")
     class FunctionalTests{
         @ParameterizedTest
         @CsvSource(value = {
