@@ -154,4 +154,30 @@ public class RemoveItemFromOrderUseCaseTest {
         verifyNoInteractions(orderRepository);
         verifyNoInteractions(orderItemRepository);
     }
+
+    @Test
+    @DisplayName("Dado que a comanda esteja encerrada, quando o usuário tentar remover um item, " +
+                 "então o sistema deve bloquear a ação lançando uma exceção.")
+    void shouldThrowExceptionWhenRemovingItemFromClosedOrder() {
+        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        OrderItemEntity itemToRemove = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
+
+        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemToRemove));
+        TableEntity table = new TableEntity(10);
+        UserEntity waiter = mock(UserEntity.class);
+
+        OrderEntity closedOrder = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), false, waiter);
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(closedOrder));
+        when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
+
+        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(orderId, orderItemId);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            sut.execute(request);
+        });
+
+        assertEquals("Não é possível alterar uma comanda já encerrada.", exception.getMessage());
+        verify(orderRepository, never()).save(any());
+    }
 }
