@@ -109,4 +109,33 @@ public class RemoveItemFromOrderUseCaseTest {
 
         verify(orderRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Dado que a comanda de uma mesa tenha um total pré-calculado, quando o usuário remover um item, " +
+                 "então o preço da comanda é atualizado para o novo total.")
+    void shouldUpdateOrderTotalPriceWhenItemIsRemoved() {
+        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        MenuItemEntity xTudo = new MenuItemEntity(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
+
+        OrderItemEntity itemToRemove = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        OrderItemEntity itemToKeep = new OrderItemEntity(otherOrderItemId, xTudo, new ArrayList<>(), null, "");
+
+        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemToRemove, itemToKeep));
+
+        TableEntity table = new TableEntity(10);
+        UserEntity waiter = mock(UserEntity.class);
+
+        OrderEntity order = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+        assertEquals(55.0, order.getTotalPriceOfOrder(), "O total inicial da comanda deveria ser 55.0");
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
+
+        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(orderId, orderItemId);
+        OrderResponse response = sut.execute(request);
+
+        assertEquals(35.0, response.total(), "O preço na resposta do UseCase deve ser atualizado para 35.0");
+        assertEquals(35.0, order.getTotalPriceOfOrder(), "O preço interno da entidade deve ser atualizado para 35.0");
+        assertEquals(1, order.getOrderItems().size());
+    }
 }
