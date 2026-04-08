@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -86,6 +87,7 @@ public class RemoveItemFromOrderUseCaseTest {
         MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
 
         OrderItemEntity itemInPreparation = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        itemInPreparation.upgradeProgress();
 
         TableEntity table = new TableEntity(10);
         UserEntity waiter = mock(UserEntity.class);
@@ -102,6 +104,7 @@ public class RemoveItemFromOrderUseCaseTest {
             sut.execute(request);
         });
 
+        assertThat(itemInPreparation.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
         assertEquals("Não é possível remover um item que já está em preparo ou finalizado.", exception.getMessage());
 
         verify(orderRepository, never()).save(any());
