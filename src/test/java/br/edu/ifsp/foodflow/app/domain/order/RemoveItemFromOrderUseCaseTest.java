@@ -1,5 +1,6 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOnEntity;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
@@ -179,5 +180,32 @@ public class RemoveItemFromOrderUseCaseTest {
 
         assertEquals("Não é possível alterar uma comanda já encerrada.", exception.getMessage());
         verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Dado que um item possua adicionais, quando o usuário remover o item, " +
+            "então o valor do item e dos adicionais deve ser subtraído do total da comanda.")
+    void shouldUpdateTotalIncludingAddOnsWhenItemIsRemoved() {
+        AddOnEntity extraCheese = new AddOnEntity(UUID.randomUUID(), "Queijo Extra", 5.0);
+
+        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Base", 20.0, 10);
+
+        OrderItemEntity itemWithAddOn = new OrderItemEntity(
+                orderItemId,
+                xBurguer,
+                new ArrayList<>(List.of(extraCheese)),
+                null,
+                ""
+        );
+
+        List<OrderItemEntity> items = new ArrayList<>(List.of(itemWithAddOn));
+        OrderEntity order = new OrderEntity(orderId, new TableEntity(1), items, LocalDateTime.now(), true, mock(UserEntity.class));
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemWithAddOn));
+
+        sut.execute(new RemoveItemFromOrderRequest(orderId, orderItemId));
+
+        assertEquals(0.0, order.getTotalPriceOfOrder(), "O total da comanda deveria ser 0.0 após remover o item e seus adicionais.");
     }
 }
