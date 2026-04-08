@@ -66,9 +66,14 @@ public class RemoveItemFromOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(menuItemId)).thenReturn(Optional.of(itemXburguer));
 
-        OrderResponse response = sut.execute(new RemoveItemFromOrderRequest(orderId, menuItemId));
+        assertEquals(2, order.getOrderItems().size());
+        assertEquals(55, order.getTotalPriceOfOrder());
+
+        sut.execute(new RemoveItemFromOrderRequest(orderId, menuItemId));
 
         assertEquals(1, order.getOrderItems().size());
+        assertEquals(35, order.getTotalPriceOfOrder());
+
         assertFalse(order.getOrderItems().stream()
                 .anyMatch(item -> item.getMenuItem().getId().equals(menuItemId)));
 
