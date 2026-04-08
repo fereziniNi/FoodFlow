@@ -2,7 +2,11 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
+import br.edu.ifsp.foodflow.app.domain.order.useCases.RemoveItemFromOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
@@ -10,8 +14,10 @@ import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,14 +29,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class RemoveItemFromOrderUseCaseTest {
     private UUID orderId;
     private UUID menuItemId;
     private UUID otherMenuItemId;
 
     @Mock private OrderRepository orderRepository;
-    @Mock private MenuItemRepository menuItemRepository;
-    @Mock private UserRepository userRepository;
+    @Mock private OrderItemRepository orderItemRepository;
     @InjectMocks private RemoveItemFromOrderUseCase sut;
 
     @BeforeEach
@@ -44,13 +50,12 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que o usuário esteja registrado e uma mesa possua uma comanda ativa e possua um item adicionado, " +
                  "quando o garçom solicitar a remoção do item, então o item deve ser removido da comanda.")
     void shouldRemoveItemFromOrder(){
-        MenuItemEntity xBurguer = new MenuItemEntity(menuItemId, "X-Burguer", "Delicioso", 20.0, 10);
-        MenuItemEntity xTudo = new MenuItemEntity(otherMenuItemId, "X-Tudo", "Monstro", 35.0, 5);
+        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        MenuItemEntity xTudo = new MenuItemEntity(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
 
-        OrderItemEntity itemXburguer = new OrderItemEntity(UUID.randomUUID(), xBurguer, new ArrayList<>(), null, "", 20.0);
-        OrderItemEntity itemXtudo = new OrderItemEntity(UUID.randomUUID(), xTudo, new ArrayList<>(), null, "", 35.0);
+        OrderItemEntity itemXburguer = new OrderItemEntity(menuItemId, xBurguer, new ArrayList<>(), null, "");
+        OrderItemEntity itemXtudo = new OrderItemEntity(otherMenuItemId, xTudo, new ArrayList<>(), null, "");
 
-        // Lista mutável para o pedido (List.of() cria uma lista imutável, o que faria o remove() falhar)
         List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemXtudo, itemXburguer));
 
         TableEntity table = new TableEntity(10);
@@ -59,8 +64,9 @@ public class RemoveItemFromOrderUseCaseTest {
         OrderEntity order = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderItemRepository.findById(menuItemId)).thenReturn(Optional.of(itemXburguer));
 
-        sut.execute(orderId, menuItemIdToRemove);
+        OrderResponse response = sut.execute(new RemoveItemFromOrderRequest(orderId, menuItemId));
 
         assertEquals(1, order.getOrderItems().size());
         assertFalse(order.getOrderItems().stream()
