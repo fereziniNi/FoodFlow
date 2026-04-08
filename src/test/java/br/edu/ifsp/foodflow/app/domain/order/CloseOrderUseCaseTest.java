@@ -11,6 +11,7 @@ import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -216,6 +217,13 @@ public class CloseOrderUseCaseTest {
             assertThat(order.getTable().getStatus()).isEqualTo(TableStatus.AVAILABLE);
 
         }
+    }
+    @Nested
+    @DisplayName("Testes criados com a técnica funcional")
+    @Tag("Functional")
+    class FunctionalTests{
+
+
     }
 
 }
