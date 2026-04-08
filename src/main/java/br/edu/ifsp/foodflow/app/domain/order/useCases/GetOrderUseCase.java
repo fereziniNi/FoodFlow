@@ -2,20 +2,20 @@ package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.order.mapper.OrderMapper;
 
 import java.util.UUID;
 
-public class GetTableOrderUseCase {
+public class GetOrderUseCase {
     private final OrderRepository orderRepository;
 
-    public GetTableOrderUseCase(OrderRepository orderRepository) {
+    public GetOrderUseCase(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
 
-    public OrderDTO getOrderById(UUID orderId) {
+    public OrderDetailsResponse getOrderById(UUID orderId) {
         if(orderId == null)
             throw new IllegalArgumentException("O Id do pedido é obrigatório.");
 

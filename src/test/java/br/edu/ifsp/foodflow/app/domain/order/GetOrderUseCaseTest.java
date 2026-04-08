@@ -1,18 +1,17 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDTO;
-import br.edu.ifsp.foodflow.app.domain.order.mapper.OrderMapper;
-import br.edu.ifsp.foodflow.app.domain.order.useCases.GetTableOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
+import br.edu.ifsp.foodflow.app.domain.order.useCases.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -23,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GetTableOrderUseCaseTest {
+class GetOrderUseCaseTest {
     @InjectMocks
-    private GetTableOrderUseCase service;
+    private GetOrderUseCase service;
 
     @Mock
     private OrderRepository orderRepository;
@@ -46,14 +45,14 @@ class GetTableOrderUseCaseTest {
     void shouldThrowExceptionWhenOrderDoesNotExist() {
         when(orderRepository.findById(notExistId)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        OrderNotFoundException exception = assertThrows(OrderNotFoundException.class,
                 () -> service.getOrderById(notExistId));
 
         assertEquals("Pedido não encontrado.", exception.getMessage());
     }
 
     @Test
-    @DisplayName("Deve retornar OrderDTO com itens quando houver pedido ativo para a mesa")
+    @DisplayName("Deve retornar OrderDetailsResponse com itens quando houver pedido ativo para a mesa")
     void shouldReturnOrderDTOWhenActiveOrderExists() {
         UUID orderId = UUID.randomUUID();
 
@@ -71,19 +70,19 @@ class GetTableOrderUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDTO result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderById(orderId);
 
         assertNotNull(result);
-        assertEquals(order.getId(), result.getOrderId());
-        assertEquals(table.getTableNumber(), result.getTableNumber());
-        assertEquals(user.getName(), result.getUserName());
-        assertEquals(2, result.getItems().size());
-        assertEquals(50.0, result.getItems().get(0).getPrice());
-        assertEquals(100.0, result.getTotal());
+        assertEquals(order.getId(), result.orderId());
+        assertEquals(table.getTableNumber(), result.tableNumber());
+        assertEquals(user.getName(), result.userName());
+        assertEquals(2, result.items().size());
+        assertEquals(50.0, result.items().get(0).price());
+        assertEquals(100.0, result.total());
     }
 
     @Test
-    @DisplayName("Deve retornar OrderDTO com lista de itens vazia quando o pedido não tiver itens")
+    @DisplayName("Deve retornar OrderDetailsResponse com lista de itens vazia quando o pedido não tiver itens")
     void shouldReturnEmptyItemsWhenOrderHasNoItems() {
         UUID orderId = UUID.randomUUID();
 
@@ -95,19 +94,19 @@ class GetTableOrderUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDTO result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderById(orderId);
 
         assertNotNull(result);
-        assertEquals(order.getId(), result.getOrderId());
-        assertEquals(table.getTableNumber(), result.getTableNumber());
-        assertEquals(user.getName(), result.getUserName());
-        assertNotNull(result.getItems());
-        assertTrue(result.getItems().isEmpty());
-        assertEquals(0.0, result.getTotal());
+        assertEquals(order.getId(), result.orderId());
+        assertEquals(table.getTableNumber(), result.tableNumber());
+        assertEquals(user.getName(), result.userName());
+        assertNotNull(result.items());
+        assertTrue(result.items().isEmpty());
+        assertEquals(0.0, result.total());
     }
 
     @Test
-    @DisplayName("Deve aplicar desconto correto no OrderDTO")
+    @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
     void shouldApplyDiscountCorrectly() {
         UUID orderId = UUID.randomUUID();
 
@@ -124,10 +123,12 @@ class GetTableOrderUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDTO result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderById(orderId);
 
-        assertEquals(120.0, result.getTotal());
-        assertEquals(0.05, result.getDiscount());
+        assertEquals(120.0, result.total());
+        assertEquals(0.05, result.discount());
     }
+
+
 
 }
