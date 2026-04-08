@@ -30,13 +30,14 @@ public class AddItemToOrderUseCase {
         this.addOnRepository = addOnRepository;
     }
 
-    public OrderResponse execute(UUID orderUUID, AddItemToOrderRequest item){
-        Objects.requireNonNull(orderUUID, "O ID do pedido não pode ser nulo");
-        OrderEntity order = orderRepository.findById(orderUUID)
-                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderUUID));
+    public OrderResponse execute(AddItemToOrderRequest item){
+        UUID orderId = item.orderId();
+        Objects.requireNonNull(orderId, "O ID do pedido não pode ser nulo");
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderId));
 
         System.out.println(order.getActive());
-        if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderUUID);
+        if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderId);
 
         OrderItemEntity orderItem = validateOrderItem(item);
 
