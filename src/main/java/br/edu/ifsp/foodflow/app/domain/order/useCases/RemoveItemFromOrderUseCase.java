@@ -8,6 +8,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 
 import java.util.NoSuchElementException;

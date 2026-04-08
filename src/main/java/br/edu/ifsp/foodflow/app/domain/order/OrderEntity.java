@@ -1,6 +1,7 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import jakarta.persistence.GeneratedValue;
@@ -43,6 +44,8 @@ public class OrderEntity {
     }
 
     public void removeOrderItem(OrderItemEntity item){
+        if (item.getStatus() != OrderItemStatus.PENDING)
+            throw new IllegalStateException("Não é possível remover um item que já está em preparo ou finalizado.");
         this.orderItems.remove(item);
     }
 
