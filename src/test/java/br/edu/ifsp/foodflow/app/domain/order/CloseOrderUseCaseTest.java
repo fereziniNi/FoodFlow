@@ -222,7 +222,35 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Testes criados com a técnica funcional")
     @Tag("Functional")
     class FunctionalTests{
+        @ParameterizedTest
+        @CsvSource(value = {
+                "99.99,0.0,99.99",
+                "100.00,0.05,95.00",
+                "199.99,0.05,189.9905",
+                "200.00,0.1,180.00",
+                "249.99,0.1,224.991",
+                "250.00,0.2,200.00"
+        })
+        @DisplayName("Deve testar os valores limites para aplicação de disconto em finalização de comanda")
+        void shouldTestLimitsValuesForDiscountInTotalOfOrder(double total,double discount,double totalWithDiscount){
+            MenuItemEntity menuItem2 = new MenuItemEntity(
+                    UUID.randomUUID(),
+                    "Macarrão",
+                    "desc",
+                    total,
+                    1
+            );
+            OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+            order.addOrderItem(item2);
 
+            when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(total);
+            assertThat(closeOrderResponse.discountPercentage()).isEqualTo(discount);
+            assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
+
+
+        }
 
     }
 
