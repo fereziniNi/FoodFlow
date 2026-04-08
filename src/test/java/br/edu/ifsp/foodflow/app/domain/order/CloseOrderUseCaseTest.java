@@ -54,7 +54,7 @@ public class CloseOrderUseCaseTest {
         user = new UserEntity("João Silva","João","joao@gmail.com","1234");
 
         order = new OrderEntity(table,user);
-        menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "desc", 80.0);
+        menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "desc", 80.0,1);
         item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
 
     }
@@ -123,7 +123,7 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda está aberta e o total está entre R$ 100,00 e R$ 199,99, quando o cliente fechar " +
             "a comanda, deve ser disponibilizado um resumo de pagamento com 5% de desconto aplicado."  )
     void shouldReturnCloseOrderResponseWithDiscountOfFivePercent() {
-        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 50.0);
+        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 50.0,1);
         OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
 
         order.addOrderItem(item);
@@ -144,7 +144,7 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda está aberta e o total está entre R$ 200,00 e R$ 249,99, quando o cliente fechar " +
             "a comanda, deve ser disponibilizado um resumo de pagamento com 10% de desconto aplicado"  )
     void shouldReturnCloseOrderResponseWithDiscountTenPercent() {
-        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 140.0);
+        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 140.0,1);
         OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
 
         order.addOrderItem(item);
@@ -164,7 +164,7 @@ public class CloseOrderUseCaseTest {
     @DisplayName("Dado que a comanda está aberta e o total é igual ou superior a R$ 250,00, quando o cliente fechar a " +
             "comanda, deve ser disponibilizado um resumo de pagamento com 20% de desconto aplicado."  )
     void shouldReturnCloseOrderResponseWithDiscountTwentyPercent() {
-        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 200.0);
+        MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 200.0,1);
         OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
         order.addOrderItem(item);
         order.addOrderItem(item2);
