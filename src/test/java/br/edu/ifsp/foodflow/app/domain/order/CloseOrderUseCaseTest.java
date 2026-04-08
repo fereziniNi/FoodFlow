@@ -9,6 +9,7 @@ import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
 import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -76,7 +77,7 @@ public class CloseOrderUseCaseTest {
                 " de comanda inexistente")
         void shouldThrowsNoSuchElementExceptionWhenOrderNotExists() {
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.empty());
-            assertThatExceptionOfType(NoSuchElementException.class)
+            assertThatExceptionOfType(OrderNotFoundException.class)
                     .isThrownBy(() -> closeOrderUseCase.closeOrder(randomUUID, 2));
         }
 
