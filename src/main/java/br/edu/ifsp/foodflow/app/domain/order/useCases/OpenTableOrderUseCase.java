@@ -22,7 +22,7 @@ public class OpenTableOrderUseCase {
     }
 
     public OrderEntity openOrder(Integer tableId, UUID userId){
-        if (tableId == null)throw new IllegalArgumentException("O ID da mesa é obrigatório.");
+        if (tableId == null || tableId <= 0)throw new IllegalArgumentException("O ID da mesa deve ser positivo.");
         if (userId == null) throw new IllegalStateException("O ID do usuário é obrigatório.");
 
         TableEntity table = tableRepository.findById(tableId)

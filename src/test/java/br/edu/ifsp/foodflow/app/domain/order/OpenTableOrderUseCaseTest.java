@@ -62,7 +62,7 @@ class OpenTableOrderUseCaseTest {
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> service.openOrder(null, aleatoryId));
 
-            assertEquals("O ID da mesa é obrigatório.", exception.getMessage());
+            assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
         }
 
         @Test
