@@ -4,7 +4,7 @@ import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
-import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;

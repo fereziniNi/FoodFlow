@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.domain.order.useCases;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;

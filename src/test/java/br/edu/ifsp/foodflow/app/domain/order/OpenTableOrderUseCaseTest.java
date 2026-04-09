@@ -1,6 +1,6 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.order.useCases.OpenTableOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.OpenTableOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;

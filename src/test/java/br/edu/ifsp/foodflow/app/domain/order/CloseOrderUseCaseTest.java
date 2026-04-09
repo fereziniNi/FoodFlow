@@ -3,7 +3,7 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
-import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
