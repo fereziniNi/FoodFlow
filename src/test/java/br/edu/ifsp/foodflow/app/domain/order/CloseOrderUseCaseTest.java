@@ -1,13 +1,13 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.CloseOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.*;
@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,23 +37,23 @@ public class CloseOrderUseCaseTest {
     @Mock
     private OrderRepository orderRepository;
 
-    private UserEntity user;
-    private TableEntity table;
-    private OrderEntity order;
+    private User user;
+    private Table table;
+    private Order order;
     private UUID randomUUID;
 
-    private MenuItemEntity menuItem;
-    private OrderItemEntity item;
+    private MenuItem menuItem;
+    private OrderItem item;
 
     @BeforeEach
     void setup(){
         randomUUID = UUID.randomUUID();
-        table = new TableEntity(1);
-        user = new UserEntity("João Silva","João","joao@gmail.com","1234");
+        table = new Table(1);
+        user = new User("João Silva","João","joao@gmail.com","1234");
 
-        order = new OrderEntity(table,user);
-        menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "desc", 80.0,1);
-        item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
+        order = new Order(table,user);
+        menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 80.0,1);
+        item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 
     }
 
@@ -128,8 +127,8 @@ public class CloseOrderUseCaseTest {
                 "a comanda, deve ser disponibilizado um resumo de pagamento com 5% de desconto aplicado.")
         void shouldReturnCloseOrderResponseWithDiscountOfFivePercent() {
 
-            MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 50.0, 1);
-            OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+            MenuItem menuItem2 = new MenuItem(UUID.randomUUID(), "Macarrão", "desc", 50.0, 1);
+            OrderItem item2 = new OrderItem(UUID.randomUUID(), menuItem2, List.of(), user, "");
 
             order.addOrderItem(item);
             order.addOrderItem(item2);
@@ -150,8 +149,8 @@ public class CloseOrderUseCaseTest {
                 "a comanda, deve ser disponibilizado um resumo de pagamento com 10% de desconto aplicado")
         void shouldReturnCloseOrderResponseWithDiscountTenPercent() {
 
-            MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 140.0, 1);
-            OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+            MenuItem menuItem2 = new MenuItem(UUID.randomUUID(), "Macarrão", "desc", 140.0, 1);
+            OrderItem item2 = new OrderItem(UUID.randomUUID(), menuItem2, List.of(), user, "");
 
             order.addOrderItem(item);
             order.addOrderItem(item2);
@@ -170,8 +169,8 @@ public class CloseOrderUseCaseTest {
         @DisplayName("Dado que a comanda está aberta e o total é igual ou superior a R$ 250,00, quando o cliente fechar a " +
                 "comanda, deve ser disponibilizado um resumo de pagamento com 20% de desconto aplicado.")
         void shouldReturnCloseOrderResponseWithDiscountTwentyPercent() {
-            MenuItemEntity menuItem2 = new MenuItemEntity(UUID.randomUUID(), "Macarrão", "desc", 200.0, 1);
-            OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+            MenuItem menuItem2 = new MenuItem(UUID.randomUUID(), "Macarrão", "desc", 200.0, 1);
+            OrderItem item2 = new OrderItem(UUID.randomUUID(), menuItem2, List.of(), user, "");
             order.addOrderItem(item);
             order.addOrderItem(item2);
 
@@ -236,14 +235,14 @@ public class CloseOrderUseCaseTest {
         })
         @DisplayName("Deve testar os valores limites para aplicação de disconto em finalização de comanda")
         void shouldTestLimitsValuesForDiscountInTotalOfOrder(double total,double discount,double totalWithDiscount){
-            MenuItemEntity menuItem2 = new MenuItemEntity(
+            MenuItem menuItem2 = new MenuItem(
                     UUID.randomUUID(),
                     "Macarrão",
                     "desc",
                     total,
                     1
             );
-            OrderItemEntity item2 = new OrderItemEntity(UUID.randomUUID(), menuItem2, List.of(), user, "");
+            OrderItem item2 = new OrderItem(UUID.randomUUID(), menuItem2, List.of(), user, "");
             order.addOrderItem(item2);
 
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));

@@ -1,10 +1,10 @@
 package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
-import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 
 import java.util.UUID;
@@ -20,21 +20,21 @@ public class OpenTableOrderUseCase {
         this.userRepository = userRepository;
     }
 
-    public OrderEntity openOrder(Integer tableId, UUID userId){
+    public Order openOrder(Integer tableId, UUID userId){
         if (tableId == null)throw new IllegalArgumentException("O ID da mesa é obrigatório.");
         if (userId == null) throw new IllegalStateException("O ID do usuário é obrigatório.");
 
-        TableEntity table = tableRepository.findById(tableId)
+        Table table = tableRepository.findById(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Mesa não encontrada."));
 
-        UserEntity user = userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
 
         orderRepository.findActiveOrderByTable(table).ifPresent(order -> {
             throw new IllegalStateException("Já existe uma comanda ativa para esta mesa.");
         });
 
-        OrderEntity newOrder = new OrderEntity(table, user);
+        Order newOrder = new Order(table, user);
         orderRepository.save(newOrder);
         return newOrder;
     }

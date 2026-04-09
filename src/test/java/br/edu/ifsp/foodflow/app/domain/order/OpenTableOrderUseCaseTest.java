@@ -1,9 +1,9 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.useCases.OpenTableOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -36,8 +36,8 @@ class OpenTableOrderUseCaseTest {
 
     private final UUID aleatoryId = UUID.randomUUID();
 
-    private UserEntity createExistingUser() {
-        return new UserEntity(
+    private User createExistingUser() {
+        return new User(
                 "Teste Nome",
                 "usuarioTeste",
                 "teste@email.com",
@@ -67,13 +67,13 @@ class OpenTableOrderUseCaseTest {
     @Test
     @DisplayName("Deve criar um pedido quando a mesa existir")
     void shouldCreateOrderWhenTableExists() {
-        TableEntity table = new TableEntity(1);
+        Table table = new Table(1);
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
-        when(orderRepository.save(any(OrderEntity.class)))
+        when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderEntity order = service.openOrder(1, aleatoryId);
+        Order order = service.openOrder(1, aleatoryId);
 
         assertEquals(1, order.getTable().getTableNumber(), "O número da mesa deve ser 1");
     }
@@ -81,8 +81,8 @@ class OpenTableOrderUseCaseTest {
     @Test
     @DisplayName("Deve lançar IllegalStateException se já existir uma comanda ativa para a mesa")
     void shouldThrowExceptionIfActiveOrderExists() {
-        TableEntity table = new TableEntity(1);
-        OrderEntity activeOrder = new OrderEntity(table, createExistingUser());
+        Table table = new Table(1);
+        Order activeOrder = new Order(table, createExistingUser());
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
@@ -107,7 +107,7 @@ class OpenTableOrderUseCaseTest {
     @DisplayName("Deve lançar exceção quando o usuário não estiver cadastrado")
     void shouldThrowExceptionWhenUserIsNotRegistered() {
 
-        TableEntity table = new TableEntity(1);
+        Table table = new Table(1);
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
@@ -121,16 +121,16 @@ class OpenTableOrderUseCaseTest {
     @Test
     @DisplayName("Deve criar um pedido quando a mesa e o usuário existirem")
     void shouldCreateOrderWhenTableAndUserExist() {
-        TableEntity table = new TableEntity(1);
-        UserEntity user = createExistingUser();
+        Table table = new Table(1);
+        User user = createExistingUser();
 
         when(tableRepository.findById(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
-        when(orderRepository.save(any(OrderEntity.class)))
+        when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderEntity order = service.openOrder(1, user.getId());
+        Order order = service.openOrder(1, user.getId());
 
         assertNotNull(order, "A ordem não deve ser nula");
         assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");

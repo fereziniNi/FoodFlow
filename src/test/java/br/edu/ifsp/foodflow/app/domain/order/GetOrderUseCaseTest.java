@@ -1,11 +1,11 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.GetOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,13 +56,13 @@ class GetOrderUseCaseTest {
     void shouldReturnOrderDTOWhenActiveOrderExists() {
         UUID orderId = UUID.randomUUID();
 
-        TableEntity table = new TableEntity(1);
-        UserEntity user = new UserEntity("João Silva", "João", "joao@gmail.com", "1234");
+        Table table = new Table(1);
+        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
-        OrderEntity order = new OrderEntity(table, user);
+        Order order = new Order(table, user);
 
-        MenuItemEntity menuItem = new MenuItemEntity(UUID.randomUUID(), "Prato", "Descrição do prato", 50.0, 10);
-        OrderItemEntity item = new OrderItemEntity(UUID.randomUUID(), menuItem, List.of(), user, "");
+        MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "Descrição do prato", 50.0, 10);
+        OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 
         order.addOrderItem(item);
         order.addOrderItem(item);
@@ -86,10 +86,10 @@ class GetOrderUseCaseTest {
     void shouldReturnEmptyItemsWhenOrderHasNoItems() {
         UUID orderId = UUID.randomUUID();
 
-        TableEntity table = new TableEntity(1);
-        UserEntity user = new UserEntity("João Silva", "João", "joao@gmail.com", "1234");
+        Table table = new Table(1);
+        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
-        OrderEntity order = new OrderEntity(table, user);
+        Order order = new Order(table, user);
 
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
@@ -110,13 +110,13 @@ class GetOrderUseCaseTest {
     void shouldApplyDiscountCorrectly() {
         UUID orderId = UUID.randomUUID();
 
-        TableEntity table = new TableEntity(1);
-        UserEntity user = new UserEntity("João Silva", "João", "joao@gmail.com", "1234");
+        Table table = new Table(1);
+        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
-        OrderEntity order = new OrderEntity(table, user);
+        Order order = new Order(table, user);
 
-        MenuItemEntity menuItem1 = new MenuItemEntity(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
-        OrderItemEntity item1 = new OrderItemEntity(UUID.randomUUID(), menuItem1, List.of(), user, "");
+        MenuItem menuItem1 = new MenuItem(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
+        OrderItem item1 = new OrderItem(UUID.randomUUID(), menuItem1, List.of(), user, "");
 
         order.addOrderItem(item1);
 

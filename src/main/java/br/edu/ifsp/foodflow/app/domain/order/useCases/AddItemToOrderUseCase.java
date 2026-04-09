@@ -1,15 +1,15 @@
 package br.edu.ifsp.foodflow.app.domain.order.useCases;
 
-import br.edu.ifsp.foodflow.app.domain.addOn.AddOnEntity;
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOnRepository;
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
-import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
@@ -33,31 +33,31 @@ public class AddItemToOrderUseCase {
     public OrderResponse execute(AddItemToOrderRequest item){
         UUID orderId = item.orderId();
         Objects.requireNonNull(orderId, "O ID do pedido não pode ser nulo");
-        OrderEntity order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderId));
 
         System.out.println(order.getActive());
         if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderId);
 
-        OrderItemEntity orderItem = validateOrderItem(item);
+        OrderItem orderItem = validateOrderItem(item);
 
         order.addOrderItem(orderItem);
         orderRepository.save(order);
         return new OrderResponse(order.getId(), order.getTable().getTableNumber(), order.getCreatedAt(), order.getActive(), order.getTotalPriceOfOrder());
     }
 
-    private OrderItemEntity validateOrderItem(AddItemToOrderRequest item){
+    private OrderItem validateOrderItem(AddItemToOrderRequest item){
         Objects.requireNonNull(item, "O request do item não pode ser nulo");
 
-        MenuItemEntity menuItem = menuItemRepository.findById(item.menuItemId())
+        MenuItem menuItem = menuItemRepository.findById(item.menuItemId())
                 .orElseThrow(() -> new NoSuchElementException("Item do menu não encontrado para o ID: " + item.menuItemId()));
 
         if (menuItem.getAvailableQuantity() <= 0) throw new UnavailableItemException("O item solicitado encontra-se indisponível.");
 
-        UserEntity waiter = userRepository.findById(item.waiterId())
+        User waiter = userRepository.findById(item.waiterId())
                 .orElseThrow(() -> new UserNotFoundException("O garçom informado não foi encontrado."));
 
-        List<AddOnEntity> addOns = new ArrayList<>();
+        List<AddOn> addOns = new ArrayList<>();
         if (item.addOnIds() != null && !item.addOnIds().isEmpty()) {
             addOns = addOnRepository.findAllById(item.addOnIds());
 
@@ -65,6 +65,6 @@ public class AddItemToOrderUseCase {
                 throw new NoSuchElementException("Um ou mais adicionais informados são inválidos ou foram removidos.");
         }
 
-        return new OrderItemEntity(UUID.randomUUID(), menuItem, addOns, waiter, item.observations());
+        return new OrderItem(UUID.randomUUID(), menuItem, addOns, waiter, item.observations());
     }
 }

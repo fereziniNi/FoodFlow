@@ -1,17 +1,15 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.addOn.AddOnEntity;
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.order.useCases.RemoveItemFromOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
-import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -54,18 +52,18 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que o usuário esteja registrado e uma mesa possua uma comanda ativa e possua um item adicionado, " +
                  "quando o garçom solicitar a remoção do item, então o item deve ser removido da comanda.")
     void shouldRemoveItemFromOrder(){
-        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
-        MenuItemEntity xTudo = new MenuItemEntity(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
+        MenuItem xBurguer = new MenuItem(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        MenuItem xTudo = new MenuItem(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
 
-        OrderItemEntity itemXburguer = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
-        OrderItemEntity itemXtudo = new OrderItemEntity(otherOrderItemId, xTudo, new ArrayList<>(), null, "");
+        OrderItem itemXburguer = new OrderItem(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        OrderItem itemXtudo = new OrderItem(otherOrderItemId, xTudo, new ArrayList<>(), null, "");
 
-        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemXtudo, itemXburguer));
+        List<OrderItem> initialItems = new ArrayList<>(List.of(itemXtudo, itemXburguer));
 
-        TableEntity table = new TableEntity(10);
-        UserEntity waiter = mock(UserEntity.class);
+        Table table = new Table(10);
+        User waiter = mock(User.class);
 
-        OrderEntity order = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+        Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemXburguer));
@@ -88,16 +86,16 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que um item da comanda esteja marcado como 'em preparo', quando o usuário tentar remover, " +
                  "o sistema deve bloquear a remoção ou solicitar uma permissão extra para remover.")
     void shouldThrowExceptionWhenRemovingItemInPreparation(){
-        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        MenuItem xBurguer = new MenuItem(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
 
-        OrderItemEntity itemInPreparation = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        OrderItem itemInPreparation = new OrderItem(orderItemId, xBurguer, new ArrayList<>(), null, "");
         itemInPreparation.upgradeProgress();
 
-        TableEntity table = new TableEntity(10);
-        UserEntity waiter = mock(UserEntity.class);
+        Table table = new Table(10);
+        User waiter = mock(User.class);
 
-        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemInPreparation));
-        OrderEntity order = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+        List<OrderItem> initialItems = new ArrayList<>(List.of(itemInPreparation));
+        Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemInPreparation));
@@ -118,18 +116,18 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que a comanda de uma mesa tenha um total pré-calculado, quando o usuário remover um item, " +
                  "então o preço da comanda é atualizado para o novo total.")
     void shouldUpdateOrderTotalPriceWhenItemIsRemoved() {
-        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
-        MenuItemEntity xTudo = new MenuItemEntity(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
+        MenuItem xBurguer = new MenuItem(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        MenuItem xTudo = new MenuItem(UUID.randomUUID(), "X-Tudo", "Monstro", 35.0, 5);
 
-        OrderItemEntity itemToRemove = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
-        OrderItemEntity itemToKeep = new OrderItemEntity(otherOrderItemId, xTudo, new ArrayList<>(), null, "");
+        OrderItem itemToRemove = new OrderItem(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        OrderItem itemToKeep = new OrderItem(otherOrderItemId, xTudo, new ArrayList<>(), null, "");
 
-        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemToRemove, itemToKeep));
+        List<OrderItem> initialItems = new ArrayList<>(List.of(itemToRemove, itemToKeep));
 
-        TableEntity table = new TableEntity(10);
-        UserEntity waiter = mock(UserEntity.class);
+        Table table = new Table(10);
+        User waiter = mock(User.class);
 
-        OrderEntity order = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+        Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
         assertEquals(55.0, order.getTotalPriceOfOrder(), "O total inicial da comanda deveria ser 55.0");
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -163,14 +161,14 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que a comanda esteja encerrada, quando o usuário tentar remover um item, " +
                  "então o sistema deve bloquear a ação lançando uma exceção.")
     void shouldThrowExceptionWhenRemovingItemFromClosedOrder() {
-        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
-        OrderItemEntity itemToRemove = new OrderItemEntity(orderItemId, xBurguer, new ArrayList<>(), null, "");
+        MenuItem xBurguer = new MenuItem(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+        OrderItem itemToRemove = new OrderItem(orderItemId, xBurguer, new ArrayList<>(), null, "");
 
-        List<OrderItemEntity> initialItems = new ArrayList<>(List.of(itemToRemove));
-        TableEntity table = new TableEntity(10);
-        UserEntity waiter = mock(UserEntity.class);
+        List<OrderItem> initialItems = new ArrayList<>(List.of(itemToRemove));
+        Table table = new Table(10);
+        User waiter = mock(User.class);
 
-        OrderEntity closedOrder = new OrderEntity(orderId, table, initialItems, LocalDateTime.now(), false, waiter);
+        Order closedOrder = new Order(orderId, table, initialItems, LocalDateTime.now(), false, waiter);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(closedOrder));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
@@ -189,11 +187,11 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que um item possua adicionais, quando o usuário remover o item, " +
             "então o valor do item e dos adicionais deve ser subtraído do total da comanda.")
     void shouldUpdateTotalIncludingAddOnsWhenItemIsRemoved() {
-        AddOnEntity extraCheese = new AddOnEntity(UUID.randomUUID(), "Queijo Extra", 5.0);
+        AddOn extraCheese = new AddOn(UUID.randomUUID(), "Queijo Extra", 5.0);
 
-        MenuItemEntity xBurguer = new MenuItemEntity(UUID.randomUUID(), "X-Burguer", "Base", 20.0, 10);
+        MenuItem xBurguer = new MenuItem(UUID.randomUUID(), "X-Burguer", "Base", 20.0, 10);
 
-        OrderItemEntity itemWithAddOn = new OrderItemEntity(
+        OrderItem itemWithAddOn = new OrderItem(
                 orderItemId,
                 xBurguer,
                 new ArrayList<>(List.of(extraCheese)),
@@ -201,8 +199,8 @@ public class RemoveItemFromOrderUseCaseTest {
                 ""
         );
 
-        List<OrderItemEntity> items = new ArrayList<>(List.of(itemWithAddOn));
-        OrderEntity order = new OrderEntity(orderId, new TableEntity(1), items, LocalDateTime.now(), true, mock(UserEntity.class));
+        List<OrderItem> items = new ArrayList<>(List.of(itemWithAddOn));
+        Order order = new Order(orderId, new Table(1), items, LocalDateTime.now(), true, mock(User.class));
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemWithAddOn));
