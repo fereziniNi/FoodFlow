@@ -13,6 +13,7 @@ import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@Tag("UnitTest")
+@Tag("TDD")
 @ExtendWith(MockitoExtension.class)
 public class AddItemToOrderUseCaseTest {
     private UUID orderId;
@@ -57,7 +60,7 @@ public class AddItemToOrderUseCaseTest {
         OrderEntity orderEntity = new OrderEntity(table, userEntity);
 
         MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
@@ -65,7 +68,7 @@ public class AddItemToOrderUseCaseTest {
 
         assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(0);
 
-        OrderResponse response = sut.execute(orderId, request);
+        OrderResponse response = sut.execute(request);
 
         assertThat(response).isNotNull();
 
@@ -79,7 +82,7 @@ public class AddItemToOrderUseCaseTest {
     @DisplayName("Dado que o usuário não esteja registrado, quando tentar adicionar um item à alguma comanda, " +
                  "então a operação deve ser bloqueada e o sistema retornar erro de usuário não identificado.\n")
     void shouldThrowExceptionWhenWaiterIsNotRegistered() {
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
         when(mockOrder.getActive()).thenReturn(true);
@@ -89,7 +92,7 @@ public class AddItemToOrderUseCaseTest {
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
         when(userRepository.findById(waiterId)).thenReturn(Optional.empty());
 
-        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(orderId, request));
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(request));
 
         assertEquals("O garçom informado não foi encontrado.", exception.getMessage());
 
@@ -102,7 +105,7 @@ public class AddItemToOrderUseCaseTest {
                  "quando o usuário tentar adicionar esse item à comanda, então a operação deve falhar e " +
                  "o sistema informar a indisponibilidade do produto.")
     void shouldThrowExceptionWhenItemIsUnavailable(){
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
         OrderEntity mockOrder = mock(OrderEntity.class);
         when(mockOrder.getActive()).thenReturn(true);
@@ -111,7 +114,7 @@ public class AddItemToOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
 
-        UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(orderId, request));
+        UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(request));
         assertEquals("O item solicitado encontra-se indisponível.", exception.getMessage());
     }
 
@@ -119,8 +122,8 @@ public class AddItemToOrderUseCaseTest {
     @DisplayName("Dado que a comanda informada seja nula, quando o usuário tentar adicionar um item, então o " +
                  "sistema deve disparar uma exceção informando que a comanda deve ser válida.")
     void shouldThrowExceptionWhenOrderIdIsNull(){
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> sut.execute(null, request));
+        AddItemToOrderRequest request = new AddItemToOrderRequest(null, menuItemId, "Sem milho", null, waiterId);
+        NullPointerException exception = assertThrows(NullPointerException.class, () -> sut.execute(request));
         assertEquals("O ID do pedido não pode ser nulo", exception.getMessage());
     }
 
@@ -128,9 +131,9 @@ public class AddItemToOrderUseCaseTest {
     @DisplayName("Dado que a comanda informada seja inexistente, quando o usuário tentar adicionar um item, " +
                  "então o sistema deve disparar uma exceção informando que a comanda deve ser válida.")
     void shouldThrowExceptionWhenOrderIdNotExists(){
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> sut.execute(orderId, request));
+        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> sut.execute(request));
         assertEquals("Pedido não encontrado para o ID: " + orderId, exception.getMessage());
     }
 
@@ -139,11 +142,11 @@ public class AddItemToOrderUseCaseTest {
                  "então receberá uma informação de que é impossível adicionar um item a uma " +
                  "comanda encerrada e a operação não será concluída.")
     void shouldThrowExceptionWhenAddOrderItemToAFinishedOrder(){
-        AddItemToOrderRequest request = new AddItemToOrderRequest(menuItemId, "Sem milho", null, waiterId);
+        AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
         OrderEntity mockOrder = mock(OrderEntity.class);
         when(mockOrder.getActive()).thenReturn(false);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
-        OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(orderId, request));
+        OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(request));
         assertEquals("Pedido já finalizado para o ID: " + orderId, exception.getMessage());
     }
 }

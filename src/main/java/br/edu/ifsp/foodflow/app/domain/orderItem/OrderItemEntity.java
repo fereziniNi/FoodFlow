@@ -32,4 +32,12 @@ public class OrderItemEntity {
         this.status = OrderItemStatus.PENDING;
         this.price = menuItem.getPrice() + additions.stream().mapToDouble(AddOnEntity::getPrice).sum();
     }
+
+    public void upgradeProgress(){
+        this.status = switch (this.status) {
+            case PENDING -> OrderItemStatus.PREPARATION;
+            case PREPARATION -> OrderItemStatus.FINISHED;
+            case FINISHED -> throw new IllegalStateException("O item já está finalizado e não pode avançar.");
+        };
+    }
 }
