@@ -1,8 +1,10 @@
 package br.edu.ifsp.foodflow.app.domain.table;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class Table {
     private Integer tableNumber;
     private TableStatus status;
