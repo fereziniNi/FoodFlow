@@ -1,7 +1,9 @@
 package br.edu.ifsp.foodflow.app.domain.orderItem.dto;
 
+import java.util.UUID;
+
 public record OrderItemDetailsResponse(
-        String name,
+        UUID id,
         String description,
         double price
 ) {}
