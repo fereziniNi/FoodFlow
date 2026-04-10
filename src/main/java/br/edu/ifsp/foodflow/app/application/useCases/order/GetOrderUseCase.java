@@ -3,7 +3,8 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
-import br.edu.ifsp.foodflow.app.domain.order.mapper.OrderMapper;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
 import java.util.UUID;
 
@@ -20,8 +21,22 @@ public class GetOrderUseCase {
             throw new IllegalArgumentException("O Id do pedido é obrigatório.");
 
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado."));
+                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
 
-        return OrderMapper.toDTO(order);
+        return new OrderDetailsResponse(
+                orderId,
+                order.getTable().getTableNumber(),
+                order.getUser().getUsername(),
+                order.getCreatedAt(),
+                order.getActive(),
+                order.getTotalPriceOfOrder(),
+                order.getDiscountPercentage(),
+                order.getOrderItems().stream().map(
+                        item->new OrderItemDetailsResponse(
+                                item.getId(),
+                                item.getObservations(),
+                                item.getPrice()
+                )).toList()
+        );
     }
 }
