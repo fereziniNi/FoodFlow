@@ -1,8 +1,8 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
+import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
-import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class GetOrderUseCaseTest {
+class GetOrderByTableUseCaseTest {
     @InjectMocks
-    private GetOrderUseCase service;
+    private GetOrderByTableUseCase service;
 
     @Mock
     private OrderRepository orderRepository;

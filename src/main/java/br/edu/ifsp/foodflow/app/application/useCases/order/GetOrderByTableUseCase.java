@@ -8,13 +8,12 @@ import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
 import java.util.UUID;
 
-public class GetOrderUseCase {
+public class GetOrderByTableUseCase {
     private final OrderRepository orderRepository;
 
-    public GetOrderUseCase(OrderRepository orderRepository) {
+    public GetOrderByTableUseCase(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
-
 
     public OrderDetailsResponse getOrderById(UUID orderId) {
         if(orderId == null)
