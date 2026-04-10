@@ -73,9 +73,10 @@ class GetOrderUseCaseTest {
         OrderDetailsResponse result = service.getOrderById(orderId);
 
         assertNotNull(result);
-        assertEquals(order.getId(), result.orderId());
+
+        assertEquals(orderId, result.orderId());
         assertEquals(table.getTableNumber(), result.tableNumber());
-        assertEquals(user.getName(), result.userName());
+        assertEquals(user.getUsername(), result.userName());
         assertEquals(2, result.items().size());
         assertEquals(50.0, result.items().get(0).price());
         assertEquals(100.0, result.total());
@@ -97,9 +98,9 @@ class GetOrderUseCaseTest {
         OrderDetailsResponse result = service.getOrderById(orderId);
 
         assertNotNull(result);
-        assertEquals(order.getId(), result.orderId());
+        assertEquals(orderId, result.orderId());
         assertEquals(table.getTableNumber(), result.tableNumber());
-        assertEquals(user.getName(), result.userName());
+        assertEquals(user.getUsername(), result.userName());
         assertNotNull(result.items());
         assertTrue(result.items().isEmpty());
         assertEquals(0.0, result.total());
