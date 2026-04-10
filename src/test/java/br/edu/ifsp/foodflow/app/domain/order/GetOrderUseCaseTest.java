@@ -5,8 +5,10 @@ import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +32,9 @@ class GetOrderByTableUseCaseTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private TableRepository tableRepository;
+
     UUID notExistId = UUID.randomUUID();
 
     @Test
@@ -42,14 +47,15 @@ class GetOrderByTableUseCaseTest {
     }
 
     @Test
-    @DisplayName("Deve lançar IllegalArgumentException quando a pedido não existir")
-    void shouldThrowExceptionWhenOrderDoesNotExist() {
-        when(orderRepository.findById(notExistId)).thenReturn(Optional.empty());
+    @DisplayName("Deve lançar TableNotFoundException quando a mesa não existir")
+    void shouldThrowExceptionWhenTableDoesNotExist() {
+        Integer tableIdNotExist = 99999;
+        when(tableRepository.findByTableNumber(tableIdNotExist)).thenReturn(Optional.empty());
 
-        OrderNotFoundException exception = assertThrows(OrderNotFoundException.class,
-                () -> service.getOrderByTable(1));
+        TableNotFoundException exception = assertThrows(TableNotFoundException.class,
+                () -> service.getOrderByTable(tableIdNotExist));
 
-        assertEquals("Pedido não encontrado.", exception.getMessage());
+        assertEquals("Mesa não encontrada.", exception.getMessage());
     }
 
     @Test
