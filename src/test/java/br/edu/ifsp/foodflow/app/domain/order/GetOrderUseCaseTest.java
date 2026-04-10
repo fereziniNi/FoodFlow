@@ -36,7 +36,7 @@ class GetOrderByTableUseCaseTest {
     @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
     void shouldThrowExceptionWhenOrderIsNull() {
         NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> service.getOrderById(null));
+                () -> service.getOrderByTable(null));
 
         assertEquals("O Id da mesa é obrigatório.", exception.getMessage());
     }
@@ -47,7 +47,7 @@ class GetOrderByTableUseCaseTest {
         when(orderRepository.findById(notExistId)).thenReturn(Optional.empty());
 
         OrderNotFoundException exception = assertThrows(OrderNotFoundException.class,
-                () -> service.getOrderById(notExistId));
+                () -> service.getOrderByTable(1));
 
         assertEquals("Pedido não encontrado.", exception.getMessage());
     }
@@ -71,7 +71,7 @@ class GetOrderByTableUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDetailsResponse result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderByTable(1);
 
         assertNotNull(result);
 
@@ -96,7 +96,7 @@ class GetOrderByTableUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDetailsResponse result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderByTable(1);
 
         assertNotNull(result);
         assertEquals(orderId, result.orderId());
@@ -125,7 +125,7 @@ class GetOrderByTableUseCaseTest {
         when(orderRepository.findById(orderId))
                 .thenReturn(Optional.of(order));
 
-        OrderDetailsResponse result = service.getOrderById(orderId);
+        OrderDetailsResponse result = service.getOrderByTable(1);
 
         assertEquals(120.0, result.total());
         assertEquals(0.05, result.discount());

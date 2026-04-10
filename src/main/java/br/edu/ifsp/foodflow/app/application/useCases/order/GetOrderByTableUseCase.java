@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class GetOrderByTableUseCase {
@@ -15,15 +16,14 @@ public class GetOrderByTableUseCase {
         this.orderRepository = orderRepository;
     }
 
-    public OrderDetailsResponse getOrderById(UUID orderId) {
-        if(orderId == null)
-            throw new IllegalArgumentException("O Id do pedido é obrigatório.");
+    public OrderDetailsResponse getOrderByTable(Integer tableId) {
+        Objects.requireNonNull(tableId, "O Id da mesa é obrigatório.");
 
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(UUID.randomUUID())
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
 
         return new OrderDetailsResponse(
-                orderId,
+                tableId,
                 order.getTable().getTableNumber(),
                 order.getUser().getUsername(),
                 order.getCreatedAt(),
