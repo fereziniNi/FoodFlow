@@ -36,7 +36,6 @@ public class AddItemToOrderUseCase {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderId));
 
-        System.out.println(order.getActive());
         if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderId);
 
         OrderItem orderItem = validateOrderItem(item);
