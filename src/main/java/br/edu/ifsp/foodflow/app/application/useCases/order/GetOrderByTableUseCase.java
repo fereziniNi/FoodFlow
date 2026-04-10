@@ -8,7 +8,6 @@ import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
 import java.util.Objects;
 

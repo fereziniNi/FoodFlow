@@ -1,5 +1,5 @@
 package br.edu.ifsp.foodflow.app.domain.order;
-
+import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+
 
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +58,7 @@ class GetOrderByTableUseCaseTest {
             Integer tableIdNotExist = 99999;
             when(tableRepository.findByTableNumber(tableIdNotExist)).thenReturn(Optional.empty());
 
-           br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException exception = assertThrows(br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException.class,
+           TableNotFoundException exception = assertThrows(br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException.class,
                     () -> service.getOrderByTable(tableIdNotExist));
 
             assertEquals("Mesa não encontrada.", exception.getMessage());
