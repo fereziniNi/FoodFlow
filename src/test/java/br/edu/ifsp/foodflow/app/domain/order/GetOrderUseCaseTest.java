@@ -1,5 +1,6 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
+import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
@@ -29,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GetOrderByTableUseCaseTest {
     @InjectMocks
-    private GetOrderUseCase.GetOrderByTableUseCase service;
+    private GetOrderByTableUseCase service;
 
     @Mock
     private OrderRepository orderRepository;
