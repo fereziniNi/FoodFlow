@@ -34,6 +34,11 @@ public class AddOnRepositoryImpl implements AddOnRepository {
     }
 
     @Override
+    public List<AddOn> findAllById(List<UUID> ids) {
+        return springDataRepository.findAllById(ids).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public List<AddOn> findAll() {
         return springDataRepository.findAll()
                 .stream()

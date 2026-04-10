@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface AddOnRepository {
     AddOn save(AddOn addOn);
     Optional<AddOn> findById(UUID id);
+    List<AddOn> findAllById(List<UUID> ids);
     List<AddOn> findAll();
     void deleteById(UUID id);
 }
