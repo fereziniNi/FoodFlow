@@ -56,7 +56,7 @@ class OpenTableOrderUseCaseTest {
     @Test
     @DisplayName("Deve lançar IllegalArgumentException quando a mesa não existir")
     void shouldThrowExceptionWhenTableDoesNotExist() {
-        when(tableRepository.findById(999)).thenReturn(Optional.empty());
+        when(tableRepository.findByTableNumber(999)).thenReturn(Optional.empty());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> service.openOrder(999, aleatoryId));
@@ -69,7 +69,7 @@ class OpenTableOrderUseCaseTest {
     void shouldCreateOrderWhenTableExists() {
         Table table = new Table(1);
 
-        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
         when(orderRepository.save(any(Order.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -84,7 +84,7 @@ class OpenTableOrderUseCaseTest {
         Table table = new Table(1);
         Order activeOrder = new Order(table, createExistingUser());
 
-        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
@@ -109,7 +109,7 @@ class OpenTableOrderUseCaseTest {
 
         Table table = new Table(1);
 
-        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
@@ -124,7 +124,7 @@ class OpenTableOrderUseCaseTest {
         Table table = new Table(1);
         User user = createExistingUser();
 
-        when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+        when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
         when(orderRepository.save(any(Order.class)))
