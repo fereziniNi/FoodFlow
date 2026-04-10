@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 
 import java.util.UUID;
 
@@ -24,11 +25,11 @@ public class OpenTableOrderUseCase {
         if (tableId == null)throw new IllegalArgumentException("O ID da mesa é obrigatório.");
         if (userId == null) throw new IllegalStateException("O ID do usuário é obrigatório.");
 
-        Table table = tableRepository.findById(tableId)
+        Table table = tableRepository.findByTableNumber(tableId)
                 .orElseThrow(() -> new IllegalArgumentException("Mesa não encontrada."));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
 
         orderRepository.findActiveOrderByTable(table).ifPresent(order -> {
             throw new IllegalStateException("Já existe uma comanda ativa para esta mesa.");
