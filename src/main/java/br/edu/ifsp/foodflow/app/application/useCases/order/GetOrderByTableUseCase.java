@@ -4,20 +4,29 @@ import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 
 import java.util.Objects;
 import java.util.UUID;
 
 public class GetOrderByTableUseCase {
+    private final TableRepository tableRepository;
     private final OrderRepository orderRepository;
 
-    public GetOrderByTableUseCase(OrderRepository orderRepository) {
+    public GetOrderByTableUseCase(TableRepository tableRepository, OrderRepository orderRepository) {
+        this.tableRepository = tableRepository;
         this.orderRepository = orderRepository;
     }
 
+
     public OrderDetailsResponse getOrderByTable(Integer tableId) {
         Objects.requireNonNull(tableId, "O Id da mesa é obrigatório.");
+
+        Table table  = tableRepository.findByTableNumber(tableId)
+                .orElseThrow(() -> new TableNotFoundException("Mesa não encontrada."));
 
         Order order = orderRepository.findById(UUID.randomUUID())
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
