@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -32,12 +33,12 @@ class GetOrderByTableUseCaseTest {
     UUID notExistId = UUID.randomUUID();
 
     @Test
-    @DisplayName("Deve lançar IllegalArgumentException quando o ID do pedido for nulo")
+    @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
     void shouldThrowExceptionWhenOrderIsNull() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> service.getOrderById(null));
 
-        assertEquals("O Id do pedido é obrigatório.", exception.getMessage());
+        assertEquals("O Id da mesa é obrigatório.", exception.getMessage());
     }
 
     @Test
