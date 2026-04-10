@@ -44,6 +44,7 @@ class OpenTableOrderUseCaseTest {
 
     private User createExistingUser() {
         return new User(
+                aleatoryId,
                 "Teste Nome",
                 "usuarioTeste",
                 "teste@email.com",
@@ -57,9 +58,9 @@ class OpenTableOrderUseCaseTest {
     class TDDTests {
 
         @Test
-        @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
+        @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
         void shouldThrowExceptionWhenTableIsNull() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            NullPointerException exception = assertThrows(NullPointerException.class,
                     () -> service.openOrder(null, aleatoryId));
 
             assertEquals("O ID da mesa é obrigatório.", exception.getMessage());
@@ -111,14 +112,13 @@ class OpenTableOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve lançar IllegalStateException se o id do user for nulo")
+        @DisplayName("Deve lançar NullPointerException se o id do user for nulo")
         void shouldThrowExceptionIfUserIdIsNull() {
-            IllegalStateException exception = assertThrows(IllegalStateException.class,
+            NullPointerException exception = assertThrows(NullPointerException.class,
                     () -> service.openOrder(1, null));
 
             assertEquals("O ID do usuário é obrigatório.", exception.getMessage());
         }
-
 
         @Test
         @DisplayName("Deve lançar exceção quando o usuário não estiver cadastrado")
