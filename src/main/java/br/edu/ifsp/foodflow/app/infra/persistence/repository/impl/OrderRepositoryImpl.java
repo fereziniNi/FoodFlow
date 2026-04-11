@@ -7,10 +7,12 @@ import br.edu.ifsp.foodflow.app.infra.persistence.mapper.OrderMapper;
 import br.edu.ifsp.foodflow.app.infra.persistence.mapper.TableMapper;
 import br.edu.ifsp.foodflow.app.infra.persistence.repository.springdata.SpringDataOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
 

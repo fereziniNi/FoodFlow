@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.infra.exceptions;
+package br.edu.ifsp.foodflow.app.domain.exceptions;
 
 public class UnavailableItemException extends RuntimeException{
     public UnavailableItemException(String message) {

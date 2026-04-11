@@ -1,15 +1,14 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GetOrderByTableUseCaseTest {
     @InjectMocks
-    private GetOrderByTableUseCase service;
+    private GetOrderUseCase.GetOrderByTableUseCase service;
 
     @Mock
     private OrderRepository orderRepository;
@@ -56,7 +55,7 @@ class GetOrderByTableUseCaseTest {
             Integer tableIdNotExist = 99999;
             when(tableRepository.findByTableNumber(tableIdNotExist)).thenReturn(Optional.empty());
 
-            TableNotFoundException exception = assertThrows(TableNotFoundException.class,
+           br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException exception = assertThrows(br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException.class,
                     () -> service.getOrderByTable(tableIdNotExist));
 
             assertEquals("Mesa não encontrada.", exception.getMessage());
