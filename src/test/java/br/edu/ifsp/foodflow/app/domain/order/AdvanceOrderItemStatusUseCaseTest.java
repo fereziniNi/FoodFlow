@@ -108,4 +108,18 @@ class AdvanceOrderItemStatusUseCaseTest {
         assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.FINISHED);
     }
 
+    @Test
+    @DisplayName("Dado que o status do item está como finalizado, quando o garçom tentar solicitar o avanço, " +
+            "então o sistema deve lançar um erro informando que um item finalizado não pode ter seu status alterado")
+    void shouldThrowIllegalStateExceptionWhenItemIsAlreadyFinished() {
+        order.addOrderItem(orderItem);
+        orderItem.upgradeProgress();
+        orderItem.upgradeProgress();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        assertThatIllegalStateException().isThrownBy(()->statusUseCaseTest.advanceStatus(orderId,itemId));
+    }
+
+
+
+
 }
