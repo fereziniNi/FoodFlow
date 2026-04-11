@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @Tag("UnitTest")
@@ -118,6 +119,16 @@ class AdvanceOrderItemStatusUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         assertThatIllegalStateException().isThrownBy(()->statusUseCaseTest.advanceStatus(orderId,itemId));
     }
+
+    @Test
+    @DisplayName("Dado que o status da comanda foi alterada, quando o sistema processar, então deve salvar a comanda")
+    void shouldSaveOrderAfterAdvancingStatus() {
+        order.addOrderItem(orderItem);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        statusUseCaseTest.advanceStatus(orderId, itemId);
+        verify(orderRepository).save(order);
+    }
+
 
 
 
