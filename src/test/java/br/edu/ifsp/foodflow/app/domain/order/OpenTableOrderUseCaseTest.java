@@ -1,9 +1,9 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.order.useCases.OpenTableOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
+import br.edu.ifsp.foodflow.app.application.useCases.order.OpenTableOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +42,9 @@ class OpenTableOrderUseCaseTest {
 
     private final UUID aleatoryId = UUID.randomUUID();
 
-    private UserEntity createExistingUser() {
-        return new UserEntity(
+    private User createExistingUser() {
+        return new User(
+                aleatoryId,
                 "Teste Nome",
                 "usuarioTeste",
                 "teste@email.com",
@@ -57,18 +58,18 @@ class OpenTableOrderUseCaseTest {
     class TDDTests {
 
         @Test
-        @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for nulo")
+        @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
         void shouldThrowExceptionWhenTableIsNull() {
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            NullPointerException exception = assertThrows(NullPointerException.class,
                     () -> service.openOrder(null, aleatoryId));
 
-            assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
+            assertEquals("O ID da mesa é obrigatório.", exception.getMessage());
         }
 
         @Test
         @DisplayName("Deve lançar IllegalArgumentException quando a mesa não existir")
         void shouldThrowExceptionWhenTableDoesNotExist() {
-            when(tableRepository.findById(999)).thenReturn(Optional.empty());
+            when(tableRepository.findByTableNumber(999)).thenReturn(Optional.empty());
 
             IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     () -> service.openOrder(999, aleatoryId));
@@ -79,15 +80,15 @@ class OpenTableOrderUseCaseTest {
         @Test
         @DisplayName("Deve criar um pedido quando a mesa existir")
         void shouldCreateOrderWhenTableExists() {
-            TableEntity table = new TableEntity(1);
-            UserEntity user = createExistingUser();
+            Table table = new Table(1);
+            User user = createExistingUser();
 
-            when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+            when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
             when(userRepository.findById(any(UUID.class))).thenReturn(Optional.of(user));
-            when(orderRepository.save(any(OrderEntity.class)))
+            when(orderRepository.save(any(Order.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            OrderEntity order = service.openOrder(1, aleatoryId);
+            Order order = service.openOrder(1, aleatoryId);
 
             assertNotNull(order);
             assertEquals(1, order.getTable().getTableNumber(), "O número da mesa deve ser 1");
@@ -96,11 +97,11 @@ class OpenTableOrderUseCaseTest {
         @Test
         @DisplayName("Deve lançar IllegalStateException se já existir uma comanda ativa para a mesa")
         void shouldThrowExceptionIfActiveOrderExists() {
-            TableEntity table = new TableEntity(1);
-            UserEntity user = createExistingUser();
-            OrderEntity activeOrder = new OrderEntity(table, user);
+            Table table = new Table(1);
+            User user = createExistingUser();
+            Order activeOrder = new Order(table, createExistingUser());
 
-            when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+            when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
             when(userRepository.findById(any())).thenReturn(Optional.of(user));
             when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.of(activeOrder));
 
@@ -111,22 +112,21 @@ class OpenTableOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve lançar IllegalStateException se o id do user for nulo")
+        @DisplayName("Deve lançar NullPointerException se o id do user for nulo")
         void shouldThrowExceptionIfUserIdIsNull() {
-            IllegalStateException exception = assertThrows(IllegalStateException.class,
+            NullPointerException exception = assertThrows(NullPointerException.class,
                     () -> service.openOrder(1, null));
 
             assertEquals("O ID do usuário é obrigatório.", exception.getMessage());
         }
 
-
         @Test
         @DisplayName("Deve lançar exceção quando o usuário não estiver cadastrado")
         void shouldThrowExceptionWhenUserIsNotRegistered() {
 
-            TableEntity table = new TableEntity(1);
+            Table table = new Table(1);
 
-            when(tableRepository.findById(1)).thenReturn(Optional.of(table));
+            when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
             when(userRepository.findById(aleatoryId)).thenReturn(Optional.empty());
 
             UserNotFoundException exception = assertThrows(UserNotFoundException.class,
@@ -138,37 +138,37 @@ class OpenTableOrderUseCaseTest {
         @Test
         @DisplayName("Deve criar um pedido quando a mesa e o usuário existirem")
         void shouldCreateOrderWhenTableAndUserExist() {
-            TableEntity table = new TableEntity(1);
-            UserEntity user = createExistingUser();
-            UUID validUserId = UUID.randomUUID();
+            Table table = new Table(1);
+            User user = createExistingUser();
 
-            when(tableRepository.findById(1)).thenReturn(Optional.of(table));
-            when(userRepository.findById(validUserId)).thenReturn(Optional.of(user));
+            when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
+            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
             when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
-            when(orderRepository.save(any(OrderEntity.class)))
+            when(orderRepository.save(any(Order.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
-            OrderEntity order = service.openOrder(1, validUserId);
+            Order order = service.openOrder(1, user.getId());
 
             assertNotNull(order, "A ordem não deve ser nula");
             assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");
+            assertEquals(user.getId(), order.getUser().getId(), "Usuário incorreto");
         }
-    }
 
-    @Nested
-    @Tag("Functional")
-    @DisplayName("Testes criados com a técnica funcional")
-    class FunctionalTests{
-        @ParameterizedTest
-        @CsvSource({"-1","0"})
-        @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for negativo ou zero")
-        void shouldThrowExceptionForInvalidTableId(int invalidTableId) {
-            UUID validUserId = UUID.randomUUID();
+        @Nested
+        @Tag("Functional")
+        @DisplayName("Testes criados com a técnica funcional")
+        class FunctionalTests {
+            @ParameterizedTest
+            @CsvSource({"-1", "0"})
+            @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for negativo ou zero")
+            void shouldThrowExceptionForInvalidTableId(int invalidTableId) {
+                UUID validUserId = UUID.randomUUID();
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                    () -> service.openOrder(invalidTableId, validUserId));
+                IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                        () -> service.openOrder(invalidTableId, validUserId));
 
-            assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
+                assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
+            }
         }
     }
 }

@@ -1,13 +1,11 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
+import br.edu.ifsp.foodflow.app.domain.table.Table;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
-public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
-    Optional<OrderEntity> findActiveOrderByTable(TableEntity table);
+public interface OrderRepository {
+    Optional<Order> findActiveOrderByTable(Table table);
+    Order save(Order order);
+    Optional<Order> findById(UUID id);
 }

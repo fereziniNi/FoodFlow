@@ -1,12 +1,12 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemEntity;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
-import br.edu.ifsp.foodflow.app.domain.order.useCases.AddItemToOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.table.TableEntity;
-import br.edu.ifsp.foodflow.app.domain.user.UserEntity;
+import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
@@ -55,27 +55,27 @@ public class AddItemToOrderUseCaseTest {
                  "quando o usuário adicionar um item à comanda, então o item deve ser registrado " +
                  "na comanda e o preço da comanda ser atualizado.")
     void shouldAddItemAnExistingOrder(){
-        TableEntity table = new TableEntity(10);
-        UserEntity userEntity = new UserEntity("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234");
-        OrderEntity orderEntity = new OrderEntity(table, userEntity);
+        Table table = new Table(10);
+        User user = new User("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234");
+        Order order = new Order(table, user);
 
-        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
+        MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
         AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderEntity));
-        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
-        when(userRepository.findById(waiterId)).thenReturn(Optional.of(userEntity));
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
+        when(userRepository.findById(waiterId)).thenReturn(Optional.of(user));
 
-        assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(0);
+        assertThat(order.getTotalPriceOfOrder()).isEqualTo(0);
 
         OrderResponse response = sut.execute(request);
 
         assertThat(response).isNotNull();
 
-        assertThat(orderEntity.getOrderItems().getFirst().getMenuItem().getName()).isEqualTo("X-Tudo");
-        assertThat(orderEntity.getOrderItems().getFirst().getObservations()).isEqualTo("Sem milho");
-        assertThat(orderEntity.getTotalPriceOfOrder()).isEqualTo(40);
-        verify(orderRepository, times(1)).save(orderEntity);
+        assertThat(order.getOrderItems().getFirst().getMenuItem().getName()).isEqualTo("X-Tudo");
+        assertThat(order.getOrderItems().getFirst().getObservations()).isEqualTo("Sem milho");
+        assertThat(order.getTotalPriceOfOrder()).isEqualTo(40);
+        verify(orderRepository, times(1)).save(order);
     }
 
     @Test
@@ -84,12 +84,12 @@ public class AddItemToOrderUseCaseTest {
     void shouldThrowExceptionWhenWaiterIsNotRegistered() {
         AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
-        OrderEntity mockOrder = mock(OrderEntity.class);
+        Order mockOrder = mock(Order.class);
         when(mockOrder.getActive()).thenReturn(true);
-        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
+        MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
-        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
         when(userRepository.findById(waiterId)).thenReturn(Optional.empty());
 
         UserNotFoundException exception = assertThrows(UserNotFoundException.class, () -> sut.execute(request));
@@ -107,12 +107,12 @@ public class AddItemToOrderUseCaseTest {
     void shouldThrowExceptionWhenItemIsUnavailable(){
         AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
 
-        OrderEntity mockOrder = mock(OrderEntity.class);
+        Order mockOrder = mock(Order.class);
         when(mockOrder.getActive()).thenReturn(true);
-        MenuItemEntity menuItemEntity = new MenuItemEntity(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
+        MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
 
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
-        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItemEntity));
+        when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
 
         UnavailableItemException exception = assertThrows(UnavailableItemException.class, () -> sut.execute(request));
         assertEquals("O item solicitado encontra-se indisponível.", exception.getMessage());
@@ -143,7 +143,7 @@ public class AddItemToOrderUseCaseTest {
                  "comanda encerrada e a operação não será concluída.")
     void shouldThrowExceptionWhenAddOrderItemToAFinishedOrder(){
         AddItemToOrderRequest request = new AddItemToOrderRequest(orderId, menuItemId, "Sem milho", null, waiterId);
-        OrderEntity mockOrder = mock(OrderEntity.class);
+        Order mockOrder = mock(Order.class);
         when(mockOrder.getActive()).thenReturn(false);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
         OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(request));

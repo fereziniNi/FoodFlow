@@ -1,15 +1,11 @@
-package br.edu.ifsp.foodflow.app.domain.order.useCases;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
-import br.edu.ifsp.foodflow.app.domain.addOn.AddOnRepository;
-import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
-import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemEntity;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
-import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
-import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -30,9 +26,9 @@ public class RemoveItemFromOrderUseCase {
 
         UUID orderItemId = request.orderItemId();
 
-        OrderEntity order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NoSuchElementException("Pedido não encontrado para o ID: " + orderId));
-        OrderItemEntity orderItem = orderItemRepository.findById(orderItemId)
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> new NoSuchElementException("Item solicitado não encontrado para o ID: " + orderItemId));
 
         order.removeOrderItem(orderItem);

@@ -1,12 +1,11 @@
-package br.edu.ifsp.foodflow.app.domain.order.useCases;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
-import br.edu.ifsp.foodflow.app.domain.order.OrderEntity;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,7 +20,7 @@ public class CloseOrderUseCase {
     public CloseOrderResponse closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
 
-        OrderEntity order = orderRepository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado para o ID:" + orderId));
         if(!order.getActive()){
             throw new OrderAlreadyClosedException("Pedido já finalizado para o ID:"+ orderId);
