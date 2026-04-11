@@ -2,6 +2,8 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.infra.exceptions.OrderItemNotFoundException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 
 import java.util.Objects;
@@ -20,5 +22,9 @@ public class AdvanceOrderItemStatusUseCase {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrada para o ID: " + orderId));
+        OrderItem orderItem = order.getOrderItems()
+                .stream()
+                .filter(item-> item.getId().equals(itemId))
+                .findFirst().orElseThrow(()-> new OrderItemNotFoundException("Item não encontrado na comanda: "+ itemId));
     }
 }
