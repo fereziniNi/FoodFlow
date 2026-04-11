@@ -2,6 +2,9 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
+import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderItemNotFoundException;
@@ -15,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +31,8 @@ class AdvanceOrderItemStatusUseCaseTest {
     private  Order order;
     private Table table;
     private User user;
+    private OrderItem orderItem;
+    private MenuItem menuItem;
     private UUID orderId;
     private UUID itemId;
 
@@ -43,6 +49,8 @@ class AdvanceOrderItemStatusUseCaseTest {
         table = new Table(1);
         user = new User("João Silva", "João", "joao@gmail.com", "1234");
         order = new Order(table, user);
+        menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 50.0, 1);
+        orderItem = new OrderItem(itemId, menuItem, List.of(), user, "");
     }
 
     @Test
@@ -80,6 +88,15 @@ class AdvanceOrderItemStatusUseCaseTest {
     }
 
 
+    @Test
+    @DisplayName("Dado que o status do item está como pendente, quando o garçom solicitar o avanço, " +
+            "então o status deve ser alterado para em preparo")
+    void shouldAdvanceStatusFromPendingToPreparation() {
+        order.addOrderItem(orderItem);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        statusUseCaseTest.advanceStatus(orderId, itemId);
+        assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
+    }
 
 
 }
