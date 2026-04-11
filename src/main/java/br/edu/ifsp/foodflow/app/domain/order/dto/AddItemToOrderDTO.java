@@ -3,7 +3,7 @@ package br.edu.ifsp.foodflow.app.domain.order.dto;
 import java.util.List;
 import java.util.UUID;
 
-public record AddItemToOrderRequest(
+public record AddItemToOrderDTO(
         UUID orderId,
         UUID menuItemId,
         String observations,
