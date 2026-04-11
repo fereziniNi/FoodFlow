@@ -97,6 +97,15 @@ class AdvanceOrderItemStatusUseCaseTest {
         statusUseCaseTest.advanceStatus(orderId, itemId);
         assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
     }
-
+    @Test
+    @DisplayName("Dado que o status do item está como em preparo, quando o garçom solicitar o avanço," +
+            "então o status deve ser alterado para finalizado")
+    void shouldAdvanceStatusFromPreparationToFinish() {
+        order.addOrderItem(orderItem);
+        orderItem.upgradeProgress();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        statusUseCaseTest.advanceStatus(orderId, itemId);
+        assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.FINISHED);
+    }
 
 }
