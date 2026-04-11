@@ -26,5 +26,7 @@ public class AdvanceOrderItemStatusUseCase {
                 .stream()
                 .filter(item-> item.getId().equals(itemId))
                 .findFirst().orElseThrow(()-> new OrderItemNotFoundException("Item não encontrado na comanda: "+ itemId));
+
+        orderItem.upgradeProgress();
     }
 }
