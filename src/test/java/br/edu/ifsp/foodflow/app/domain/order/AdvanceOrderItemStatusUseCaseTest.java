@@ -9,10 +9,7 @@ import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderItemNotFoundException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -54,81 +51,98 @@ class AdvanceOrderItemStatusUseCaseTest {
         orderItem = new OrderItem(itemId, menuItem, List.of(), user, "");
     }
 
-    @Test
-    @DisplayName("Dado que a comanda informada é nula, quando o garçom tentar avançar o status do item, " +
-            "então o sistema deve lançar um erro informando que a comanda não pode ser nula")
-    void shouldThrowNullPointerExceptionWhenOrderIdIsNull(){
-        assertThatNullPointerException().isThrownBy(()->statusUseCaseTest.advanceStatus(null, orderId));
+    @Nested
+    @Tag("TDD")
+    @DisplayName("Testes criados com TDD")
+    class tddTests {
 
+
+        @Test
+        @DisplayName("Dado que a comanda informada é nula, quando o garçom tentar avançar o status do item, " +
+                "então o sistema deve lançar um erro informando que a comanda não pode ser nula")
+        void shouldThrowNullPointerExceptionWhenOrderIdIsNull() {
+            assertThatNullPointerException().isThrownBy(() -> statusUseCaseTest.advanceStatus(null, orderId));
+
+        }
+
+        @Test
+        @DisplayName("Dado que o id do item informado é nulo, quando o garçom tentar avançar o status, então o sistema deve" +
+                " lançar um erro informando que o id do item não pode ser nulo.")
+        void shouldThrowNullPointerExceptionWhenOrItemIdIsNull() {
+            assertThatNullPointerException().isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, null));
+
+        }
+
+        @Test
+        @DisplayName("Dado que a comanda não existe, quando o garçom tentar avançar o status do item, " +
+                "então o sistema deve lançar um erro informando que a comanda não foi encontrada")
+        void shouldThrowOrderNotFoundExceptionWhenOrderDoesNotExist() {
+            when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+            assertThatExceptionOfType(OrderNotFoundException.class)
+                    .isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
+        }
+
+        @Test
+        @DisplayName("Dado que o item informado não está na comanda, quando o garçom tentar avançar o status, " +
+                "então o sistema deve lançar um erro informando que o item não foi encontrado na comanda")
+        void shouldThrowOrderItemNotFoundExceptionWhenItemIsNotInOrder() {
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            assertThatExceptionOfType(OrderItemNotFoundException.class)
+                    .isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
+        }
+
+
+        @Test
+        @DisplayName("Dado que o status do item está como pendente, quando o garçom solicitar o avanço, " +
+                "então o status deve ser alterado para em preparo")
+        void shouldAdvanceStatusFromPendingToPreparation() {
+            order.addOrderItem(orderItem);
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            statusUseCaseTest.advanceStatus(orderId, itemId);
+            assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
+        }
+
+        @Test
+        @DisplayName("Dado que o status do item está como em preparo, quando o garçom solicitar o avanço," +
+                "então o status deve ser alterado para finalizado")
+        void shouldAdvanceStatusFromPreparationToFinish() {
+            order.addOrderItem(orderItem);
+            orderItem.upgradeProgress();
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            statusUseCaseTest.advanceStatus(orderId, itemId);
+            assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.FINISHED);
+        }
+
+        @Test
+        @DisplayName("Dado que o status do item está como finalizado, quando o garçom tentar solicitar o avanço, " +
+                "então o sistema deve lançar um erro informando que um item finalizado não pode ter seu status alterado")
+        void shouldThrowIllegalStateExceptionWhenItemIsAlreadyFinished() {
+            order.addOrderItem(orderItem);
+            orderItem.upgradeProgress();
+            orderItem.upgradeProgress();
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            assertThatIllegalStateException().isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
+        }
+
+        @Test
+        @DisplayName("Dado que o status da comanda foi alterada, quando o sistema processar, então deve salvar a comanda")
+        void shouldSaveOrderAfterAdvancingStatus() {
+            order.addOrderItem(orderItem);
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            statusUseCaseTest.advanceStatus(orderId, itemId);
+            verify(orderRepository).save(order);
+        }
     }
 
     @Test
-    @DisplayName("Dado que o id do item informado é nulo, quando o garçom tentar avançar o status, então o sistema deve" +
-            " lançar um erro informando que o id do item não pode ser nulo.")
-    void shouldThrowNullPointerExceptionWhenOrItemIdIsNull(){
-        assertThatNullPointerException().isThrownBy(()->statusUseCaseTest.advanceStatus(orderId,null));
-
-    }
-
-    @Test
-    @DisplayName("Dado que a comanda não existe, quando o garçom tentar avançar o status do item, " +
-            "então o sistema deve lançar um erro informando que a comanda não foi encontrada")
-    void shouldThrowOrderNotFoundExceptionWhenOrderDoesNotExist() {
-        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
-        assertThatExceptionOfType(OrderNotFoundException.class)
-                .isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
-    }
-
-    @Test
-    @DisplayName("Dado que o item informado não está na comanda, quando o garçom tentar avançar o status, " +
-            "então o sistema deve lançar um erro informando que o item não foi encontrado na comanda")
-    void shouldThrowOrderItemNotFoundExceptionWhenItemIsNotInOrder() {
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        assertThatExceptionOfType(OrderItemNotFoundException.class)
-                .isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
-    }
-
-
-    @Test
-    @DisplayName("Dado que o status do item está como pendente, quando o garçom solicitar o avanço, " +
-            "então o status deve ser alterado para em preparo")
-    void shouldAdvanceStatusFromPendingToPreparation() {
-        order.addOrderItem(orderItem);
+    @Tag("Functional")
+    @DisplayName("Dado que a comanda possui múltiplos itens, quando o garçom avançar o status de um item específico, " +                                                                        "então apenas o item informado deve ter seu status alterado")                                                                                                               void shouldAdvanceOnlyTargetItemWhenOrderHasMultipleItems() {
+        OrderItem otherItem = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");                                                                                              order.addOrderItem(orderItem);
+        order.addOrderItem(otherItem);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         statusUseCaseTest.advanceStatus(orderId, itemId);
         assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
+        assertThat(otherItem.getStatus()).isEqualTo(OrderItemStatus.PENDING);
     }
-    @Test
-    @DisplayName("Dado que o status do item está como em preparo, quando o garçom solicitar o avanço," +
-            "então o status deve ser alterado para finalizado")
-    void shouldAdvanceStatusFromPreparationToFinish() {
-        order.addOrderItem(orderItem);
-        orderItem.upgradeProgress();
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        statusUseCaseTest.advanceStatus(orderId, itemId);
-        assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.FINISHED);
-    }
-
-    @Test
-    @DisplayName("Dado que o status do item está como finalizado, quando o garçom tentar solicitar o avanço, " +
-            "então o sistema deve lançar um erro informando que um item finalizado não pode ter seu status alterado")
-    void shouldThrowIllegalStateExceptionWhenItemIsAlreadyFinished() {
-        order.addOrderItem(orderItem);
-        orderItem.upgradeProgress();
-        orderItem.upgradeProgress();
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        assertThatIllegalStateException().isThrownBy(()->statusUseCaseTest.advanceStatus(orderId,itemId));
-    }
-
-    @Test
-    @DisplayName("Dado que o status da comanda foi alterada, quando o sistema processar, então deve salvar a comanda")
-    void shouldSaveOrderAfterAdvancingStatus() {
-        order.addOrderItem(orderItem);
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        statusUseCaseTest.advanceStatus(orderId, itemId);
-        verify(orderRepository).save(order);
-    }
-
-
 
 }
