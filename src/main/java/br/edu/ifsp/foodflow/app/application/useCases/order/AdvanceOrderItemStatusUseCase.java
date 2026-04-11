@@ -28,5 +28,6 @@ public class AdvanceOrderItemStatusUseCase {
                 .findFirst().orElseThrow(()-> new OrderItemNotFoundException("Item não encontrado na comanda: "+ itemId));
 
         orderItem.upgradeProgress();
+        orderRepository.save(order);
     }
 }
