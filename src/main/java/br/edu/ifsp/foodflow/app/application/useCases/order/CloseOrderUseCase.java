@@ -3,12 +3,14 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.UUID;
 
+@Service
 public class CloseOrderUseCase {
 
     private final OrderRepository orderRepository;

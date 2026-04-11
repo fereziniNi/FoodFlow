@@ -6,17 +6,21 @@ import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderRequest;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
+import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderAlreadyClosedException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.UnavailableItemException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.UnavailableItemException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service
 public class AddItemToOrderUseCase {
     private final OrderRepository orderRepository;
     private final MenuItemRepository menuItemRepository;
@@ -30,7 +34,8 @@ public class AddItemToOrderUseCase {
         this.addOnRepository = addOnRepository;
     }
 
-    public OrderResponse execute(AddItemToOrderRequest item){
+    @Transactional
+    public OrderResultDTO execute(AddItemToOrderDTO item){
         UUID orderId = item.orderId();
         Objects.requireNonNull(orderId, "O ID do pedido não pode ser nulo");
         Order order = orderRepository.findById(orderId)
@@ -39,13 +44,20 @@ public class AddItemToOrderUseCase {
         if(!order.getActive()) throw new OrderAlreadyClosedException("Pedido já finalizado para o ID: " + orderId);
 
         OrderItem orderItem = validateOrderItem(item);
-
         order.addOrderItem(orderItem);
+
         orderRepository.save(order);
-        return new OrderResponse(order.getId(), order.getTable().getTableNumber(), order.getCreatedAt(), order.getActive(), order.getTotalPriceOfOrder());
+
+        return new OrderResultDTO(
+                order.getId(),
+                order.getTable().getTableNumber(),
+                order.getCreatedAt(),
+                order.getActive(),
+                order.getTotalPriceOfOrder()
+        );
     }
 
-    private OrderItem validateOrderItem(AddItemToOrderRequest item){
+    private OrderItem validateOrderItem(AddItemToOrderDTO item){
         Objects.requireNonNull(item, "O request do item não pode ser nulo");
 
         MenuItem menuItem = menuItemRepository.findById(item.menuItemId())
@@ -64,6 +76,6 @@ public class AddItemToOrderUseCase {
                 throw new NoSuchElementException("Um ou mais adicionais informados são inválidos ou foram removidos.");
         }
 
-        return new OrderItem(UUID.randomUUID(), menuItem, addOns, waiter, item.observations());
+        return new OrderItem(null, menuItem, addOns, waiter, item.observations());
     }
 }

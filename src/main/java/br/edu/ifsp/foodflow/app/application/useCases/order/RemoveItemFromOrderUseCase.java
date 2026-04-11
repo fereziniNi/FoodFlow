@@ -2,15 +2,17 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
+@Service
 public class RemoveItemFromOrderUseCase {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;

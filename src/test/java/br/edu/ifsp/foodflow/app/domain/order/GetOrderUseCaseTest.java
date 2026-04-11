@@ -6,7 +6,7 @@ import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
