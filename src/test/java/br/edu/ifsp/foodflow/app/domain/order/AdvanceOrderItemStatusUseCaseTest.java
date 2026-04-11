@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -132,6 +133,17 @@ class AdvanceOrderItemStatusUseCaseTest {
             statusUseCaseTest.advanceStatus(orderId, itemId);
             verify(orderRepository).save(order);
         }
+
+        @Test
+        @DisplayName("Dado que o status do item foi avançado, quando o sistema processar a mudança, " +
+                "então deve ser armazenado o horário da alteração")
+        void shouldUpdateTimestampWhenStatusIsAdvanced() {                                                                                                                                      order.addOrderItem(orderItem);
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            LocalDateTime before = orderItem.getUpdateAt();
+            statusUseCaseTest.advanceStatus(orderId, itemId);
+            assertThat(orderItem.getUpdateAt()).isAfterOrEqualTo(before);
+        }
+
     }
 
     @Test
