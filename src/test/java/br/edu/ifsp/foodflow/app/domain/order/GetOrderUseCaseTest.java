@@ -112,7 +112,11 @@ class GetOrderByTableUseCaseTest {
             assertEquals(50.0, result.items().get(0).price());
             assertEquals(100.0, result.total());
         }
+    }
 
+    @Nested
+    @Tag("Functional")
+    class FunctionalTests {
         @Test
         @DisplayName("Deve retornar OrderDetailsResponse com lista de itens vazia quando o pedido não tiver itens")
         void shouldReturnEmptyItemsWhenOrderHasNoItems() {
@@ -136,32 +140,29 @@ class GetOrderByTableUseCaseTest {
             assertTrue(result.items().isEmpty());
             assertEquals(0.0, result.total());
         }
+
+        @Test
+        @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
+        void shouldApplyDiscountCorrectly() {
+            UUID orderId = UUID.randomUUID();
+
+            Table table = new Table(1);
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+
+            Order order = new Order(table, user);
+
+            MenuItem menuItem1 = new MenuItem(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
+            OrderItem item1 = new OrderItem(UUID.randomUUID(), menuItem1, List.of(), user, "");
+
+            order.addOrderItem(item1);
+
+            when(orderRepository.findById(orderId))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsResponse result = service.getOrderByTable(1);
+
+            assertEquals(120.0, result.total());
+            assertEquals(0.05, result.discount());
+        }
     }
-
-    @Test
-    @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
-    void shouldApplyDiscountCorrectly() {
-        UUID orderId = UUID.randomUUID();
-
-        Table table = new Table(1);
-        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
-
-        Order order = new Order(table, user);
-
-        MenuItem menuItem1 = new MenuItem(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
-        OrderItem item1 = new OrderItem(UUID.randomUUID(), menuItem1, List.of(), user, "");
-
-        order.addOrderItem(item1);
-
-        when(orderRepository.findById(orderId))
-                .thenReturn(Optional.of(order));
-
-        OrderDetailsResponse result = service.getOrderByTable(1);
-
-        assertEquals(120.0, result.total());
-        assertEquals(0.05, result.discount());
-    }
-
-
-
 }
