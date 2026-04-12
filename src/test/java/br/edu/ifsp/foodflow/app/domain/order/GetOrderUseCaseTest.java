@@ -198,5 +198,27 @@ class GetOrderByTableUseCaseTest {
             assertEquals(32.0, result.items().get(0).price());
             assertEquals(32.0, result.total());
         }
+
+        @Test
+        @DisplayName("Deve retornar o status atual de cada item do pedido")
+        void shouldReturnOrderItemStatus() {
+            Table table = new Table(1);
+            User user = new User("João", "João", "email", "123");
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Pizza", "desc", 40.0, 10);
+            OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
+
+            item.upgradeProgress();
+
+            Order order = new Order(table, user);
+            order.addOrderItem(item);
+
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsResponse result = service.getOrderByTable(1);
+            assertEquals("PREPARATION", result.items().get(0).status());
+        }
     }
 }
