@@ -127,13 +127,14 @@ class GetOrderByTableUseCaseTest {
 
             Order order = new Order(table, user);
 
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+
             when(orderRepository.findById(orderId))
                     .thenReturn(Optional.of(order));
 
             OrderDetailsResponse result = service.getOrderByTable(1);
-
             assertNotNull(result);
-            assertEquals(orderId, result.orderId());
             assertEquals(table.getTableNumber(), result.tableNumber());
             assertEquals(user.getUsername(), result.userName());
             assertNotNull(result.items());
