@@ -59,6 +59,25 @@ class GetOrderByTableUseCaseTest {
     }
 
     @Test
+    @DisplayName("Deve lançar OrderNotFoundException quando não encontrar comanda na mesa")
+    void shouldThrowExceptionWhenTableHasNoActiveOrder() {
+        int tableId = 1;
+        Table table = new Table(tableId);
+
+        when(tableRepository.findByTableNumber(tableId))
+                .thenReturn(Optional.of(table));
+        when(orderRepository.findActiveOrderByTable(table))
+                .thenReturn(Optional.empty());
+
+        OrderNotFoundException exception = assertThrows(
+                OrderNotFoundException.class,
+                () -> service.getOrderByTable(tableId)
+        );
+
+        assertEquals("Não existe comanda ativa para essa mesa.", exception.getMessage());
+    }
+
+    @Test
     @DisplayName("Deve retornar OrderDetailsResponse com itens quando houver pedido ativo para a mesa")
     void shouldReturnOrderDTOWhenActiveOrderExists() {
         UUID orderId = UUID.randomUUID();
