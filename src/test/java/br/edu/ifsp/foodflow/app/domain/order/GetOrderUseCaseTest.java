@@ -145,8 +145,6 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
         void shouldApplyDiscountCorrectly() {
-            UUID orderId = UUID.randomUUID();
-
             Table table = new Table(1);
             User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
@@ -157,7 +155,10 @@ class GetOrderByTableUseCaseTest {
 
             order.addOrderItem(item1);
 
-            when(orderRepository.findById(orderId))
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+
+            when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
             OrderDetailsResponse result = service.getOrderByTable(1);
