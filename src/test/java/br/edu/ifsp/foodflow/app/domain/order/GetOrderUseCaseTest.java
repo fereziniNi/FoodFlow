@@ -1,6 +1,7 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Null;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -165,6 +165,38 @@ class GetOrderByTableUseCaseTest {
 
             assertEquals(120.0, result.total());
             assertEquals(0.05, result.discount());
+        }
+
+        @Test
+        @DisplayName("Deve somar corretamente o preço do item com adicionais")
+        void shouldCalculateItemPriceWithAddOns() {
+            Table table = new Table(1);
+            User user = new User("João", "João", "email", "123");
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Hamburguer", "desc", 20.0, 10);
+
+            AddOn extraQueijo = new AddOn(UUID.randomUUID(), "Queijo", 5.0);
+            AddOn bacon = new AddOn(UUID.randomUUID(), "Bacon", 7.0);
+
+            OrderItem item = new OrderItem(
+                    UUID.randomUUID(),
+                    menuItem,
+                    List.of(extraQueijo, bacon),
+                    user,
+                    ""
+            );
+
+            Order order = new Order(table, user);
+            order.addOrderItem(item);
+
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsResponse result = service.getOrderByTable(1);
+            assertEquals(32.0, result.items().get(0).price());
+            assertEquals(32.0, result.total());
         }
     }
 }
