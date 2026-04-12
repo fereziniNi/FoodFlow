@@ -5,6 +5,7 @@ import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -67,11 +68,11 @@ class OpenTableOrderUseCaseTest {
         }
 
         @Test
-        @DisplayName("Deve lançar IllegalArgumentException quando a mesa não existir")
+        @DisplayName("Deve lançar TableNotFoundException quando a mesa não existir")
         void shouldThrowExceptionWhenTableDoesNotExist() {
             when(tableRepository.findByTableNumber(999)).thenReturn(Optional.empty());
 
-            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            TableNotFoundException exception = assertThrows(TableNotFoundException.class,
                     () -> service.openOrder(999, aleatoryId));
 
             assertEquals("Mesa não encontrada.", exception.getMessage());

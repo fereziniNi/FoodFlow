@@ -4,9 +4,10 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record OrderDetailsResponse(
-        Integer orderId,
+        UUID orderId,
         int tableNumber,
         String userName,
         LocalDateTime createdAt,
