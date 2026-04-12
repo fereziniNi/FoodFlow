@@ -2,7 +2,7 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class CloseOrderUseCase {
         this.orderRepository = orderRepository;
     }
 
-    public CloseOrderResponse closeOrder(UUID orderId, int numberOfPeople ){
+    public CloseOrderResultDTO closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
 
         Order order = orderRepository.findById(orderId)
@@ -42,7 +42,7 @@ public class CloseOrderUseCase {
         double discount = order.getDiscountPercentage();
         double total = order.getTotalPriceOfOrder();
         double totalWithDiscount = total *(1 - discount);
-        return new CloseOrderResponse(
+        return new CloseOrderResultDTO(
                 orderId,
                 order.getTable().getTableNumber(),
                 order.getCreatedAt(),

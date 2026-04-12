@@ -2,7 +2,7 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
-import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
@@ -115,7 +115,7 @@ public class CloseOrderUseCaseTest {
         void shouldReturnCloseOrderResponseWithoutDiscount() {
             order.addOrderItem(item);
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
             assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(80);
             assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0);
             assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(80.00);
@@ -136,7 +136,7 @@ public class CloseOrderUseCaseTest {
             double totalWithDiscount = 130 * 0.95;
 
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
             assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(130);
             assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0.05);
             assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
@@ -158,7 +158,7 @@ public class CloseOrderUseCaseTest {
             double totalWithDiscount = 220 * 0.90;
 
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
             assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(220);
             assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0.10);
             assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
@@ -177,7 +177,7 @@ public class CloseOrderUseCaseTest {
             double totalWithDiscount = 280 * 0.80;
 
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
             assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(280);
             assertThat(closeOrderResponse.discountPercentage()).isEqualTo(0.20);
             assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
@@ -192,7 +192,7 @@ public class CloseOrderUseCaseTest {
             int numberOfPeople = 4;
             order.addOrderItem(item);
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, numberOfPeople);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, numberOfPeople);
             assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(80.0 / numberOfPeople);
 
         }
@@ -246,7 +246,7 @@ public class CloseOrderUseCaseTest {
             order.addOrderItem(item2);
 
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 1);
             assertThat(closeOrderResponse.totalWithoutDiscount()).isEqualTo(total);
             assertThat(closeOrderResponse.discountPercentage()).isEqualTo(discount);
             assertThat(closeOrderResponse.totalWithDiscount()).isEqualTo(totalWithDiscount);
@@ -259,7 +259,7 @@ public class CloseOrderUseCaseTest {
         void shouldReturnCorrectTotalPerPersonWhenNumberOfPeopleIsAboveMinimumBoundary(){
             order.addOrderItem(item);
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            CloseOrderResponse closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 2);
+            CloseOrderResultDTO closeOrderResponse = closeOrderUseCase.closeOrder(randomUUID, 2);
             assertThat(closeOrderResponse.totalPerPerson()).isEqualTo(80.0 / 2);
 
         }
