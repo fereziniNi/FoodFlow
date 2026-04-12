@@ -10,6 +10,8 @@ import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+@Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 class GetOrderByTableUseCaseTest {
     @InjectMocks
@@ -35,102 +38,104 @@ class GetOrderByTableUseCaseTest {
     @Mock
     private TableRepository tableRepository;
 
-    UUID notExistId = UUID.randomUUID();
+    @Nested
+    @Tag("TDD")
+    class TDDTests {
+        @Test
+        @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
+        void shouldThrowExceptionWhenOrderIsNull() {
+            NullPointerException exception = assertThrows(NullPointerException.class,
+                    () -> service.getOrderByTable(null));
 
-    @Test
-    @DisplayName("Deve lançar NullPointerException quando o ID da mesa for nulo")
-    void shouldThrowExceptionWhenOrderIsNull() {
-        NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> service.getOrderByTable(null));
+            assertEquals("O Id da mesa é obrigatório.", exception.getMessage());
+        }
 
-        assertEquals("O Id da mesa é obrigatório.", exception.getMessage());
-    }
+        @Test
+        @DisplayName("Deve lançar TableNotFoundException quando a mesa não existir")
+        void shouldThrowExceptionWhenTableDoesNotExist() {
+            Integer tableIdNotExist = 99999;
+            when(tableRepository.findByTableNumber(tableIdNotExist)).thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("Deve lançar TableNotFoundException quando a mesa não existir")
-    void shouldThrowExceptionWhenTableDoesNotExist() {
-        Integer tableIdNotExist = 99999;
-        when(tableRepository.findByTableNumber(tableIdNotExist)).thenReturn(Optional.empty());
+            TableNotFoundException exception = assertThrows(TableNotFoundException.class,
+                    () -> service.getOrderByTable(tableIdNotExist));
 
-        TableNotFoundException exception = assertThrows(TableNotFoundException.class,
-                () -> service.getOrderByTable(tableIdNotExist));
+            assertEquals("Mesa não encontrada.", exception.getMessage());
+        }
 
-        assertEquals("Mesa não encontrada.", exception.getMessage());
-    }
+        @Test
+        @DisplayName("Deve lançar OrderNotFoundException quando não encontrar comanda na mesa")
+        void shouldThrowExceptionWhenTableHasNoActiveOrder() {
+            int tableId = 1;
+            Table table = new Table(tableId);
 
-    @Test
-    @DisplayName("Deve lançar OrderNotFoundException quando não encontrar comanda na mesa")
-    void shouldThrowExceptionWhenTableHasNoActiveOrder() {
-        int tableId = 1;
-        Table table = new Table(tableId);
+            when(tableRepository.findByTableNumber(tableId))
+                    .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.empty());
 
-        when(tableRepository.findByTableNumber(tableId))
-                .thenReturn(Optional.of(table));
-        when(orderRepository.findActiveOrderByTable(table))
-                .thenReturn(Optional.empty());
+            OrderNotFoundException exception = assertThrows(
+                    OrderNotFoundException.class,
+                    () -> service.getOrderByTable(tableId)
+            );
 
-        OrderNotFoundException exception = assertThrows(
-                OrderNotFoundException.class,
-                () -> service.getOrderByTable(tableId)
-        );
+            assertEquals("Não existe comanda ativa para essa mesa.", exception.getMessage());
+        }
 
-        assertEquals("Não existe comanda ativa para essa mesa.", exception.getMessage());
-    }
+        @Test
+        @DisplayName("Deve retornar OrderDetailsResponse com itens quando houver pedido ativo para a mesa")
+        void shouldReturnOrderDTOWhenActiveOrderExists() {
+            UUID orderId = UUID.randomUUID();
 
-    @Test
-    @DisplayName("Deve retornar OrderDetailsResponse com itens quando houver pedido ativo para a mesa")
-    void shouldReturnOrderDTOWhenActiveOrderExists() {
-        UUID orderId = UUID.randomUUID();
+            Table table = new Table(1);
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
-        Table table = new Table(1);
-        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+            Order order = new Order(table, user);
 
-        Order order = new Order(table, user);
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "Descrição do prato", 50.0, 10);
+            OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 
-        MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "Descrição do prato", 50.0, 10);
-        OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
+            order.addOrderItem(item);
+            order.addOrderItem(item);
 
-        order.addOrderItem(item);
-        order.addOrderItem(item);
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
 
-        when(tableRepository.findByTableNumber(1))
-                .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
 
-        when(orderRepository.findActiveOrderByTable(table))
-                .thenReturn(Optional.of(order));
+            OrderDetailsResponse result = service.getOrderByTable(1);
 
-        OrderDetailsResponse result = service.getOrderByTable(1);
+            assertNotNull(result);
+            assertEquals(table.getTableNumber(), result.tableNumber());
+            assertEquals(user.getUsername(), result.userName());
+            assertEquals(2, result.items().size());
+            assertEquals(50.0, result.items().get(0).price());
+            assertEquals(100.0, result.total());
+        }
 
-        assertNotNull(result);
-        assertEquals(table.getTableNumber(), result.tableNumber());
-        assertEquals(user.getUsername(), result.userName());
-        assertEquals(2, result.items().size());
-        assertEquals(50.0, result.items().get(0).price());
-        assertEquals(100.0, result.total());
-    }
+        @Test
+        @DisplayName("Deve retornar OrderDetailsResponse com lista de itens vazia quando o pedido não tiver itens")
+        void shouldReturnEmptyItemsWhenOrderHasNoItems() {
+            UUID orderId = UUID.randomUUID();
 
-    @Test
-    @DisplayName("Deve retornar OrderDetailsResponse com lista de itens vazia quando o pedido não tiver itens")
-    void shouldReturnEmptyItemsWhenOrderHasNoItems() {
-        UUID orderId = UUID.randomUUID();
+            Table table = new Table(1);
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
 
-        Table table = new Table(1);
-        User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+            Order order = new Order(table, user);
 
-        Order order = new Order(table, user);
+            when(orderRepository.findById(orderId))
+                    .thenReturn(Optional.of(order));
 
-        when(orderRepository.findById(orderId))
-                .thenReturn(Optional.of(order));
+            OrderDetailsResponse result = service.getOrderByTable(1);
 
-        OrderDetailsResponse result = service.getOrderByTable(1);
-
-        assertNotNull(result);
-        assertEquals(orderId, result.orderId());
-        assertEquals(table.getTableNumber(), result.tableNumber());
-        assertEquals(user.getUsername(), result.userName());
-        assertNotNull(result.items());
-        assertTrue(result.items().isEmpty());
-        assertEquals(0.0, result.total());
+            assertNotNull(result);
+            assertEquals(orderId, result.orderId());
+            assertEquals(table.getTableNumber(), result.tableNumber());
+            assertEquals(user.getUsername(), result.userName());
+            assertNotNull(result.items());
+            assertTrue(result.items().isEmpty());
+            assertEquals(0.0, result.total());
+        }
     }
 
     @Test
