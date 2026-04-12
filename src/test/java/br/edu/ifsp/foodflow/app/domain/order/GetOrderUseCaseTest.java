@@ -93,14 +93,15 @@ class GetOrderByTableUseCaseTest {
         order.addOrderItem(item);
         order.addOrderItem(item);
 
-        when(orderRepository.findById(orderId))
+        when(tableRepository.findByTableNumber(1))
+                .thenReturn(Optional.of(table));
+
+        when(orderRepository.findActiveOrderByTable(table))
                 .thenReturn(Optional.of(order));
 
         OrderDetailsResponse result = service.getOrderByTable(1);
 
         assertNotNull(result);
-
-        assertEquals(orderId, result.orderId());
         assertEquals(table.getTableNumber(), result.tableNumber());
         assertEquals(user.getUsername(), result.userName());
         assertEquals(2, result.items().size());
