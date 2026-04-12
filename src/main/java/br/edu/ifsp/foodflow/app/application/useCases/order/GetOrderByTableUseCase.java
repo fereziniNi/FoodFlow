@@ -34,7 +34,7 @@ public class GetOrderByTableUseCase {
                 ));
 
         return new OrderDetailsResponse(
-                tableId,
+                order.getId(),
                 order.getTable().getTableNumber(),
                 order.getUser().getUsername(),
                 order.getCreatedAt(),
