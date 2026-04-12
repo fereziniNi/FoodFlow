@@ -28,8 +28,10 @@ public class GetOrderByTableUseCase {
         Table table  = tableRepository.findByTableNumber(tableId)
                 .orElseThrow(() -> new TableNotFoundException("Mesa não encontrada."));
 
-        Order order = orderRepository.findById(UUID.randomUUID())
-                .orElseThrow(() -> new OrderNotFoundException("Pedido não encontrado."));
+        Order order = orderRepository.findActiveOrderByTable(table)
+                .orElseThrow(() -> new OrderNotFoundException(
+                        "Não existe comanda ativa para essa mesa."
+                ));
 
         return new OrderDetailsResponse(
                 tableId,
