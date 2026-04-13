@@ -2,8 +2,8 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
-import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
-import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.RemoveItemFromOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
@@ -71,7 +71,7 @@ public class RemoveItemFromOrderUseCaseTest {
         assertEquals(2, order.getOrderItems().size());
         assertEquals(55, order.getTotalPriceOfOrder());
 
-        sut.execute(new RemoveItemFromOrderRequest(orderId, orderItemId));
+        sut.execute(new RemoveItemFromOrderDTO(orderId, orderItemId));
 
         assertEquals(1, order.getOrderItems().size());
         assertEquals(35, order.getTotalPriceOfOrder());
@@ -100,7 +100,7 @@ public class RemoveItemFromOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemInPreparation));
 
-        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(orderId, orderItemId);
+        RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(orderId, orderItemId);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
             sut.execute(request);
@@ -133,8 +133,8 @@ public class RemoveItemFromOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
 
-        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(orderId, orderItemId);
-        OrderResponse response = sut.execute(request);
+        RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(orderId, orderItemId);
+        OrderResultDTO response = sut.execute(request);
 
         assertEquals(35.0, response.total(), "O preço na resposta do UseCase deve ser atualizado para 35.0");
         assertEquals(35.0, order.getTotalPriceOfOrder(), "O preço interno da entidade deve ser atualizado para 35.0");
@@ -145,7 +145,7 @@ public class RemoveItemFromOrderUseCaseTest {
     @DisplayName("Dado que o ID da comanda no request é nulo, quando o usuário tentar remover um item, " +
                  "então o sistema deve lançar uma IllegalArgumentException.")
     void shouldThrowExceptionWhenOrderIdIsNull() {
-        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(null, orderItemId);
+        RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(null, orderItemId);
 
         NullPointerException exception = assertThrows(NullPointerException.class, () -> {
             sut.execute(request);
@@ -173,7 +173,7 @@ public class RemoveItemFromOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(closedOrder));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
 
-        RemoveItemFromOrderRequest request = new RemoveItemFromOrderRequest(orderId, orderItemId);
+        RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(orderId, orderItemId);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
             sut.execute(request);
@@ -205,7 +205,7 @@ public class RemoveItemFromOrderUseCaseTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemWithAddOn));
 
-        sut.execute(new RemoveItemFromOrderRequest(orderId, orderItemId));
+        sut.execute(new RemoveItemFromOrderDTO(orderId, orderItemId));
 
         assertEquals(0.0, order.getTotalPriceOfOrder(), "O total da comanda deveria ser 0.0 após remover o item e seus adicionais.");
     }

@@ -2,10 +2,11 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
-import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -22,7 +23,8 @@ public class RemoveItemFromOrderUseCase {
         this.orderItemRepository = orderItemRepository;
     }
 
-    public OrderResponse execute(RemoveItemFromOrderRequest request){
+    @Transactional
+    public OrderResultDTO execute(RemoveItemFromOrderDTO request){
         UUID orderId = request.orderId();
         Objects.requireNonNull(orderId, "O ID da comanda é obrigatório e deve ser válido.");
 
@@ -36,6 +38,6 @@ public class RemoveItemFromOrderUseCase {
         order.removeOrderItem(orderItem);
         orderRepository.save(order);
 
-        return new OrderResponse(order.getId(), order.getTable().getTableNumber(), order.getCreatedAt(), order.getActive(), order.getTotalPriceOfOrder());
+        return new OrderResultDTO(order.getId(), order.getTable().getTableNumber(), order.getCreatedAt(), order.getActive(), order.getTotalPriceOfOrder());
     }
 }
