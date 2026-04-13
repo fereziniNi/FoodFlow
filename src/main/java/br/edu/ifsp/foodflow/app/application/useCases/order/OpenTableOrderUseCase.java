@@ -8,7 +8,6 @@ import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.UserNotFoundException;
 
 import java.util.Objects;
 import java.util.UUID;

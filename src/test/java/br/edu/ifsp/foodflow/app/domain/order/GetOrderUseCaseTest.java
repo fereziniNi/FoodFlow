@@ -5,7 +5,6 @@ import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
-import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
@@ -131,7 +130,7 @@ class GetOrderByTableUseCaseTest {
             when(tableRepository.findByTableNumber(1))
                     .thenReturn(Optional.of(table));
 
-            when(orderRepository.findById(orderId))
+            when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
             OrderDetailsResponse result = service.getOrderByTable(1);
