@@ -43,12 +43,14 @@ public class GetOrderByTableUseCase {
                 order.getActive(),
                 order.getTotalPriceOfOrder(),
                 order.getDiscountPercentage(),
-                order.getOrderItems().stream().map(
-                        item->new OrderItemDetailsDTO(
+                order.getOrderItems().stream()
+                        .map(item -> new OrderItemDetailsDTO(
                                 item.getId(),
-                                item.getObservations(),
-                                item.getPrice()
-                )).toList()
+                                item.getMenuItem().getName(),
+                                item.getPrice(),
+                                item.getStatus()
+                        ))
+                        .toList()
         );
     }
 }

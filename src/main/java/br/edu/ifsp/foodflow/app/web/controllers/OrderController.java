@@ -135,7 +135,8 @@ public class OrderController {
                         .map(item -> new OrderItemDetailsResponse(
                                 item.id(),
                                 item.description(),
-                                item.price()
+                                item.price(),
+                                item.status()
                         ))
                         .toList()
         );
