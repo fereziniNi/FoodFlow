@@ -5,7 +5,6 @@ import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatu
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemAlreadyFinishedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
-import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
@@ -121,7 +120,7 @@ class AdvanceOrderItemStatusUseCaseTest {
         @Test
         @DisplayName("Dado que o status do item está como finalizado, quando o garçom tentar solicitar o avanço, " +
                 "então o sistema deve lançar um erro informando que um item finalizado não pode ter seu status alterado")
-        void shouldThrowIllegalStateExceptionWhenItemIsAlreadyFinished() {
+        void shouldThrowOrderItemAlreadyFinishedExceptionWhenItemIsAlreadyFinished() {
             order.addOrderItem(orderItem);
             orderItem.upgradeProgress();
             orderItem.upgradeProgress();
