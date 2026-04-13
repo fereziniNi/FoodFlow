@@ -1,18 +1,24 @@
 package br.edu.ifsp.foodflow.app.web.controllers;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.OpenTableOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.web.dtos.request.AddItemToOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.request.AdvanceOrderItemStatusRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.CloseOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.OpenOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.response.*;
+import br.edu.ifsp.foodflow.app.web.dtos.response.AdvanceOrderItemStatusResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.response.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +31,15 @@ import java.util.UUID;
 public class OrderController {
     private final AddItemToOrderUseCase addItemToOrderUseCase;
     private final CloseOrderUseCase closeOrderUseCase;
+    private final AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase;
+    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase) {
     private final OpenTableOrderUseCase openTableOrderUseCase;
     private final GetOrderByTableUseCase getOrderByTableUseCase;
 
     public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, OpenTableOrderUseCase openTableOrderUseCase, GetOrderByTableUseCase getOrderByTableUseCase) {
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.closeOrderUseCase = closeOrderUseCase;
+        this.advanceOrderItemStatusUseCase = advanceOrderItemStatusUseCase;
         this.openTableOrderUseCase = openTableOrderUseCase;
         this.getOrderByTableUseCase = getOrderByTableUseCase;
     }
@@ -68,6 +77,21 @@ public class OrderController {
                 result.totalPerPerson()
         );
 
+        return  ResponseEntity.ok(response);
+
+    }
+
+    @PostMapping("/{orderId}/advance-status")
+    public ResponseEntity<AdvanceOrderItemStatusResponse> advanceOrderItemStatus(@PathVariable UUID orderId,  @Valid  @RequestBody AdvanceOrderItemStatusRequest request){
+        AdvanceOrderItemStatusDTO result = advanceOrderItemStatusUseCase.advanceStatus(orderId,request.itemId());
+        AdvanceOrderItemStatusResponse response = new AdvanceOrderItemStatusResponse(
+               result.itemId(),
+               result.orderId(),
+               result.status(),
+               result.createdAt(),
+               result.updatedAt()
+
+        );
         return  ResponseEntity.ok(response);
     }
 

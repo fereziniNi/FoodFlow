@@ -28,6 +28,8 @@ public class OrderItemMapper {
         entity.setPrice(domain.getPrice());
         entity.setAdditions(domain.getAdditions().stream()
                 .map(addOnMapper::toJpaEntity).collect(Collectors.toList()));
+        entity.setCreateAt(domain.getCreateAt());
+        entity.setUpdateAt(domain.getUpdateAt());
         return entity;
     }
 
@@ -37,7 +39,10 @@ public class OrderItemMapper {
                 menuItemMapper.toDomain(entity.getMenuItem()),
                 entity.getAdditions().stream().map(addOnMapper::toDomain).collect(Collectors.toList()),
                 userMapper.toDomain(entity.getWaiter()),
-                entity.getObservations()
+                entity.getObservations(),
+                entity.getStatus(),
+                entity.getCreateAt(),
+                entity.getUpdateAt()
         );
     }
 }

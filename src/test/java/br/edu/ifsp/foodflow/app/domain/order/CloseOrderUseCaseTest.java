@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -219,6 +220,14 @@ public class CloseOrderUseCaseTest {
             assertThat(order.getTable().getStatus()).isEqualTo(TableStatus.AVAILABLE);
 
         }
+        @Test
+        @DisplayName("Dado que a comanda está aberta, quando o cliente fechar a comanda, então a comanda deve ser salva")                                                                   void shouldSaveOrderWhenOrderIsClosed() {
+            order.addOrderItem(item);
+            when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+            closeOrderUseCase.closeOrder(randomUUID, 1);
+            verify(orderRepository).save(order);
+        }
+
     }
 
     @Nested
