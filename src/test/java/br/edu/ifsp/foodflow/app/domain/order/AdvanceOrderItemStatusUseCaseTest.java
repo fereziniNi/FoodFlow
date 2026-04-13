@@ -2,8 +2,10 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemAlreadyFinishedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
@@ -22,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -123,7 +126,7 @@ class AdvanceOrderItemStatusUseCaseTest {
             orderItem.upgradeProgress();
             orderItem.upgradeProgress();
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-            assertThatIllegalStateException().isThrownBy(() -> statusUseCaseTest.advanceStatus(orderId, itemId));
+            assertThrows(OrderItemAlreadyFinishedException.class, () -> statusUseCaseTest.advanceStatus(orderId, itemId));
         }
 
         @Test
