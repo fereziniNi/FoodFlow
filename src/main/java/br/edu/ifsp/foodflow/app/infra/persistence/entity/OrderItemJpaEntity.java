@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,4 +49,7 @@ public class OrderItemJpaEntity {
     private OrderItemStatus status;
 
     private double price;
+
+    private LocalDateTime createAt;
+    private  LocalDateTime updateAt;
 }

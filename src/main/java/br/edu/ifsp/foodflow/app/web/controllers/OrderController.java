@@ -1,12 +1,16 @@
 package br.edu.ifsp.foodflow.app.web.controllers;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.web.dtos.request.AddItemToOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.request.AdvanceOrderItemStatusRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.CloseOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.response.AdvanceOrderItemStatusResponse;
 import br.edu.ifsp.foodflow.app.web.dtos.response.CloseOrderResponse;
 import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import jakarta.validation.Valid;
@@ -21,10 +25,11 @@ import java.util.UUID;
 public class OrderController {
     private final AddItemToOrderUseCase addItemToOrderUseCase;
     private final CloseOrderUseCase closeOrderUseCase;
-
-    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase) {
+    private final AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase;
+    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase) {
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.closeOrderUseCase = closeOrderUseCase;
+        this.advanceOrderItemStatusUseCase = advanceOrderItemStatusUseCase;
     }
 
     @PostMapping("/{orderId}/items")
@@ -63,6 +68,22 @@ public class OrderController {
         return  ResponseEntity.ok(response);
 
     }
+
+    @PostMapping("/{orderId}/advance-status")
+    public ResponseEntity<AdvanceOrderItemStatusResponse> advanceOrderItemStatus(@PathVariable UUID orderId,  @Valid  @RequestBody AdvanceOrderItemStatusRequest request){
+        AdvanceOrderItemStatusDTO result = advanceOrderItemStatusUseCase.advanceStatus(orderId,request.itemId());
+        AdvanceOrderItemStatusResponse response = new AdvanceOrderItemStatusResponse(
+               result.itemId(),
+               result.orderId(),
+               result.status(),
+               result.createdAt(),
+               result.updatedAt()
+
+        );
+        return  ResponseEntity.ok(response);
+
+    }
+
 
 
 }
