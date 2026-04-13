@@ -1,5 +1,8 @@
 package br.edu.ifsp.foodflow.app.web.dtos.request;
 
+import jakarta.validation.constraints.Min;
+
 public record CloseOrderRequest (
-    int numberOfPeople
+        @Min(1)
+        int numberOfPeople
 ){}

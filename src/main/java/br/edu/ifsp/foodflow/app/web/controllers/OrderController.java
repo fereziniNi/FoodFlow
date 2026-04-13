@@ -49,7 +49,7 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/close")
-    public ResponseEntity<CloseOrderResponse> closeOrder(@PathVariable UUID orderId, @RequestBody CloseOrderRequest request){
+    public ResponseEntity<CloseOrderResponse> closeOrder(@PathVariable UUID orderId,  @Valid  @RequestBody CloseOrderRequest request){
         CloseOrderResultDTO result = closeOrderUseCase.closeOrder(orderId, request.numberOfPeople());
         CloseOrderResponse response = new CloseOrderResponse(
                 result.orderId(),                                                                                                                                       result.tableNumber(),
