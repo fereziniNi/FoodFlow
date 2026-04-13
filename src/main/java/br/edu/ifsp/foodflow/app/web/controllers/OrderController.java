@@ -32,11 +32,16 @@ public class OrderController {
     private final AddItemToOrderUseCase addItemToOrderUseCase;
     private final CloseOrderUseCase closeOrderUseCase;
     private final AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase;
-    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase) {
     private final OpenTableOrderUseCase openTableOrderUseCase;
     private final GetOrderByTableUseCase getOrderByTableUseCase;
 
-    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, OpenTableOrderUseCase openTableOrderUseCase, GetOrderByTableUseCase getOrderByTableUseCase) {
+    public OrderController(
+            AddItemToOrderUseCase addItemToOrderUseCase,
+            CloseOrderUseCase closeOrderUseCase,
+            AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase,
+            OpenTableOrderUseCase openTableOrderUseCase,
+            GetOrderByTableUseCase getOrderByTableUseCase
+    ) {
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.closeOrderUseCase = closeOrderUseCase;
         this.advanceOrderItemStatusUseCase = advanceOrderItemStatusUseCase;
