@@ -2,13 +2,14 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderItemNotFoundException;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -143,12 +144,25 @@ class AdvanceOrderItemStatusUseCaseTest {
             statusUseCaseTest.advanceStatus(orderId, itemId);
             assertThat(orderItem.getUpdateAt()).isAfterOrEqualTo(before);
         }
+        @Test
+        @DisplayName("Dado que o status do item foi avançado, quando o sistema processar, " +
+                "então deve retornar um DTO com o novo status do item")
+        void shouldReturnDtoWithUpdatedStatus() {
+            order.addOrderItem(orderItem);
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            AdvanceOrderItemStatusDTO response = statusUseCaseTest.advanceStatus(orderId, itemId);
+            assertThat(response.itemId()).isEqualTo(itemId);
+            assertThat(response.orderId()).isEqualTo(orderId);
+            assertThat(response.status()).isEqualTo(OrderItemStatus.PREPARATION);
+        }
+
 
     }
 
     @Test
     @Tag("Functional")
-    @DisplayName("Dado que a comanda possui múltiplos itens, quando o garçom avançar o status de um item específico, " +                                                                        "então apenas o item informado deve ter seu status alterado")                                                                                                               void shouldAdvanceOnlyTargetItemWhenOrderHasMultipleItems() {
+    @DisplayName("Dado que a comanda possui múltiplos itens, quando o garçom avançar o status de um item específico, " +
+            "então apenas o item informado deve ter seu status alterado")                                                                                                               void shouldAdvanceOnlyTargetItemWhenOrderHasMultipleItems() {
         OrderItem otherItem = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");                                                                                              order.addOrderItem(orderItem);
         order.addOrderItem(otherItem);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
