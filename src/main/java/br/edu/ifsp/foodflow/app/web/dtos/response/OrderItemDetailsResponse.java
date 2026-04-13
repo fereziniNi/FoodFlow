@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.domain.orderItem.dto;
+package br.edu.ifsp.foodflow.app.web.dtos.response;
 
 import java.util.UUID;
 

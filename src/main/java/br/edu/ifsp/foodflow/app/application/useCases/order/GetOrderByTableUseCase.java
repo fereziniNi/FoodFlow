@@ -2,15 +2,17 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
-import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+@Service
 public class GetOrderByTableUseCase {
     private final TableRepository tableRepository;
     private final OrderRepository orderRepository;
@@ -22,7 +24,7 @@ public class GetOrderByTableUseCase {
     }
 
 
-    public OrderDetailsResponse getOrderByTable(Integer tableId) {
+    public OrderDetailsDTO getOrderByTable(Integer tableId) {
         Objects.requireNonNull(tableId, "O Id da mesa é obrigatório.");
 
         Table table  = tableRepository.findByTableNumber(tableId)
@@ -33,7 +35,7 @@ public class GetOrderByTableUseCase {
                         "Não existe comanda ativa para essa mesa."
                 ));
 
-        return new OrderDetailsResponse(
+        return new OrderDetailsDTO(
                 order.getId(),
                 order.getTable().getTableNumber(),
                 order.getUser().getUsername(),
@@ -42,7 +44,7 @@ public class GetOrderByTableUseCase {
                 order.getTotalPriceOfOrder(),
                 order.getDiscountPercentage(),
                 order.getOrderItems().stream().map(
-                        item->new OrderItemDetailsResponse(
+                        item->new OrderItemDetailsDTO(
                                 item.getId(),
                                 item.getObservations(),
                                 item.getPrice()

@@ -4,7 +4,7 @@ import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCas
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
@@ -103,7 +103,7 @@ class GetOrderByTableUseCaseTest {
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
-            OrderDetailsResponse result = service.getOrderByTable(1);
+            OrderDetailsDTO result = service.getOrderByTable(1);
 
             assertNotNull(result);
             assertEquals(table.getTableNumber(), result.tableNumber());
@@ -133,7 +133,7 @@ class GetOrderByTableUseCaseTest {
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
-            OrderDetailsResponse result = service.getOrderByTable(1);
+            OrderDetailsDTO result = service.getOrderByTable(1);
             assertNotNull(result);
             assertEquals(table.getTableNumber(), result.tableNumber());
             assertEquals(user.getUsername(), result.userName());
@@ -161,7 +161,7 @@ class GetOrderByTableUseCaseTest {
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
-            OrderDetailsResponse result = service.getOrderByTable(1);
+            OrderDetailsDTO result = service.getOrderByTable(1);
 
             assertEquals(120.0, result.total());
             assertEquals(0.05, result.discount());
@@ -194,7 +194,7 @@ class GetOrderByTableUseCaseTest {
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
-            OrderDetailsResponse result = service.getOrderByTable(1);
+            OrderDetailsDTO result = service.getOrderByTable(1);
             assertEquals(32.0, result.items().get(0).price());
             assertEquals(32.0, result.total());
         }
@@ -217,7 +217,7 @@ class GetOrderByTableUseCaseTest {
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.of(order));
 
-            OrderDetailsResponse result = service.getOrderByTable(1);
+            OrderDetailsDTO result = service.getOrderByTable(1);
             //assertEquals("PREPARATION", result.items().get(0).status());
         }
     }

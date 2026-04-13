@@ -2,13 +2,17 @@ package br.edu.ifsp.foodflow.app.web.controllers;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.OpenTableOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.web.dtos.request.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.CloseOrderRequest;
-import br.edu.ifsp.foodflow.app.web.dtos.response.CloseOrderResponse;
-import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.request.OpenOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.response.*;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +25,14 @@ import java.util.UUID;
 public class OrderController {
     private final AddItemToOrderUseCase addItemToOrderUseCase;
     private final CloseOrderUseCase closeOrderUseCase;
+    private final OpenTableOrderUseCase openTableOrderUseCase;
+    private final GetOrderByTableUseCase getOrderByTableUseCase;
 
-    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase) {
+    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase, OpenTableOrderUseCase openTableOrderUseCase, GetOrderByTableUseCase getOrderByTableUseCase) {
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.closeOrderUseCase = closeOrderUseCase;
+        this.openTableOrderUseCase = openTableOrderUseCase;
+        this.getOrderByTableUseCase = getOrderByTableUseCase;
     }
 
     @PostMapping("/{orderId}/items")
@@ -61,7 +69,49 @@ public class OrderController {
         );
 
         return  ResponseEntity.ok(response);
+    }
 
+    @PostMapping("/{tableId}/open")
+    public ResponseEntity<OpenOrderResponse> openOrder(@PathVariable Integer tableId, @Valid  @RequestBody OpenOrderRequest request){
+        Order order = openTableOrderUseCase.openOrder(
+                tableId,
+                request.userId()
+        );
+
+        OpenOrderResponse response = new OpenOrderResponse(
+                order.getId(),
+                order.getTable().getTableNumber(),
+                order.getCreatedAt()
+        );
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/tables/{tableId}/order")
+    public ResponseEntity<OrderDetailsResponse> getOrderByTable(
+            @PathVariable Integer tableId
+    ) {
+
+        OrderDetailsDTO dto = getOrderByTableUseCase.getOrderByTable(tableId);
+
+        OrderDetailsResponse response = new OrderDetailsResponse(
+                dto.orderId(),
+                dto.tableNumber(),
+                dto.userName(),
+                dto.createdAt(),
+                dto.active(),
+                dto.total(),
+                dto.discount(),
+                dto.items().stream()
+                        .map(item -> new OrderItemDetailsResponse(
+                                item.id(),
+                                item.description(),
+                                item.price()
+                        ))
+                        .toList()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
 
