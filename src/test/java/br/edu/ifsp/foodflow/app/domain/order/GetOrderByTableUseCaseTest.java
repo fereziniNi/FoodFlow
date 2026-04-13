@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
@@ -218,7 +219,7 @@ class GetOrderByTableUseCaseTest {
                     .thenReturn(Optional.of(order));
 
             OrderDetailsDTO result = service.getOrderByTable(1);
-            assertEquals("PREPARATION", result.items().get(0).status());
+            assertEquals(OrderItemStatus.PREPARATION, result.items().get(0).status());
         }
     }
 }
