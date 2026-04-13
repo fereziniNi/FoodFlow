@@ -1,6 +1,7 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 
+import br.edu.ifsp.foodflow.app.domain.exceptions.EmptyOrderException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
@@ -94,7 +95,7 @@ public class CloseOrderUseCaseTest {
                 "então deve ser lançado um erro informando que a comanda não possui itens.")
         void shouldReturnIllegalStateExceptionWhenOrderNotHaveItems() {
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
-            assertThatIllegalStateException().isThrownBy(() -> closeOrderUseCase.closeOrder(randomUUID, 2));
+            assertThatExceptionOfType(EmptyOrderException.class).isThrownBy(() -> closeOrderUseCase.closeOrder(randomUUID, 2));
         }
 
 

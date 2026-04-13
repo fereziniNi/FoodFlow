@@ -1,5 +1,6 @@
 package br.edu.ifsp.foodflow.app.application.useCases.order;
 
+import br.edu.ifsp.foodflow.app.domain.exceptions.EmptyOrderException;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
@@ -28,7 +29,7 @@ public class CloseOrderUseCase {
             throw new OrderAlreadyClosedException("Pedido já finalizado para o ID:"+ orderId);
         }
         if(order.getOrderItems().isEmpty()){
-            throw new IllegalStateException("Pedido sem itens não pode ser finalizado para o ID:"+ orderId);
+            throw new EmptyOrderException("Pedido sem itens não pode ser finalizado para o ID:"+ orderId);
         }
 
         if(numberOfPeople < 1) {
