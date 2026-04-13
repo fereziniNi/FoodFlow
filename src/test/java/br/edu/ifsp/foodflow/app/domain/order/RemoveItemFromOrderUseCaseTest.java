@@ -2,7 +2,7 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
-import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderRequest;
 import br.edu.ifsp.foodflow.app.application.useCases.order.RemoveItemFromOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;

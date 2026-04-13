@@ -4,10 +4,12 @@ import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsResponse;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+@Service
 public class GetOrderUseCase {
     private final OrderRepository orderRepository;
 

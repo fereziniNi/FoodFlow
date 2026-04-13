@@ -1,0 +1,68 @@
+package br.edu.ifsp.foodflow.app.web.controllers;
+
+import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
+import br.edu.ifsp.foodflow.app.web.dtos.request.AddItemToOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.request.CloseOrderRequest;
+import br.edu.ifsp.foodflow.app.web.dtos.response.CloseOrderResponse;
+import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    private final AddItemToOrderUseCase addItemToOrderUseCase;
+    private final CloseOrderUseCase closeOrderUseCase;
+
+    public OrderController(AddItemToOrderUseCase addItemToOrderUseCase, CloseOrderUseCase closeOrderUseCase) {
+        this.addItemToOrderUseCase = addItemToOrderUseCase;
+        this.closeOrderUseCase = closeOrderUseCase;
+    }
+
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<OrderResponse> addItem(@PathVariable UUID orderId, @Valid @RequestBody AddItemToOrderRequest request) {
+        AddItemToOrderDTO command = new AddItemToOrderDTO(
+                orderId,
+                request.menuItemId(),
+                request.observations(),
+                request.addOnIds(),
+                request.waiterId()
+        );
+
+        OrderResultDTO result = addItemToOrderUseCase.execute(command);
+        OrderResponse response = new OrderResponse(
+                result.orderId(),
+                result.tableNumber(),
+                result.createdAt(),
+                result.active(),
+                result.total()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{orderId}/close")
+    public ResponseEntity<CloseOrderResponse> closeOrder(@PathVariable UUID orderId,  @Valid  @RequestBody CloseOrderRequest request){
+        CloseOrderResultDTO result = closeOrderUseCase.closeOrder(orderId, request.numberOfPeople());
+        CloseOrderResponse response = new CloseOrderResponse(
+                result.orderId(),                                                                                                                                       result.tableNumber(),
+                result.createdAt(),
+                result.totalWithoutDiscount(),
+                result.discountPercentage(),
+                result.totalWithDiscount(),
+                result.totalPerPerson()
+        );
+
+        return  ResponseEntity.ok(response);
+
+    }
+
+
+}

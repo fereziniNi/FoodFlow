@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.domain.order.dto;
+package br.edu.ifsp.foodflow.app.web.dtos.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
