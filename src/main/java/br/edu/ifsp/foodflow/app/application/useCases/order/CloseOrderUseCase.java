@@ -7,6 +7,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -20,6 +21,7 @@ public class CloseOrderUseCase {
         this.orderRepository = orderRepository;
     }
 
+    @Transactional
     public CloseOrderResultDTO closeOrder(UUID orderId, int numberOfPeople ){
         Objects.requireNonNull(orderId,"O ID do pedido não pode ser nulo");
 
