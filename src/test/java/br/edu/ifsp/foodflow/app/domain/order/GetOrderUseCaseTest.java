@@ -2,13 +2,13 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.GetOrderByTableUseCase;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
+import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsResponse;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
-import br.edu.ifsp.foodflow.app.infra.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
