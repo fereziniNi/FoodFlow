@@ -9,5 +9,5 @@ import org.junit.platform.suite.api.SuiteDisplayName;
 @SelectPackages({"br.edu.ifsp.foodflow.app.domain"})
 @SuiteDisplayName("Todos os testes baseados em testes estruturais")
 @IncludeTags({"Structural"})
-public class StructuralTest {
+public class StructuralTests {
 }
