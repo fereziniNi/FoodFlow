@@ -1,5 +1,6 @@
 package br.edu.ifsp.foodflow.app.infra.persistence.entity;
 
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,4 +29,7 @@ public class UserJpaEntity {
     private String email;
 
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 }
