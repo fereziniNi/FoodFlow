@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -49,7 +50,8 @@ class OpenTableOrderUseCaseTest {
                 "Teste Nome",
                 "usuarioTeste",
                 "teste@email.com",
-                "senha123"
+                "senha123",
+                UserRole.WAITER
         );
     }
 

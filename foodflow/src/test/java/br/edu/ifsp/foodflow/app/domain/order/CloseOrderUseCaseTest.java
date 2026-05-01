@@ -11,6 +11,7 @@ import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -51,7 +52,7 @@ public class CloseOrderUseCaseTest {
     void setup(){
         randomUUID = UUID.randomUUID();
         table = new Table(1);
-        user = new User("João Silva","João","joao@gmail.com","1234");
+        user = new User("João Silva","João","joao@gmail.com","1234", UserRole.WAITER);
 
         order = new Order(table,user);
         menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 80.0,1);

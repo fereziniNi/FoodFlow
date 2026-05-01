@@ -10,6 +10,7 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -88,7 +89,7 @@ class GetOrderByTableUseCaseTest {
             UUID orderId = UUID.randomUUID();
 
             Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
 
             Order order = new Order(table, user);
 
@@ -124,7 +125,7 @@ class GetOrderByTableUseCaseTest {
             UUID orderId = UUID.randomUUID();
 
             Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
 
             Order order = new Order(table, user);
 
@@ -147,7 +148,7 @@ class GetOrderByTableUseCaseTest {
         @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
         void shouldApplyDiscountCorrectly() {
             Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234");
+            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
 
             Order order = new Order(table, user);
 
@@ -172,7 +173,7 @@ class GetOrderByTableUseCaseTest {
         @DisplayName("Deve somar corretamente o preço do item com adicionais")
         void shouldCalculateItemPriceWithAddOns() {
             Table table = new Table(1);
-            User user = new User("João", "João", "email", "123");
+            User user = new User("João", "João", "email", "123", UserRole.WAITER);
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Hamburguer", "desc", 20.0, 10);
 
             AddOn extraQueijo = new AddOn(UUID.randomUUID(), "Queijo", 5.0);
@@ -204,7 +205,7 @@ class GetOrderByTableUseCaseTest {
         @DisplayName("Deve retornar o status atual de cada item do pedido")
         void shouldReturnOrderItemStatus() {
             Table table = new Table(1);
-            User user = new User("João", "João", "email", "123");
+            User user = new User("João", "João", "email", "123", UserRole.WAITER);
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Pizza", "desc", 40.0, 10);
             OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 

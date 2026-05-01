@@ -11,6 +11,7 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,7 +50,7 @@ class AdvanceOrderItemStatusUseCaseTest {
         orderId = UUID.randomUUID();
         itemId = UUID.randomUUID();
         table = new Table(1);
-        user = new User("João Silva", "João", "joao@gmail.com", "1234");
+        user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
         order = new Order(table, user);
         menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 50.0, 1);
         orderItem = new OrderItem(itemId, menuItem, List.of(), user, "");
