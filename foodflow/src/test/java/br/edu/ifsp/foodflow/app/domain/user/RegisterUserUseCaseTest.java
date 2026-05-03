@@ -9,11 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @Tag("UnitTest")
@@ -21,6 +23,9 @@ import static org.mockito.Mockito.*;
 class RegisterUserUseCaseTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private RegisterUserUseCase registerUserUseCase;
@@ -52,6 +57,17 @@ class RegisterUserUseCaseTest {
             ).isInstanceOf(RuntimeException.class);
         }
 
+        @Test
+        @DisplayName("Deve salvar usuário com senha criptografada quando username não existe")
+        void deveSalvarUsuarioComSenhaCriptografada() {
+            when(userRepository.findByUsername("bia")).thenReturn(Optional.empty());
+            when(passwordEncoder.encode("123")).thenReturn("$2a$hash");
+
+            registerUserUseCase.execute("Bia", "bia", "bia@email.com", "123", UserRole.WAITER);
+
+            verify(passwordEncoder).encode("123");
+            verify(userRepository).save(any(User.class));
+        }
     }
 
 }
