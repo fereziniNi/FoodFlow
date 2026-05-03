@@ -34,6 +34,13 @@ class OrderTest {
             assertThatIllegalArgumentException().isThrownBy(()->new Order(null,user));
         }
 
+        @Test
+        @DisplayName("Deve lançar IllegalArgumentException se usuário for nulo")
+        void deveLancarIllegalArgumentExceptionSeUsuarioNulo() {
+            Table table = new Table(1);
+            assertThatIllegalArgumentException().isThrownBy(()->new Order(table,null));
+        }
+
     }
 
 }
