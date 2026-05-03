@@ -277,4 +277,23 @@ public class CloseOrderUseCaseTest {
 
     }
 
+    @Nested
+    @Tag("Mutation")
+    @DisplayName("Testes de Mutação")
+    class mutationTests{
+
+
+        @Test
+        @DisplayName("Deve testar se mesa mudou status para disponível")
+        void deveTestarSeMesaMudouStatusParaDisponivel(){
+            Table table = new Table(1, TableStatus.OCCUPIED);
+            Order order = new Order(table, user);
+            order.addOrderItem(item);
+            when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
+            closeOrderUseCase.closeOrder(randomUUID, 1);
+            assertThat(order.getTable().getStatus()).isEqualTo(TableStatus.AVAILABLE);
+
+        }
+    }
+
 }
