@@ -10,6 +10,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
@@ -173,5 +174,29 @@ class AdvanceOrderItemStatusUseCaseTest {
         assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
         assertThat(otherItem.getStatus()).isEqualTo(OrderItemStatus.PENDING);
     }
+
+
+    @Nested
+    @Tag("Mutation")
+    @DisplayName("Testes de Mutação")
+    class mutationTests{
+        @Test
+        @DisplayName("Deve avançar o status do item correto independente da posição na lista ")
+        void deveMudarOStatusDoItemIndependenteDaPosicaoNaLista() {
+            OrderItem otherItem = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
+            order.addOrderItem(otherItem);
+            order.addOrderItem(orderItem);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            statusUseCaseTest.advanceStatus(orderId, itemId);
+
+            assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
+            assertThat(otherItem.getStatus()).isEqualTo(OrderItemStatus.PENDING);
+        }
+
+
+
+    }
+
 
 }
