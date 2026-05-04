@@ -189,5 +189,31 @@ public class AddItemToOrderUseCaseTest {
             assertThat(addedItem.getAdditions().size()).isEqualTo(2);
             verify(orderRepository, times(1)).save(order);
         }
+
+        @Test
+        @DisplayName("Deve lançar exceção quando a lista de adicionais contiver IDs inválidos ou removidos")
+        void shouldThrowExceptionWhenSomeAddOnIsMissing() {
+            List<UUID> addOnIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+            AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem molho", addOnIds, waiterId);
+
+            Order mockOrder = mock(Order.class);
+            when(mockOrder.getActive()).thenReturn(true);
+
+            MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
+            User user = new User("Garçom", "Sobrenome", "garcom@email.com", "123", UserRole.WAITER);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+            when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
+            when(userRepository.findById(waiterId)).thenReturn(Optional.of(user));
+
+            AddOn addOn1 = mock(AddOn.class);
+            when(addOnRepository.findAllById(addOnIds)).thenReturn(List.of(addOn1));
+
+            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> sut.execute(request));
+
+            assertEquals("Um ou mais adicionais informados são inválidos ou foram removidos.", exception.getMessage());
+            verify(mockOrder, never()).addOrderItem(any());
+            verify(orderRepository, never()).save(any());
+        }
     }
 }
