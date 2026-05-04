@@ -1,22 +1,27 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
+import br.edu.ifsp.foodflow.app.domain.addOn.AddOnRepository;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.UnavailableItemException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,27 +34,28 @@ import static org.mockito.Mockito.*;
 @Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 public class AddItemToOrderUseCaseTest {
+    private UUID orderId;
+    private UUID menuItemId;
+    private UUID waiterId;
+
+    @Mock private OrderRepository orderRepository;
+    @Mock private MenuItemRepository menuItemRepository;
+    @Mock private UserRepository userRepository;
+    @Mock private AddOnRepository addOnRepository;
+
+    @InjectMocks private AddItemToOrderUseCase sut;
+
+    @BeforeEach
+    void setup(){
+        orderId = UUID.randomUUID();
+        menuItemId = UUID.randomUUID();
+        waiterId = UUID.randomUUID();
+    }
+
     @Tag("TDD")
     @Nested
     @DisplayName("Testes criados com TDD")
     class TDDTests{
-        private UUID orderId;
-        private UUID menuItemId;
-        private UUID waiterId;
-
-        @Mock private OrderRepository orderRepository;
-        @Mock private MenuItemRepository menuItemRepository;
-        @Mock private UserRepository userRepository;
-
-        @InjectMocks private AddItemToOrderUseCase sut;
-
-        @BeforeEach
-        void setup(){
-            orderId = UUID.randomUUID();
-            menuItemId = UUID.randomUUID();
-            waiterId = UUID.randomUUID();
-        }
-
         @Test
         @DisplayName("Dado que o usuário esteja registrado e uma determinada mesa possua uma comanda ativa, " +
                 "quando o usuário adicionar um item à comanda, então o item deve ser registrado " +
@@ -148,6 +154,40 @@ public class AddItemToOrderUseCaseTest {
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
             OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(request));
             assertEquals("Pedido já finalizado para o ID: " + orderId, exception.getMessage());
+        }
+    }
+
+    @Tag("Structural")
+    @Nested
+    @DisplayName("Testes estruturais")
+    class StructuralTests{
+        @Test
+        @DisplayName("Deve processar o item com sucesso quando os adicionais informados existirem")
+        void shouldProcessItemSuccessfullyWhenAddOnsAreValid() {
+            List<UUID> addOnIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+            AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Ponto da carne: Mal passado", addOnIds, waiterId);
+
+            Table table = new Table(10);
+            User user = new User("Garçom", "Sobrenome", "garcom@email.com", "123", UserRole.WAITER);
+            Order order = new Order(table, user);
+
+            MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
+            AddOn addOn1 = mock(AddOn.class);
+            AddOn addOn2 = mock(AddOn.class);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
+            when(userRepository.findById(waiterId)).thenReturn(Optional.of(user));
+            when(addOnRepository.findAllById(addOnIds)).thenReturn(List.of(addOn1, addOn2));
+
+            OrderResultDTO response = sut.execute(request);
+
+            assertThat(response).isNotNull();
+            verify(addOnRepository, times(1)).findAllById(addOnIds);
+
+            OrderItem addedItem = order.getOrderItems().getFirst();
+            assertThat(addedItem.getAdditions().size()).isEqualTo(2);
+            verify(orderRepository, times(1)).save(order);
         }
     }
 }
