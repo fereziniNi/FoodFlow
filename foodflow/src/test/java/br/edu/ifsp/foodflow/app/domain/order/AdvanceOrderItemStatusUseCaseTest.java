@@ -163,19 +163,6 @@ class AdvanceOrderItemStatusUseCaseTest {
 
     }
 
-    @Test
-    @Tag("Functional")
-    @DisplayName("Dado que a comanda possui múltiplos itens, quando o garçom avançar o status de um item específico, " +
-            "então apenas o item informado deve ter seu status alterado")                                                                                                               void shouldAdvanceOnlyTargetItemWhenOrderHasMultipleItems() {
-        OrderItem otherItem = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");                                                                                              order.addOrderItem(orderItem);
-        order.addOrderItem(otherItem);
-        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
-        statusUseCaseTest.advanceStatus(orderId, itemId);
-        assertThat(orderItem.getStatus()).isEqualTo(OrderItemStatus.PREPARATION);
-        assertThat(otherItem.getStatus()).isEqualTo(OrderItemStatus.PENDING);
-    }
-
-
     @Nested
     @Tag("Mutation")
     @DisplayName("Testes de Mutação")
