@@ -1,1 +1,35 @@
 @import "tailwindcss";
+
+@layer base {
+  html {
+    @apply antialiased scroll-smooth;
+  }
+  
+  body {
+    @apply bg-gray-50;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+  }
+
+  /* Selection Color */
+  ::selection {
+    @apply bg-orange-100 text-orange-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-orange-600 text-white font-bold py-2 px-4 rounded-xl hover:bg-orange-700 transition-all active:scale-[0.98] focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+  }
+}
