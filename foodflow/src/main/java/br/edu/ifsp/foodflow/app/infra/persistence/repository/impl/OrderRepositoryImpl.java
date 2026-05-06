@@ -39,4 +39,11 @@ public class OrderRepositoryImpl implements OrderRepository {
         return springDataOrderRepository.findById(id)
                 .map(orderMapper::toDomain);
     }
+
+    @Override
+    public java.util.List<Order> findAllActive() {
+        return springDataOrderRepository.findByActiveTrue().stream()
+                .map(orderMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

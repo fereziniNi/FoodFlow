@@ -10,4 +10,5 @@ import java.util.UUID;
 
 public interface SpringDataOrderRepository extends JpaRepository<OrderJpaEntity, UUID> {
     Optional<OrderJpaEntity> findByTableAndActiveTrue(TableJpaEntity table);
+    java.util.List<OrderJpaEntity> findByActiveTrue();
 }
