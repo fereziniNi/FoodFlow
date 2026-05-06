@@ -6,6 +6,10 @@ import br.edu.ifsp.foodflow.app.infra.security.TokenService;
 import br.edu.ifsp.foodflow.app.web.dtos.request.LoginRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.RegisterRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.response.LoginResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +24,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Autenticação", description = "Registro e login de usuários")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -34,6 +39,12 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
+    @Operation(summary = "Realizar login e obter token JWT")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login realizado com sucesso, token retornado"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos na requisição"),
+        @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
+    })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
@@ -47,6 +58,11 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(token, user.getId(), user.getUsername()));
     }
 
+    @Operation(summary = "Cadastrar novo usuário (garçom ou admin)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Usuário cadastrado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos na requisição")
+    })
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest data) {
         this.registerUserUseCase.execute(data.name(), data.username(), data.email(), data.password(), data.role());
