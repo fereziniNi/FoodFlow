@@ -1,6 +1,7 @@
 package br.edu.ifsp.foodflow.app.web.controllers;
 
 import br.edu.ifsp.foodflow.app.application.useCases.user.RegisterUserUseCase;
+import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.infra.security.TokenService;
 import br.edu.ifsp.foodflow.app.web.dtos.request.LoginRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.RegisterRequest;
@@ -24,11 +25,13 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final RegisterUserUseCase registerUserUseCase;
     private final TokenService tokenService;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, RegisterUserUseCase registerUserUseCase, TokenService tokenService) {
+    public AuthController(AuthenticationManager authenticationManager, RegisterUserUseCase registerUserUseCase, TokenService tokenService, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.registerUserUseCase = registerUserUseCase;
         this.tokenService = tokenService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -36,9 +39,12 @@ public class AuthController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
+        var user = userRepository.findByUsername(data.username())
+                .orElseThrow(() -> new RuntimeException("User not found after authentication"));
+
         var token = tokenService.generateToken((UserDetails) Objects.requireNonNull(auth.getPrincipal()));
 
-        return ResponseEntity.ok(new LoginResponse(token));
+        return ResponseEntity.ok(new LoginResponse(token, user.getId(), user.getUsername()));
     }
 
     @PostMapping("/register")
