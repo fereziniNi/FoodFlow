@@ -3,22 +3,18 @@ package br.edu.ifsp.foodflow.app.web.controllers;
 import br.edu.ifsp.foodflow.app.application.useCases.order.*;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.dto.*;
-import br.edu.ifsp.foodflow.app.application.useCases.order.RemoveItemFromOrderUseCase;
-import br.edu.ifsp.foodflow.app.domain.order.dto.*;
 import br.edu.ifsp.foodflow.app.web.dtos.request.AddItemToOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.AdvanceOrderItemStatusRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.CloseOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.request.OpenOrderRequest;
 import br.edu.ifsp.foodflow.app.web.dtos.response.*;
 import br.edu.ifsp.foodflow.app.web.dtos.request.RemoveItemFromOrderRequest;
-import br.edu.ifsp.foodflow.app.web.dtos.response.AdvanceOrderItemStatusResponse;
-import br.edu.ifsp.foodflow.app.web.dtos.response.CloseOrderResponse;
-import br.edu.ifsp.foodflow.app.web.dtos.response.OrderResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,6 +26,7 @@ public class OrderController {
     private final OpenTableOrderUseCase openTableOrderUseCase;
     private final GetOrderByTableUseCase getOrderByTableUseCase;
     private final RemoveItemFromOrderUseCase removeItemFromOrderUseCase;
+    private final ListActiveOrdersUseCase listActiveOrdersUseCase;
 
     public OrderController(
             AddItemToOrderUseCase addItemToOrderUseCase,
@@ -37,7 +34,8 @@ public class OrderController {
             AdvanceOrderItemStatusUseCase advanceOrderItemStatusUseCase,
             OpenTableOrderUseCase openTableOrderUseCase,
             GetOrderByTableUseCase getOrderByTableUseCase,
-            RemoveItemFromOrderUseCase removeItemFromOrderUseCase
+            RemoveItemFromOrderUseCase removeItemFromOrderUseCase,
+            ListActiveOrdersUseCase listActiveOrdersUseCase
     ) {
         this.addItemToOrderUseCase = addItemToOrderUseCase;
         this.closeOrderUseCase = closeOrderUseCase;
@@ -45,6 +43,34 @@ public class OrderController {
         this.openTableOrderUseCase = openTableOrderUseCase;
         this.getOrderByTableUseCase = getOrderByTableUseCase;
         this.removeItemFromOrderUseCase = removeItemFromOrderUseCase;
+        this.listActiveOrdersUseCase = listActiveOrdersUseCase;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OrderDetailsResponse>> listActiveOrders() {
+        List<OrderDetailsDTO> dtos = listActiveOrdersUseCase.execute();
+        List<OrderDetailsResponse> response = dtos.stream()
+                .map(dto -> new OrderDetailsResponse(
+                        dto.orderId(),
+                        dto.tableNumber(),
+                        dto.userName(),
+                        dto.createdAt(),
+                        dto.active(),
+                        dto.total(),
+                        dto.discount(),
+                        dto.items().stream()
+                                .map(item -> new OrderItemDetailsResponse(
+                                        item.id(),
+                                        item.name(),
+                                        item.observations(),
+                                        item.price(),
+                                        item.status(),
+                                        item.waiterName()
+                                ))
+                                .toList()
+                ))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{orderId}/items")
@@ -85,7 +111,7 @@ public class OrderController {
     }
 
     @PostMapping("/{orderId}/close")
-    public ResponseEntity<CloseOrderResponse> closeOrder(@PathVariable UUID orderId,  @Valid  @RequestBody CloseOrderRequest request){
+    public ResponseEntity<CloseOrderResponse> closeOrder(@PathVariable UUID orderId, @Valid @RequestBody CloseOrderRequest request){
         CloseOrderResultDTO result = closeOrderUseCase.closeOrder(orderId, request.numberOfPeople());
         CloseOrderResponse response = new CloseOrderResponse(
                 result.orderId(),
@@ -110,11 +136,11 @@ public class OrderController {
                result.updatedAt()
 
         );
-        return  ResponseEntity.ok(response);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{tableId}/open")
-    public ResponseEntity<OpenOrderResponse> openOrder(@PathVariable Integer tableId, @Valid  @RequestBody OpenOrderRequest request){
+    public ResponseEntity<OpenOrderResponse> openOrder(@PathVariable Integer tableId, @Valid @RequestBody OpenOrderRequest request){
         Order order = openTableOrderUseCase.openOrder(
                 tableId,
                 request.userId()
@@ -130,10 +156,7 @@ public class OrderController {
     }
 
     @GetMapping("/tables/{tableId}/order")
-    public ResponseEntity<OrderDetailsResponse> getOrderByTable(
-            @PathVariable Integer tableId
-    ) {
-
+    public ResponseEntity<OrderDetailsResponse> getOrderByTable(@PathVariable Integer tableId) {
         OrderDetailsDTO dto = getOrderByTableUseCase.getOrderByTable(tableId);
 
         OrderDetailsResponse response = new OrderDetailsResponse(
@@ -147,9 +170,11 @@ public class OrderController {
                 dto.items().stream()
                         .map(item -> new OrderItemDetailsResponse(
                                 item.id(),
-                                item.description(),
+                                item.name(),
+                                item.observations(),
                                 item.price(),
-                                item.status()
+                                item.status(),
+                                item.waiterName()
                         ))
                         .toList()
         );
