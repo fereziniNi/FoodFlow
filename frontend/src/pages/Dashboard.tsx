@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import { tableService, Table } from '../services/tableService';
 import { orderService } from '../services/orderService';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -50,6 +52,7 @@ const Dashboard: React.FC = () => {
         await orderService.openOrder(selectedTable, { userId: user.id });
         setIsModalOpen(false);
         await fetchTables();
+        navigate('/orders');
       } catch (error: any) {
         console.error("Erro ao abrir mesa", error);
         alert(error.response?.data?.detail || "Erro ao abrir mesa");
@@ -69,9 +72,9 @@ const Dashboard: React.FC = () => {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <NavItem icon={<LayoutDashboard size={20} />} label="Mesas" active />
-          <NavItem icon={<ClipboardList size={20} />} label="Pedidos" />
-          <NavItem icon={<Settings size={20} />} label="Configurações" />
+          <NavItem to="/dashboard" icon={<LayoutDashboard size={20} />} label="Mesas" active />
+          <NavItem to="/orders" icon={<ClipboardList size={20} />} label="Comandas" />
+          <NavItem to="#" icon={<Settings size={20} />} label="Configurações" />
         </nav>
 
         <div className="p-4 border-t border-gray-100">
@@ -150,7 +153,7 @@ const Dashboard: React.FC = () => {
       {/* Modal - Abrir Comanda */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Plus size={40} />
@@ -180,9 +183,9 @@ const Dashboard: React.FC = () => {
   );
 };
 
-const NavItem = ({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) => (
-  <a 
-    href="#" 
+const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.ReactNode, label: string, active?: boolean }) => (
+  <Link 
+    to={to} 
     className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
       active 
         ? 'bg-orange-50 text-orange-600 shadow-sm shadow-orange-600/5' 
@@ -191,7 +194,7 @@ const NavItem = ({ icon, label, active = false }: { icon: React.ReactNode, label
   >
     {icon}
     {label}
-  </a>
+  </Link>
 );
 
 const StatusBadge = ({ color, label }: { color: 'green' | 'red' | 'orange', label: string }) => {
