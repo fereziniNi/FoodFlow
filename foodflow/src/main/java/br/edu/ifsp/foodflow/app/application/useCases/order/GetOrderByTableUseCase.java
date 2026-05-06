@@ -46,9 +46,11 @@ public class GetOrderByTableUseCase {
                 order.getOrderItems().stream().map(
                         item -> new OrderItemDetailsDTO(
                                 item.getId(),
+                                item.getMenuItem().getName(),
                                 item.getObservations(),
                                 item.getPrice(),
-                                item.getStatus()
+                                item.getStatus(),
+                                item.getWaiter() != null ? item.getWaiter().getUsername() : "Sistema"
                         )
                 ).toList()
         );
