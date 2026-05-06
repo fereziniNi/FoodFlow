@@ -1,6 +1,7 @@
 package br.edu.ifsp.foodflow.app.web.controllers;
 
 import br.edu.ifsp.foodflow.app.domain.exceptions.*;
+import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({OrderNotFoundException.class, UserNotFoundException.class, OrderItemNotFoundException.class})
+    @ExceptionHandler({OrderNotFoundException.class, UserNotFoundException.class, OrderItemNotFoundException.class, TableNotFoundException.class})
     public ProblemDetail handleNotFound(RuntimeException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
