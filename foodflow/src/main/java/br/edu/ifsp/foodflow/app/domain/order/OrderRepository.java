@@ -8,4 +8,5 @@ public interface OrderRepository {
     Optional<Order> findActiveOrderByTable(Table table);
     Order save(Order order);
     Optional<Order> findById(UUID id);
+    java.util.List<Order> findAllActive();
 }

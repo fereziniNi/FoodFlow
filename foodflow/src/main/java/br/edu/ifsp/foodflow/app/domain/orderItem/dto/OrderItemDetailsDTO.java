@@ -6,7 +6,9 @@ import java.util.UUID;
 
 public record OrderItemDetailsDTO(
         UUID id,
-        String description,
+        String name,
+        String observations,
         double price,
-        OrderItemStatus status
+        OrderItemStatus status,
+        String waiterName
 ) {}

@@ -18,6 +18,10 @@ public class Table {
         this.status = TableStatus.AVAILABLE;
     }
 
+    public void markAsOccupied() {
+        this.status = TableStatus.OCCUPIED;
+    }
+
 
 
 }
