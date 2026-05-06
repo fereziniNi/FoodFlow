@@ -40,6 +40,9 @@ public class OpenTableOrderUseCase {
             throw new IllegalStateException("Já existe uma comanda ativa para esta mesa.");
         });
 
+        table.markAsOccupied();
+        tableRepository.save(table);
+
         Order newOrder = new Order(table, user);
         orderRepository.save(newOrder);
         return newOrder;

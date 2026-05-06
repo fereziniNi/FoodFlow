@@ -7,6 +7,7 @@ import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
+import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
@@ -39,6 +40,9 @@ public class CloseOrderUseCaseTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private TableRepository tableRepository;
 
     private User user;
     private Table table;

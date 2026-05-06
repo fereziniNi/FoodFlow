@@ -6,6 +6,7 @@ import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderAlreadyClosedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
+import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +17,11 @@ import java.util.UUID;
 public class CloseOrderUseCase {
 
     private final OrderRepository orderRepository;
+    private final TableRepository tableRepository;
 
-    public CloseOrderUseCase(OrderRepository orderRepository) {
+    public CloseOrderUseCase(OrderRepository orderRepository, TableRepository tableRepository) {
         this.orderRepository = orderRepository;
+        this.tableRepository = tableRepository;
     }
 
     @Transactional
@@ -40,6 +43,7 @@ public class CloseOrderUseCase {
 
         order.markAsClosed();
         order.getTable().markAsAvailable();
+        tableRepository.save(order.getTable());
         orderRepository.save(order);
 
         double discount = order.getDiscountPercentage();
