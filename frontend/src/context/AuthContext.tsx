@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 interface User {
+  id: string;
   username: string;
 }
 
 interface AuthContextData {
   signed: boolean;
   user: User | null;
-  login(token: string, username: string): void;
+  login(token: string, userId: string, username: string): void;
   logout(): void;
   loading: boolean;
 }
@@ -28,8 +29,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setLoading(false);
   }, []);
 
-  function login(token: string, username: string) {
-    const userData = { username };
+  function login(token: string, userId: string, username: string) {
+    const userData = { id: userId, username };
     localStorage.setItem('@FoodFlow:token', token);
     localStorage.setItem('@FoodFlow:user', JSON.stringify(userData));
     setUser(userData);

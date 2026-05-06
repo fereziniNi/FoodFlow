@@ -20,7 +20,7 @@ const Login: React.FC = () => {
 
     try {
       const response = await authService.login({ username, password });
-      login(response.token, username);
+      login(response.token, response.userId, username);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Falha ao realizar login. Verifique suas credenciais.');
