@@ -50,6 +50,8 @@ A forma mais simples e recomendada de rodar o projeto completo é via Docker Com
 3. **Acesse as aplicações:**
    - **Frontend:** [http://localhost:5173](http://localhost:5173)
    - **Backend API:** [http://localhost:8080](http://localhost:8080)
+   - **Swagger UI:** [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+   - **OpenAPI JSON:** [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
    - **Banco de Dados (Postgres):** `localhost:5433`
 
 ---
