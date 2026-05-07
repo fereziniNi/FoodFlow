@@ -71,6 +71,16 @@ const Orders: React.FC = () => {
     resetForm();
   };
 
+  const handleCloseOrder = async (orderId: string) => {
+  try {
+    await orderService.closeOrder(orderId);
+    fetchData(); // recarrega lista
+  } catch (error) {
+    console.error("Erro ao fechar comanda", error);
+    alert("Erro ao fechar comanda");
+  }
+};
+
   const handleAddItem = async () => {
     if (selectedOrder && selectedMenuItem && user?.id) {
       const request: AddItemRequest = {
