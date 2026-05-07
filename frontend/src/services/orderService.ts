@@ -4,6 +4,20 @@ export interface OpenOrderRequest {
   userId: string;
 }
 
+export interface CloseOrderRequest {
+  numberOfPeople: number;
+}
+
+export interface CloseOrderResponse {
+  orderId: string;
+  tableNumber: number;
+  createdAt: string;
+  totalWithoutDiscount: number | string;
+  discountPercentage: number | string;
+  totalWithDiscount: number | string;
+  totalPerPerson: number | string;
+}
+
 export interface OrderItemResponse {
   id: string;
   name: string;
@@ -57,6 +71,11 @@ export const orderService = {
 
   addItemToOrder: async (orderId: string, data: AddItemRequest): Promise<OrderResponse> => {
     const response = await api.post(`/orders/${orderId}/items`, data);
+    return response.data;
+  },
+
+  closeOrder: async (orderId: string, data: CloseOrderRequest): Promise<CloseOrderResponse> => {
+    const response = await api.post(`/orders/${orderId}/close`, data);
     return response.data;
   }
 };

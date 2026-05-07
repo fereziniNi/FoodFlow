@@ -14,7 +14,7 @@ import {
   Filter,
   DollarSign
 } from 'lucide-react';
-import { orderService, OrderDetailsResponse, AddItemRequest } from '../services/orderService';
+import { orderService, OrderDetailsResponse, AddItemRequest, OrderItemResponse, CloseOrderResponse } from '../services/orderService';
 import { menuService, MenuItem, AddOn } from '../services/menuService';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -29,6 +29,13 @@ const Orders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [selectedTableNumber, setSelectedTableNumber] = useState<number | null>(null);
   
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [peopleCount, setPeopleCount] = useState<number>(1);
+  const [closingOrderId, setClosingOrderId] = useState<string | null>(null);
+
+  const [closeResult, setCloseResult] = useState<CloseOrderResponse | null>(null);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  
   // Form state for adding item
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
   const [observations, setObservations] = useState('');
@@ -39,6 +46,11 @@ const Orders: React.FC = () => {
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const toNumber = (value: number | string | undefined) => {
+    if (value === undefined || value === null) return 0;
+      return typeof value === "string" ? parseFloat(value) : value;
+  };
 
   const selectedItemData = menuItems.find(item => item.id === selectedMenuItem);
 
@@ -70,6 +82,39 @@ const Orders: React.FC = () => {
     setIsAddItemModalOpen(true);
     resetForm();
   };
+
+  const handleOpenCloseModal = (orderId: string) => {
+  setClosingOrderId(orderId);
+  setPeopleCount(1);
+  setIsCloseModalOpen(true);
+};
+
+  const confirmCloseOrder = async () => {
+  if (!closingOrderId) return;
+
+  if (peopleCount < 1) {
+    alert("Informe pelo menos 1 pessoa");
+    return;
+  }
+
+  try {
+    const result = await orderService.closeOrder(closingOrderId, {
+      numberOfPeople: peopleCount
+    });
+
+    console.log("Comanda fechada:", result);
+
+    setCloseResult(result);
+    setIsSuccessModalOpen(true);
+    setIsCloseModalOpen(false);
+    setClosingOrderId(null);
+
+    await fetchData();
+  } catch (error) {
+    console.error("Erro ao fechar comanda", error);
+    alert("Erro ao fechar comanda");
+  }
+};
 
   const handleAddItem = async () => {
     if (selectedOrder && selectedMenuItem && user?.id) {
@@ -200,6 +245,7 @@ const Orders: React.FC = () => {
                     key={order.orderId} 
                     order={order} 
                     onAddItem={() => handleOpenAddItemModal(order.orderId, order.tableNumber)}
+                    onCloseOrder={() => handleOpenCloseModal(order.orderId)}
                   />
                 ))}
               </div>
@@ -338,6 +384,127 @@ const Orders: React.FC = () => {
           </div>
         </div>
       )}
+      {isCloseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+
+            <div>
+              <h2 className="text-xl font-black text-gray-900">
+                Fechar comanda
+              </h2>
+              <p className="text-sm text-gray-500">
+                Informe o número de pessoas na mesa
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700">
+                Pessoas na mesa
+              </label>
+
+              <input
+                type="number"
+                min={1}
+                value={peopleCount}
+                onChange={(e) => setPeopleCount(Number(e.target.value))}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-orange-500/20 outline-none"
+              />
+
+              {peopleCount < 1 && (
+                <p className="text-xs text-red-500 font-semibold">
+                  Deve haver pelo menos 1 pessoa
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+
+              <button
+                onClick={() => setIsCloseModalOpen(false)}
+                className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmCloseOrder}
+                disabled={peopleCount < 1}
+                className="flex-1 py-3 rounded-xl bg-orange-600 text-white font-bold
+                          hover:bg-orange-700 transition shadow-lg shadow-orange-600/20
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirmar
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+      {isSuccessModalOpen && closeResult && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        
+        <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="w-16 h-16 mx-auto bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+              <DollarSign size={28} />
+            </div>
+
+            <h2 className="text-xl font-black text-gray-900">
+              Comanda encerrada
+            </h2>
+
+            <p className="text-sm text-gray-500">
+              Mesa {closeResult.tableNumber}
+            </p>
+          </div>
+
+          {/* Valores */}
+          <div className="space-y-3 bg-gray-50 p-4 rounded-2xl">
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Total sem desconto</span>
+              <span className="font-bold">
+                R$ {toNumber(closeResult.totalWithoutDiscount).toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Desconto</span>
+              <span className="font-bold text-red-500">
+                {(Number(closeResult.discountPercentage) * 100).toFixed(0)}%
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm border-t pt-2">
+              <span className="text-gray-700 font-semibold">Total final</span>
+              <span className="font-black text-emerald-600">
+                R$ {toNumber(closeResult.totalWithDiscount).toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Por pessoa</span>
+              <span className="font-bold">
+                R$ {toNumber(closeResult.totalPerPerson).toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          {/* Botão */}
+          <button
+            onClick={() => setIsSuccessModalOpen(false)}
+            className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition"
+          >
+            Finalizar
+          </button>
+
+        </div>
+      </div>
+    )}
     </div>
   );
 };
@@ -356,22 +523,49 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
   </Link>
 );
 
-const OrderCard = ({ order, onAddItem }: { order: OrderDetailsResponse, onAddItem: () => void }) => {
+const OrderCard = ({order, onAddItem, onCloseOrder}: {
+    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void}) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-        <div className="flex items-center gap-4">
+      <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+  
+        {/* LEFT */}
+        <div className="flex items-center gap-5">
           <div className="w-14 h-14 bg-orange-600 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-orange-600/20">
             {order.tableNumber}
           </div>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Mesa</p>
-            <p className="text-sm font-bold text-gray-800">Aberta por {order.userName}</p>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Mesa
+            </p>
+            <p className="text-sm font-bold text-gray-800">
+              Aberta por {order.userName}
+            </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</p>
-          <p className="text-xl font-black text-orange-600">R$ {order.total.toFixed(2)}</p>
+
+        {/* RIGHT */}
+        <div className="flex items-center gap-6">
+
+          <div className="text-right space-y-1">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Total
+            </p>
+            <p className="text-xl font-black text-orange-600">
+              R$ {order.total.toFixed(2)}
+            </p>
+          </div>
+
+          <button
+            onClick={onCloseOrder}
+            className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold
+                      hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20
+                      active:scale-95 flex items-center gap-2"
+          >
+            Fechar comanda
+          </button>
+
         </div>
       </div>
 
@@ -432,7 +626,7 @@ const OrderCard = ({ order, onAddItem }: { order: OrderDetailsResponse, onAddIte
   );
 };
 
-const StatusBadge = ({ status }: { status: OrderItemResponse['status'] }) => {
+const StatusBadge = ({ status }: { status: 'PENDING' | 'PREPARATION' | 'FINISHED' }) => {
   const config = {
     PENDING: { label: 'Pendente', color: 'bg-gray-100 text-gray-600' },
     PREPARATION: { label: 'Preparando', color: 'bg-amber-100 text-amber-700' },

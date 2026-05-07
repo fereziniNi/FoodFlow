@@ -11,8 +11,7 @@ import {
   Search,
   CheckCircle2,
   Clock,
-  AlertCircle,
-  X
+  AlertCircle
 } from 'lucide-react';
 import { tableService, Table } from '../services/tableService';
 import { orderService } from '../services/orderService';
@@ -25,13 +24,15 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | null>(null);
+
 
   const fetchTables = async () => {
     setLoading(true);
     try {
       const data = await tableService.getTables();
-      setTables(data);
+      const sorted = [...data].sort((a, b) => a.tableNumber - b.tableNumber);
+      setTables(sorted);
     } catch (error) {
       console.error("Erro ao buscar mesas", error);
     } finally {
@@ -53,17 +54,21 @@ const Dashboard: React.FC = () => {
       try {
         await orderService.openOrder(selectedTable, { userId: user.id });
         setIsModalOpen(false);
-        setShowSuccessToast(true);
-        setTimeout(() => {
-        setShowSuccessToast(false);
-        navigate('/orders');
-      }, 5000);
         await fetchTables();
+        navigate('/orders');
       } catch (error: any) {
         console.error("Erro ao abrir mesa", error);
         alert(error.response?.data?.detail || "Erro ao abrir mesa");
       }
     }
+  };
+
+  const filteredTables = selectedStatus
+  ? tables.filter(table => table.status === selectedStatus)
+  : tables;
+
+  const handleFilter = (status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED') => {
+    setSelectedStatus(prev => (prev === status ? null : status));
   };
 
   return (
@@ -129,10 +134,39 @@ const Dashboard: React.FC = () => {
                 <p className="text-gray-500">Selecione uma mesa disponível para abrir uma nova comanda.</p>
               </div>
               <div className="flex gap-2">
-                <StatusBadge color="green" label="Livre" />
-                <StatusBadge color="red" label="Ocupada" />
-                <StatusBadge color="orange" label="Reservada" />
-              </div>
+              <button
+                onClick={() => handleFilter('AVAILABLE')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'AVAILABLE'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-emerald-100 text-emerald-700'
+                }`}
+              >
+                Livre
+              </button>
+
+              <button
+                onClick={() => handleFilter('OCCUPIED')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'OCCUPIED'
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-rose-100 text-rose-700'
+                }`}
+              >
+                Ocupada
+              </button>
+
+              <button
+                onClick={() => handleFilter('RESERVED')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'RESERVED'
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                Reservada
+              </button>
+            </div>
             </div>
 
             {loading ? (
@@ -143,7 +177,7 @@ const Dashboard: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {tables.map((table) => (
+                {filteredTables.map((table) => (
                   <TableCard 
                     key={table.tableNumber} 
                     table={table} 
@@ -159,7 +193,7 @@ const Dashboard: React.FC = () => {
       {/* Modal - Abrir Comanda */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Plus size={40} />
@@ -182,33 +216,6 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-      {showSuccessToast && (
-        <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-right duration-300">
-          <div className="bg-white border border-emerald-100 shadow-2xl rounded-2xl p-4 min-w-[320px] flex items-start gap-3">
-            
-            <div className="bg-emerald-100 text-emerald-600 p-2 rounded-full">
-              <CheckCircle2 size={20} />
-            </div>
-
-            <div className="flex-1">
-              <h4 className="text-sm font-bold text-gray-900">
-                Comanda criada com sucesso
-              </h4>
-
-              <p className="text-xs text-gray-500 mt-1">
-                A mesa #{selectedTable} foi aberta corretamente.
-              </p>
-            </div>
-
-            <button
-              onClick={() => setShowSuccessToast(false)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X size={16} />
-            </button>
           </div>
         </div>
       )}
