@@ -24,6 +24,8 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | null>(null);
+
 
   const fetchTables = async () => {
     setLoading(true);
@@ -59,6 +61,14 @@ const Dashboard: React.FC = () => {
         alert(error.response?.data?.detail || "Erro ao abrir mesa");
       }
     }
+  };
+
+  const filteredTables = selectedStatus
+  ? tables.filter(table => table.status === selectedStatus)
+  : tables;
+
+  const handleFilter = (status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED') => {
+    setSelectedStatus(prev => (prev === status ? null : status));
   };
 
   return (
@@ -124,10 +134,39 @@ const Dashboard: React.FC = () => {
                 <p className="text-gray-500">Selecione uma mesa disponível para abrir uma nova comanda.</p>
               </div>
               <div className="flex gap-2">
-                <StatusBadge color="green" label="Livre" />
-                <StatusBadge color="red" label="Ocupada" />
-                <StatusBadge color="orange" label="Reservada" />
-              </div>
+              <button
+                onClick={() => handleFilter('AVAILABLE')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'AVAILABLE'
+                    ? 'bg-emerald-600 text-white'
+                    : 'bg-emerald-100 text-emerald-700'
+                }`}
+              >
+                Livre
+              </button>
+
+              <button
+                onClick={() => handleFilter('OCCUPIED')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'OCCUPIED'
+                    ? 'bg-rose-600 text-white'
+                    : 'bg-rose-100 text-rose-700'
+                }`}
+              >
+                Ocupada
+              </button>
+
+              <button
+                onClick={() => handleFilter('RESERVED')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition ${
+                  selectedStatus === 'RESERVED'
+                    ? 'bg-amber-600 text-white'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                Reservada
+              </button>
+            </div>
             </div>
 
             {loading ? (
@@ -138,7 +177,7 @@ const Dashboard: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {tables.map((table) => (
+                {filteredTables.map((table) => (
                   <TableCard 
                     key={table.tableNumber} 
                     table={table} 
