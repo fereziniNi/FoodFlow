@@ -11,7 +11,8 @@ import {
   Search,
   CheckCircle2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { tableService, Table } from '../services/tableService';
 import { orderService } from '../services/orderService';
@@ -24,6 +25,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   const fetchTables = async () => {
     setLoading(true);
@@ -51,8 +53,12 @@ const Dashboard: React.FC = () => {
       try {
         await orderService.openOrder(selectedTable, { userId: user.id });
         setIsModalOpen(false);
-        await fetchTables();
+        setShowSuccessToast(true);
+        setTimeout(() => {
+        setShowSuccessToast(false);
         navigate('/orders');
+      }, 5000);
+        await fetchTables();
       } catch (error: any) {
         console.error("Erro ao abrir mesa", error);
         alert(error.response?.data?.detail || "Erro ao abrir mesa");
@@ -153,7 +159,7 @@ const Dashboard: React.FC = () => {
       {/* Modal - Abrir Comanda */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Plus size={40} />
@@ -176,6 +182,33 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {showSuccessToast && (
+        <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-right duration-300">
+          <div className="bg-white border border-emerald-100 shadow-2xl rounded-2xl p-4 min-w-[320px] flex items-start gap-3">
+            
+            <div className="bg-emerald-100 text-emerald-600 p-2 rounded-full">
+              <CheckCircle2 size={20} />
+            </div>
+
+            <div className="flex-1">
+              <h4 className="text-sm font-bold text-gray-900">
+                Comanda criada com sucesso
+              </h4>
+
+              <p className="text-xs text-gray-500 mt-1">
+                A mesa #{selectedTable} foi aberta corretamente.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowSuccessToast(false)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={16} />
+            </button>
           </div>
         </div>
       )}
