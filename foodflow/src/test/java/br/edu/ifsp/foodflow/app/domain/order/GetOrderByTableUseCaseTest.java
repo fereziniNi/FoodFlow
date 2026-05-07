@@ -223,4 +223,37 @@ class GetOrderByTableUseCaseTest {
             assertEquals(OrderItemStatus.PREPARATION, result.items().get(0).status());
         }
     }
+
+    @Nested
+    @Tag("Structural")
+    class StructuralTests {
+        @Test
+        @DisplayName("Deve retornar Sistema no campo waiter quando o item não possuir garçom atribuído")
+        void shouldReturnSistemaWhenOrderItemHasNoWaiter() {
+            Table table = new Table(1);
+            User user = new User("João Silva", "joao", "joao@gmail.com", "1234", UserRole.WAITER);
+
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 30.0, 10);
+            OrderItem item = new OrderItem(
+                    UUID.randomUUID(),
+                    menuItem,
+                    List.of(),
+                    null,
+                    "Sem cebola"
+            );
+
+            Order order = new Order(table, user);
+            order.addOrderItem(item);
+
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsDTO result = service.getOrderByTable(1);
+            assertNotNull(result);
+            assertEquals(1, result.items().size());
+            assertEquals("Sistema", result.items().get(0).waiterName());
+        }
+    }
 }
