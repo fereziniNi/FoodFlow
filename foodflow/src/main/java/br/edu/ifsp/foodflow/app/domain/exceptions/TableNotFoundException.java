@@ -1,4 +1,4 @@
-package br.edu.ifsp.foodflow.app.infra.exceptions;
+package br.edu.ifsp.foodflow.app.domain.exceptions;
 
 public class TableNotFoundException extends RuntimeException {
     public TableNotFoundException(String message) {

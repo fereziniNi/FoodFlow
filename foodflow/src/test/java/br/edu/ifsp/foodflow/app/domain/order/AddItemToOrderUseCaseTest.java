@@ -215,5 +215,29 @@ public class AddItemToOrderUseCaseTest {
             verify(mockOrder, never()).addOrderItem(any());
             verify(orderRepository, never()).save(any());
         }
+
+        @Test
+        @DisplayName("Deve processar o item com sucesso quando a lista de adicionais estiver vazia")
+        void shouldProcessItemSuccessfullyWhenAddOnsAreEmpty() {
+            AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Ponto da carne: Mal passado", List.of(), waiterId);
+
+            Table table = new Table(10);
+            User user = new User("Garçom", "Sobrenome", "garcom@email.com", "123", UserRole.WAITER);
+            Order order = new Order(table, user);
+
+            MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.of(menuItem));
+            when(userRepository.findById(waiterId)).thenReturn(Optional.of(user));
+
+            OrderResultDTO response = sut.execute(request);
+
+            assertThat(response).isNotNull();
+
+            OrderItem addedItem = order.getOrderItems().getFirst();
+            assertThat(addedItem.getAdditions().size()).isEqualTo(0);
+            verify(orderRepository, times(1)).save(order);
+        }
     }
 }

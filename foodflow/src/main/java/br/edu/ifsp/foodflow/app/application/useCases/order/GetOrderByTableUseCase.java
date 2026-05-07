@@ -1,5 +1,6 @@
 package br.edu.ifsp.foodflow.app.application.useCases.order;
 
+import br.edu.ifsp.foodflow.app.domain.exceptions.TableNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
@@ -7,7 +8,6 @@ import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
-import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;

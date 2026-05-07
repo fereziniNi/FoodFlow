@@ -1,13 +1,13 @@
 package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.OpenTableOrderUseCase;
+import br.edu.ifsp.foodflow.app.domain.exceptions.TableNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserRole;
-import br.edu.ifsp.foodflow.app.infra.exceptions.TableNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
@@ -18,7 +18,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.NestedTestConfiguration;
 
 import java.util.Optional;
 import java.util.UUID;
