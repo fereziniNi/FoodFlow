@@ -12,6 +12,7 @@ FoodFlow é um sistema de gerenciamento de pedidos para restaurantes, focado em 
 - **Flyway** (Migrações de banco de dados)
 - **Lombok** (Produtividade)
 - **JUnit 5 & Pitest** (Suíte de testes e cobertura de mutação)
+- **Springdoc OpenAPI / Swagger UI** (Documentação interativa da API)
 - **Maven** (Gerenciamento de dependências)
 
 ## 🏗️ Estrutura do Projeto
@@ -55,6 +56,15 @@ O projeto está organizado em camadas para separar preocupações:
    ```bash
    ./mvnw spring-boot:run
    ```
+
+## 📖 Documentação da API (Swagger)
+
+Com a aplicação rodando, acesse a documentação interativa:
+
+- **Swagger UI**: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+- **OpenAPI JSON**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+A documentação cobre todos os endpoints agrupados por domínio (**Autenticação**, **Pedidos**, **Mesas**, **Cardápio**), com os status codes de resposta, corpo das requisições e suporte a autenticação JWT via botão **Authorize**.
 
 ## 🧪 Testes
 
