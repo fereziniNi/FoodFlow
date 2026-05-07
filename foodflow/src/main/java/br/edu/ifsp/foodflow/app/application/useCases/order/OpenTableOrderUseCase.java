@@ -44,7 +44,6 @@ public class OpenTableOrderUseCase {
         tableRepository.save(table);
 
         Order newOrder = new Order(table, user);
-        orderRepository.save(newOrder);
-        return newOrder;
+        return orderRepository.save(newOrder);
     }
 }
