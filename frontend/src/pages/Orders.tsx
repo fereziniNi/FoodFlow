@@ -29,6 +29,10 @@ const Orders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
   const [selectedTableNumber, setSelectedTableNumber] = useState<number | null>(null);
   
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [peopleCount, setPeopleCount] = useState<number>(1);
+  const [closingOrderId, setClosingOrderId] = useState<string | null>(null);
+  
   // Form state for adding item
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
   const [observations, setObservations] = useState('');
@@ -71,10 +75,31 @@ const Orders: React.FC = () => {
     resetForm();
   };
 
-  const handleCloseOrder = async (orderId: string) => {
+  const handleOpenCloseModal = (orderId: string) => {
+  setClosingOrderId(orderId);
+  setPeopleCount(1);
+  setIsCloseModalOpen(true);
+};
+
+  const confirmCloseOrder = async () => {
+  if (!closingOrderId) return;
+
+  if (peopleCount < 1) {
+    alert("Informe pelo menos 1 pessoa");
+    return;
+  }
+
   try {
-    await orderService.closeOrder(orderId);
-    fetchData(); // recarrega lista
+    const result = await orderService.closeOrder(closingOrderId, {
+      numberOfPeople: peopleCount
+    });
+
+    console.log("Comanda fechada:", result);
+
+    setIsCloseModalOpen(false);
+    setClosingOrderId(null);
+
+    await fetchData();
   } catch (error) {
     console.error("Erro ao fechar comanda", error);
     alert("Erro ao fechar comanda");
@@ -210,6 +235,7 @@ const Orders: React.FC = () => {
                     key={order.orderId} 
                     order={order} 
                     onAddItem={() => handleOpenAddItemModal(order.orderId, order.tableNumber)}
+                    onCloseOrder={() => handleOpenCloseModal(order.orderId)}
                   />
                 ))}
               </div>
@@ -348,6 +374,64 @@ const Orders: React.FC = () => {
           </div>
         </div>
       )}
+      {isCloseModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          
+          <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+
+            <div>
+              <h2 className="text-xl font-black text-gray-900">
+                Fechar comanda
+              </h2>
+              <p className="text-sm text-gray-500">
+                Informe o número de pessoas na mesa
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700">
+                Pessoas na mesa
+              </label>
+
+              <input
+                type="number"
+                min={1}
+                value={peopleCount}
+                onChange={(e) => setPeopleCount(Number(e.target.value))}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-orange-500/20 outline-none"
+              />
+
+              {peopleCount < 1 && (
+                <p className="text-xs text-red-500 font-semibold">
+                  Deve haver pelo menos 1 pessoa
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+
+              <button
+                onClick={() => setIsCloseModalOpen(false)}
+                className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={confirmCloseOrder}
+                disabled={peopleCount < 1}
+                className="flex-1 py-3 rounded-xl bg-orange-600 text-white font-bold
+                          hover:bg-orange-700 transition shadow-lg shadow-orange-600/20
+                          disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirmar
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -366,22 +450,49 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
   </Link>
 );
 
-const OrderCard = ({ order, onAddItem }: { order: OrderDetailsResponse, onAddItem: () => void }) => {
+const OrderCard = ({order, onAddItem, onCloseOrder}: {
+    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void}) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-        <div className="flex items-center gap-4">
+      <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+  
+        {/* LEFT */}
+        <div className="flex items-center gap-5">
           <div className="w-14 h-14 bg-orange-600 text-white rounded-2xl flex items-center justify-center font-black text-2xl shadow-lg shadow-orange-600/20">
             {order.tableNumber}
           </div>
-          <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Mesa</p>
-            <p className="text-sm font-bold text-gray-800">Aberta por {order.userName}</p>
+
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Mesa
+            </p>
+            <p className="text-sm font-bold text-gray-800">
+              Aberta por {order.userName}
+            </p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</p>
-          <p className="text-xl font-black text-orange-600">R$ {order.total.toFixed(2)}</p>
+
+        {/* RIGHT */}
+        <div className="flex items-center gap-6">
+
+          <div className="text-right space-y-1">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+              Total
+            </p>
+            <p className="text-xl font-black text-orange-600">
+              R$ {order.total.toFixed(2)}
+            </p>
+          </div>
+
+          <button
+            onClick={onCloseOrder}
+            className="px-4 py-2 rounded-xl bg-orange-600 text-white text-sm font-bold
+                      hover:bg-orange-700 transition-all shadow-lg shadow-orange-600/20
+                      active:scale-95 flex items-center gap-2"
+          >
+            Fechar comanda
+          </button>
+
         </div>
       </div>
 
