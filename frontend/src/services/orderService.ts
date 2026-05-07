@@ -12,10 +12,10 @@ export interface CloseOrderResponse {
   orderId: string;
   tableNumber: number;
   createdAt: string;
-  totalWithoutDiscount: number;
-  discountPercentage: number;
-  totalWithDiscount: number;
-  totalPerPerson: number;
+  totalWithoutDiscount: number | string;
+  discountPercentage: number | string;
+  totalWithDiscount: number | string;
+  totalPerPerson: number | string;
 }
 
 export interface OrderItemResponse {

@@ -14,7 +14,7 @@ import {
   Filter,
   DollarSign
 } from 'lucide-react';
-import { orderService, OrderDetailsResponse, AddItemRequest } from '../services/orderService';
+import { orderService, OrderDetailsResponse, AddItemRequest, OrderItemResponse, CloseOrderResponse } from '../services/orderService';
 import { menuService, MenuItem, AddOn } from '../services/menuService';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -32,6 +32,9 @@ const Orders: React.FC = () => {
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [peopleCount, setPeopleCount] = useState<number>(1);
   const [closingOrderId, setClosingOrderId] = useState<string | null>(null);
+
+  const [closeResult, setCloseResult] = useState<CloseOrderResponse | null>(null);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   
   // Form state for adding item
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
@@ -43,6 +46,11 @@ const Orders: React.FC = () => {
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const toNumber = (value: number | string | undefined) => {
+    if (value === undefined || value === null) return 0;
+      return typeof value === "string" ? parseFloat(value) : value;
+  };
 
   const selectedItemData = menuItems.find(item => item.id === selectedMenuItem);
 
@@ -96,6 +104,8 @@ const Orders: React.FC = () => {
 
     console.log("Comanda fechada:", result);
 
+    setCloseResult(result);
+    setIsSuccessModalOpen(true);
     setIsCloseModalOpen(false);
     setClosingOrderId(null);
 
@@ -432,6 +442,69 @@ const Orders: React.FC = () => {
           </div>
         </div>
       )}
+      {isSuccessModalOpen && closeResult && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        
+        <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="w-16 h-16 mx-auto bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
+              <DollarSign size={28} />
+            </div>
+
+            <h2 className="text-xl font-black text-gray-900">
+              Comanda encerrada
+            </h2>
+
+            <p className="text-sm text-gray-500">
+              Mesa {closeResult.tableNumber}
+            </p>
+          </div>
+
+          {/* Valores */}
+          <div className="space-y-3 bg-gray-50 p-4 rounded-2xl">
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Total sem desconto</span>
+              <span className="font-bold">
+                R$ {toNumber(closeResult.totalWithoutDiscount).toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Desconto</span>
+              <span className="font-bold text-red-500">
+                {(Number(closeResult.discountPercentage) * 100).toFixed(0)}%
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm border-t pt-2">
+              <span className="text-gray-700 font-semibold">Total final</span>
+              <span className="font-black text-emerald-600">
+                R$ {toNumber(closeResult.totalWithDiscount).toFixed(2)}
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Por pessoa</span>
+              <span className="font-bold">
+                R$ {toNumber(closeResult.totalPerPerson).toFixed(2)}
+              </span>
+            </div>
+          </div>
+
+          {/* Botão */}
+          <button
+            onClick={() => setIsSuccessModalOpen(false)}
+            className="w-full py-3 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition"
+          >
+            Finalizar
+          </button>
+
+        </div>
+      </div>
+    )}
     </div>
   );
 };
@@ -553,7 +626,7 @@ const OrderCard = ({order, onAddItem, onCloseOrder}: {
   );
 };
 
-const StatusBadge = ({ status }: { status: OrderItemResponse['status'] }) => {
+const StatusBadge = ({ status }: { status: 'PENDING' | 'PREPARATION' | 'FINISHED' }) => {
   const config = {
     PENDING: { label: 'Pendente', color: 'bg-gray-100 text-gray-600' },
     PREPARATION: { label: 'Preparando', color: 'bg-amber-100 text-amber-700' },
