@@ -33,6 +33,7 @@ class RegisterUserUseCaseTest {
 
     @Tag("Structural")
     @Nested
+    @DisplayName("Testes Estruturais")
     class StructuralTests{
         @Test
         @DisplayName("Deve lançar exceção quando username já existe")
