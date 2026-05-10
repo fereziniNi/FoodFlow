@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import api from '../services/api';
 
 interface User {
   id: string;
@@ -41,6 +42,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('@FoodFlow:user');
     setUser(null);
   }
+
+  useEffect(() => {
+    const interceptor = api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          const token = localStorage.getItem('@FoodFlow:token');
+          if (token) {
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      api.interceptors.response.eject(interceptor);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ signed: !!user, user, login, logout, loading }}>
