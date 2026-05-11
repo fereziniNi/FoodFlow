@@ -18,6 +18,11 @@ export interface CloseOrderResponse {
   totalPerPerson: number | string;
 }
 
+export interface AddOnSummary {
+  name: string;
+  price: number;
+}
+
 export interface OrderItemResponse {
   id: string;
   name: string;
@@ -25,6 +30,7 @@ export interface OrderItemResponse {
   price: number;
   status: 'PENDING' | 'PREPARATION' | 'FINISHED';
   waiterName: string;
+  additions: AddOnSummary[];
 }
 
 export interface OrderDetailsResponse {

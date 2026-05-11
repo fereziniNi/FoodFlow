@@ -35,6 +35,8 @@ const Orders: React.FC = () => {
 
   const [closeResult, setCloseResult] = useState<CloseOrderResponse | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+  const [detailsOrder, setDetailsOrder] = useState<OrderDetailsResponse | null>(null);
   
   // Form state for adding item
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
@@ -257,6 +259,7 @@ const Orders: React.FC = () => {
                     onAddItem={() => handleOpenAddItemModal(order.orderId, order.tableNumber)}
                     onCloseOrder={() => handleOpenCloseModal(order.orderId)}
                     onAdvanceStatus={(itemId) => handleAdvanceStatus(order.orderId, itemId)}
+                    onDetails={() => setDetailsOrder(order)}
                   />
                 ))}
               </div>
@@ -516,6 +519,54 @@ const Orders: React.FC = () => {
         </div>
       </div>
     )}
+      {detailsOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Detalhes da Comanda</h3>
+                <p className="text-xs font-bold text-orange-600 uppercase tracking-widest">Mesa {detailsOrder.tableNumber}</p>
+              </div>
+              <button onClick={() => setDetailsOrder(null)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <Plus className="rotate-45" size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-3 max-h-[65vh] overflow-y-auto custom-scrollbar">
+              {detailsOrder.items.length === 0 ? (
+                <p className="text-sm text-gray-400 italic text-center py-8">Nenhum item lançado ainda.</p>
+              ) : (
+                detailsOrder.items.map((item) => (
+                  <div key={item.id} className="p-4 rounded-2xl bg-gray-50 border border-gray-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-gray-800">{item.name}</p>
+                      <span className="text-sm font-black text-orange-600">R$ {item.price.toFixed(2)}</span>
+                    </div>
+                    {item.additions.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {item.additions.map((a, i) => (
+                          <span key={i} className="px-2 py-0.5 rounded-lg bg-orange-50 text-orange-600 text-[10px] font-bold">
+                            + {a.name} (R$ {a.price.toFixed(2)})
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {item.observations && (
+                      <p className="text-[11px] text-gray-500 italic">{item.observations}</p>
+                    )}
+                    <p className="text-[10px] font-bold text-gray-400 uppercase">Anotado por: {item.waiterName}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+              <span className="text-xs font-bold text-gray-400 uppercase">Total</span>
+              <span className="text-lg font-black text-orange-600">R$ {detailsOrder.total.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -534,8 +585,8 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
   </Link>
 );
 
-const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus}: {
-    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void, onAdvanceStatus: (itemId: string) => void}) => {
+const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails}: {
+    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void, onAdvanceStatus: (itemId: string) => void, onDetails: () => void}) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
@@ -644,7 +695,7 @@ const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus}: {
           <Clock size={14} />
           Iniciada em {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
-        <button className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-orange-600 transition-colors">
+        <button onClick={onDetails} className="flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-orange-600 transition-colors cursor-pointer">
           Detalhes
           <ChevronRight size={16} />
         </button>
