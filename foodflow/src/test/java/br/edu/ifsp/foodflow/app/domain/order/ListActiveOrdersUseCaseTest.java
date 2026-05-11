@@ -63,6 +63,36 @@ public class ListActiveOrdersUseCaseTest {
 
             verify(orderRepository, times(1)).findAllActive();
         }
+
+        @Test
+        @DisplayName("Deve mapear corretamente um pedido e seus itens quando o item possuir um garçom responsável")
+        void shouldMapOrderAndItemsWhenItemHasWaiter() {
+            Table table = new Table(5);
+            User waiter = new User("Joao", "joao", "joao@email.com", "123", UserRole.WAITER);
+            Order order = new Order(table, waiter);
+
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "X-Bacon", "Ingredientes", 35.0, 15);
+
+            OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), waiter, "Sem cebola");
+            order.addOrderItem(item);
+
+            when(orderRepository.findAllActive()).thenReturn(List.of(order));
+
+            List<OrderDetailsDTO> result = sut.execute();
+
+            assertThat(result).isNotNull();
+            assertThat(result.size()).isEqualTo(1);
+
+            OrderDetailsDTO orderDetails = result.getFirst();
+            assertThat(orderDetails.tableNumber()).isEqualTo(5);
+            assertThat(orderDetails.userName()).isEqualTo("joao");
+            assertThat(orderDetails.total()).isEqualTo(35.0);
+
+            assertThat(orderDetails.items().size()).isEqualTo(1);
+            assertThat(orderDetails.items().getFirst().waiterName()).isEqualTo("joao");
+
+            verify(orderRepository, times(1)).findAllActive();
+        }
     }
 
     @Tag("Mutation")
@@ -113,33 +143,4 @@ public class ListActiveOrdersUseCaseTest {
         }
     }
 
-    @Test
-    @DisplayName("Deve mapear corretamente um pedido e seus itens quando o item possuir um garçom responsável")
-    void shouldMapOrderAndItemsWhenItemHasWaiter() {
-        Table table = new Table(5);
-        User waiter = new User("Joao", "joao", "joao@email.com", "123", UserRole.WAITER);
-        Order order = new Order(table, waiter);
-
-        MenuItem menuItem = new MenuItem(UUID.randomUUID(), "X-Bacon", "Ingredientes", 35.0, 15);
-
-        OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), waiter, "Sem cebola");
-        order.addOrderItem(item);
-
-        when(orderRepository.findAllActive()).thenReturn(List.of(order));
-
-        List<OrderDetailsDTO> result = sut.execute();
-
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(1);
-
-        OrderDetailsDTO orderDetails = result.getFirst();
-        assertThat(orderDetails.tableNumber()).isEqualTo(5);
-        assertThat(orderDetails.userName()).isEqualTo("joao");
-        assertThat(orderDetails.total()).isEqualTo(35.0);
-
-        assertThat(orderDetails.items().size()).isEqualTo(1);
-        assertThat(orderDetails.items().getFirst().waiterName()).isEqualTo("joao");
-
-        verify(orderRepository, times(1)).findAllActive();
-    }
 }

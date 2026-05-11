@@ -2,14 +2,17 @@ package br.edu.ifsp.foodflow.app.domain.order;
 
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderDTO;
 import br.edu.ifsp.foodflow.app.application.useCases.order.RemoveItemFromOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,10 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,25 +29,26 @@ import static org.mockito.Mockito.*;
 @Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 public class RemoveItemFromOrderUseCaseTest {
+    @Mock private OrderRepository orderRepository;
+    @Mock private OrderItemRepository orderItemRepository;
+
+    @InjectMocks private RemoveItemFromOrderUseCase sut;
+
+    private UUID otherOrderItemId;
+    private UUID orderId;
+    private UUID orderItemId;
+
+    @BeforeEach
+    void setup(){
+        orderId = UUID.randomUUID();
+        orderItemId = UUID.randomUUID();
+        otherOrderItemId = UUID.randomUUID();
+    }
+
     @Tag("TDD")
     @Nested
     @DisplayName("Testes criados com TDD")
     class TDDTests{
-        private UUID orderId;
-        private UUID orderItemId;
-        private UUID otherOrderItemId;
-
-        @Mock private OrderRepository orderRepository;
-        @Mock private OrderItemRepository orderItemRepository;
-        @InjectMocks private RemoveItemFromOrderUseCase sut;
-
-        @BeforeEach
-        void setup(){
-            orderId = UUID.randomUUID();
-            orderItemId = UUID.randomUUID();
-            otherOrderItemId = UUID.randomUUID();
-        }
-
         @Test
         @DisplayName("Dado que o usuário esteja registrado e uma mesa possua uma comanda ativa e possua um item adicionado, " +
                 "quando o garçom solicitar a remoção do item, então o item deve ser removido da comanda.")
@@ -208,6 +209,51 @@ public class RemoveItemFromOrderUseCaseTest {
             sut.execute(new RemoveItemFromOrderDTO(orderId, orderItemId));
 
             assertEquals(0.0, order.getTotalPriceOfOrder(), "O total da comanda deveria ser 0.0 após remover o item e seus adicionais.");
+        }
+    }
+
+    @Tag("Mutation")
+    @Nested
+    class MutationTests{
+        @Test
+        @DisplayName("Deve falhar quando item não existir")
+        void shouldThrowWhenOrderItemNotFoundMutation() {
+
+            MenuItem xBurguer =
+                    new MenuItem(UUID.randomUUID(), "X-Burguer", "Delicioso", 20.0, 10);
+
+            OrderItem item =
+                    new OrderItem(orderItemId, xBurguer, new ArrayList<>(), null, "");
+
+            Order order =
+                    new Order(orderId, new Table(1), List.of(item),
+                            LocalDateTime.now(), true, mock(User.class));
+
+            when(orderRepository.findById(orderId))
+                    .thenReturn(Optional.of(order));
+
+            when(orderItemRepository.findById(orderItemId))
+                    .thenReturn(Optional.empty());
+
+            RemoveItemFromOrderDTO request =
+                    new RemoveItemFromOrderDTO(orderId, orderItemId);
+
+            Exception exception = assertThrows(
+                    Exception.class,
+                    () -> sut.execute(request)
+            );
+
+            assertInstanceOf(NoSuchElementException.class, exception);
+
+            assertEquals(
+                    "Item solicitado não encontrado para o ID: " + orderItemId,
+                    exception.getMessage()
+            );
+
+            verify(orderRepository).findById(orderId);
+            verify(orderItemRepository).findById(orderItemId);
+
+            verify(orderRepository, never()).save(any());
         }
     }
 }
