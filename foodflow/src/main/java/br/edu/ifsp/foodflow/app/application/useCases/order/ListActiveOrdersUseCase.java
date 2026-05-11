@@ -2,6 +2,7 @@ package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.AddOnSummaryDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,10 @@ public class ListActiveOrdersUseCase {
                                         item.getObservations(),
                                         item.getPrice(),
                                         item.getStatus(),
-                                        item.getWaiter() != null ? item.getWaiter().getUsername() : "Sistema"
+                                        item.getWaiter() != null ? item.getWaiter().getUsername() : "Sistema",
+                                        item.getAdditions().stream()
+                                                .map(a -> new AddOnSummaryDTO(a.getName(), a.getPrice()))
+                                                .toList()
                                 )
                         ).toList()
                 )).toList();

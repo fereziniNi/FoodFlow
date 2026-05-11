@@ -4,6 +4,7 @@ import br.edu.ifsp.foodflow.app.domain.exceptions.TableNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.order.Order;
 import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.AddOnSummaryDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
@@ -50,7 +51,10 @@ public class GetOrderByTableUseCase {
                                 item.getObservations(),
                                 item.getPrice(),
                                 item.getStatus(),
-                                item.getWaiter() != null ? item.getWaiter().getUsername() : "Sistema"
+                                item.getWaiter() != null ? item.getWaiter().getUsername() : "Sistema",
+                                item.getAdditions().stream()
+                                        .map(a -> new AddOnSummaryDTO(a.getName(), a.getPrice()))
+                                        .toList()
                         )
                 ).toList()
         );
