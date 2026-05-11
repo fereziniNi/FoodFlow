@@ -53,6 +53,14 @@ export interface AddItemRequest {
   waiterId: string;
 }
 
+export interface AdvanceStatusResponse {
+  itemId: string;
+  orderId: string;
+  status: 'PENDING' | 'PREPARATION' | 'FINISHED';
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const orderService = {
   openOrder: async (tableNumber: number, data: OpenOrderRequest): Promise<OrderResponse> => {
     const response = await api.post(`/orders/${tableNumber}/open`, data);
@@ -76,6 +84,11 @@ export const orderService = {
 
   closeOrder: async (orderId: string, data: CloseOrderRequest): Promise<CloseOrderResponse> => {
     const response = await api.post(`/orders/${orderId}/close`, data);
+    return response.data;
+  },
+
+  advanceItemStatus: async (orderId: string, itemId: string): Promise<AdvanceStatusResponse> => {
+    const response = await api.post(`/orders/${orderId}/advance-status`, { itemId });
     return response.data;
   }
 };
