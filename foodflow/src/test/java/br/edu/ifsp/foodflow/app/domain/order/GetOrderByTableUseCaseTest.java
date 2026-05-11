@@ -8,6 +8,8 @@ import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.AddOnSummaryDTO;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
@@ -256,4 +258,52 @@ class GetOrderByTableUseCaseTest {
             assertEquals("Sistema", result.items().get(0).waiterName());
         }
     }
+
+    @Nested
+    @Tag("Mutation")
+    class MutationTests {
+        @Test
+        @DisplayName("Deve mapear corretamente o conteúdo completo do OrderItemDetailsDTO incluindo add-ons")
+        void shouldMapFullOrderItemDetailsIncludingAddOns() {
+            Table table = new Table(1);
+            User user = new User("João", "João", "email", "123", UserRole.WAITER);
+
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Hamburguer", "desc", 20.0, 10);
+
+            AddOn queijo = new AddOn(UUID.randomUUID(), "Queijo", 5.0);
+            AddOn bacon = new AddOn(UUID.randomUUID(), "Bacon", 7.0);
+
+            OrderItem item = new OrderItem(
+                    UUID.randomUUID(),
+                    menuItem,
+                    List.of(queijo, bacon),
+                    user,
+                    "sem cebola"
+            );
+
+            Order order = new Order(table, user);
+            order.addOrderItem(item);
+
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsDTO result = service.getOrderByTable(1);
+
+            OrderItemDetailsDTO dtoItem = result.items().get(0);
+
+            assertEquals("Hamburguer", dtoItem.name());
+            assertEquals("sem cebola", dtoItem.observations());
+
+            assertEquals(2, dtoItem.additions().size());
+
+            assertEquals("Queijo", dtoItem.additions().get(0).name());
+            assertEquals(5.0, dtoItem.additions().get(0).price());
+
+            assertEquals("Bacon", dtoItem.additions().get(1).name());
+            assertEquals(7.0, dtoItem.additions().get(1).price());
+        }
+    }
+
 }
