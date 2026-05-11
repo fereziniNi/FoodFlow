@@ -9,14 +9,12 @@ import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
+import br.edu.ifsp.foodflow.app.domain.orderItem.dto.AddOnSummaryDTO;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRole;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -26,12 +24,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 class GetOrderByTableUseCaseTest {
+    private Table table;
+    private User user;
+    private Order order;
+
     @InjectMocks
     private GetOrderByTableUseCase service;
 
@@ -40,6 +43,14 @@ class GetOrderByTableUseCaseTest {
 
     @Mock
     private TableRepository tableRepository;
+
+
+    @BeforeEach
+    void setUp(){
+        table = new Table(1);
+        user = new User("João", "João", "email", "123", UserRole.WAITER);
+        order = new Order(table, user);
+    }
 
     @Nested
     @Tag("TDD")
@@ -68,17 +79,15 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve lançar OrderNotFoundException quando não encontrar comanda na mesa")
         void shouldThrowExceptionWhenTableHasNoActiveOrder() {
-            int tableId = 1;
-            Table table = new Table(tableId);
 
-            when(tableRepository.findByTableNumber(tableId))
+            when(tableRepository.findByTableNumber(table.getTableNumber()))
                     .thenReturn(Optional.of(table));
             when(orderRepository.findActiveOrderByTable(table))
                     .thenReturn(Optional.empty());
 
             OrderNotFoundException exception = assertThrows(
                     OrderNotFoundException.class,
-                    () -> service.getOrderByTable(tableId)
+                    () -> service.getOrderByTable(table.getTableNumber())
             );
 
             assertEquals("Não existe comanda ativa para essa mesa.", exception.getMessage());
@@ -87,12 +96,6 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve retornar OrderDetailsResponse com itens quando houver pedido ativo para a mesa")
         void shouldReturnOrderDTOWhenActiveOrderExists() {
-            UUID orderId = UUID.randomUUID();
-
-            Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
-
-            Order order = new Order(table, user);
 
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "Descrição do prato", 50.0, 10);
             OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
@@ -112,7 +115,7 @@ class GetOrderByTableUseCaseTest {
             assertEquals(table.getTableNumber(), result.tableNumber());
             assertEquals(user.getUsername(), result.userName());
             assertEquals(2, result.items().size());
-            assertEquals(50.0, result.items().get(0).price());
+            assertEquals(50.0, result.items().getFirst().price());
             assertEquals(100.0, result.total());
         }
     }
@@ -123,12 +126,6 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve retornar OrderDetailsResponse com lista de itens vazia quando o pedido não tiver itens")
         void shouldReturnEmptyItemsWhenOrderHasNoItems() {
-            UUID orderId = UUID.randomUUID();
-
-            Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
-
-            Order order = new Order(table, user);
 
             when(tableRepository.findByTableNumber(1))
                     .thenReturn(Optional.of(table));
@@ -148,11 +145,6 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve aplicar desconto correto no OrderDetailsResponse")
         void shouldApplyDiscountCorrectly() {
-            Table table = new Table(1);
-            User user = new User("João Silva", "João", "joao@gmail.com", "1234", UserRole.WAITER);
-
-            Order order = new Order(table, user);
-
             MenuItem menuItem1 = new MenuItem(UUID.randomUUID(), "Prato 1", "desc", 120.0, 10);
             OrderItem item1 = new OrderItem(UUID.randomUUID(), menuItem1, List.of(), user, "");
 
@@ -173,10 +165,7 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve somar corretamente o preço do item com adicionais")
         void shouldCalculateItemPriceWithAddOns() {
-            Table table = new Table(1);
-            User user = new User("João", "João", "email", "123", UserRole.WAITER);
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Hamburguer", "desc", 20.0, 10);
-
             AddOn extraQueijo = new AddOn(UUID.randomUUID(), "Queijo", 5.0);
             AddOn bacon = new AddOn(UUID.randomUUID(), "Bacon", 7.0);
 
@@ -188,7 +177,6 @@ class GetOrderByTableUseCaseTest {
                     ""
             );
 
-            Order order = new Order(table, user);
             order.addOrderItem(item);
 
             when(tableRepository.findByTableNumber(1))
@@ -198,21 +186,18 @@ class GetOrderByTableUseCaseTest {
                     .thenReturn(Optional.of(order));
 
             OrderDetailsDTO result = service.getOrderByTable(1);
-            assertEquals(32.0, result.items().get(0).price());
+            assertEquals(32.0, result.items().getFirst().price());
             assertEquals(32.0, result.total());
         }
 
         @Test
         @DisplayName("Deve retornar o status atual de cada item do pedido")
         void shouldReturnOrderItemStatus() {
-            Table table = new Table(1);
-            User user = new User("João", "João", "email", "123", UserRole.WAITER);
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Pizza", "desc", 40.0, 10);
             OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 
             item.upgradeProgress();
 
-            Order order = new Order(table, user);
             order.addOrderItem(item);
 
             when(tableRepository.findByTableNumber(1))
@@ -221,7 +206,7 @@ class GetOrderByTableUseCaseTest {
                     .thenReturn(Optional.of(order));
 
             OrderDetailsDTO result = service.getOrderByTable(1);
-            assertEquals(OrderItemStatus.PREPARATION, result.items().get(0).status());
+            assertEquals(OrderItemStatus.PREPARATION, result.items().getFirst().status());
         }
     }
 
@@ -231,9 +216,6 @@ class GetOrderByTableUseCaseTest {
         @Test
         @DisplayName("Deve retornar Sistema no campo waiter quando o item não possuir garçom atribuído")
         void shouldReturnSistemaWhenOrderItemHasNoWaiter() {
-            Table table = new Table(1);
-            User user = new User("João Silva", "joao", "joao@gmail.com", "1234", UserRole.WAITER);
-
             MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 30.0, 10);
             OrderItem item = new OrderItem(
                     UUID.randomUUID(),
@@ -243,7 +225,6 @@ class GetOrderByTableUseCaseTest {
                     "Sem cebola"
             );
 
-            Order order = new Order(table, user);
             order.addOrderItem(item);
 
             when(tableRepository.findByTableNumber(1))
@@ -254,7 +235,37 @@ class GetOrderByTableUseCaseTest {
             OrderDetailsDTO result = service.getOrderByTable(1);
             assertNotNull(result);
             assertEquals(1, result.items().size());
-            assertEquals("Sistema", result.items().get(0).waiterName());
+            assertEquals("Sistema", result.items().getFirst().waiterName());
         }
     }
+
+    @Nested
+    @Tag("Mutation")
+    @DisplayName("Testes de Mutação")
+    class MutationTests {
+
+        @Test
+        @DisplayName("deve testar retorno quando item tem adicionais")
+        void shouldTestWhenItemHasAdditional() {
+            MenuItem menuItem = new MenuItem(UUID.randomUUID(), "Pizza", "desc", 40.0, 10);
+            List<AddOn> addOns = List.of(
+                    new AddOn("Bacon extra", 5.0),
+                    new AddOn("Queijo Extra", 3.0)
+            );
+            OrderItem item = new OrderItem(UUID.randomUUID(), menuItem, addOns, user, "");
+            order.addOrderItem(item);
+
+            when(tableRepository.findByTableNumber(1))
+                    .thenReturn(Optional.of(table));
+            when(orderRepository.findActiveOrderByTable(table))
+                    .thenReturn(Optional.of(order));
+
+            OrderDetailsDTO result = service.getOrderByTable(1);
+            assertThat(result.items().getFirst().additions()).isEqualTo(
+                    addOns.stream().map(addOn -> new AddOnSummaryDTO(addOn.getName(), addOn.getPrice())).toList()
+            );
+        }
+    }
+
+
 }
