@@ -11,7 +11,6 @@ import {
   Search,
   Clock,
   ChevronRight,
-  Filter,
   DollarSign
 } from 'lucide-react';
 import { orderService, OrderDetailsResponse, AddItemRequest, OrderItemResponse, CloseOrderResponse } from '../services/orderService';
@@ -43,6 +42,7 @@ const Orders: React.FC = () => {
   const [observations, setObservations] = useState('');
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [orderSearchTerm, setOrderSearchTerm] = useState('');
 
   const filteredMenuItems = menuItems.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -207,9 +207,11 @@ const Orders: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="text" 
-                placeholder="Buscar comanda ou mesa..." 
+              <input
+                type="text"
+                placeholder="Mesa ou garçom..."
+                value={orderSearchTerm}
+                onChange={(e) => setOrderSearchTerm(e.target.value)}
                 className="pl-9 pr-4 py-1.5 bg-gray-100 border-transparent rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-orange-500/20 outline-none transition-all"
               />
             </div>
@@ -224,10 +226,6 @@ const Orders: React.FC = () => {
                 <h1 className="text-2xl font-bold text-gray-900">Comandas Ativas</h1>
                 <p className="text-gray-500">Acompanhe todos os pedidos em aberto e adicione novos itens.</p>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
-                <Filter size={16} />
-                Filtrar
-              </button>
             </div>
 
             {loading ? (
@@ -252,7 +250,10 @@ const Orders: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-6">
-                {orders.map((order) => (
+                {orders.filter(o =>
+                  o.tableNumber.toString().includes(orderSearchTerm) ||
+                  o.userName.toLowerCase().includes(orderSearchTerm.toLowerCase())
+                ).map((order) => (
                   <OrderCard
                     key={order.orderId}
                     order={order}
