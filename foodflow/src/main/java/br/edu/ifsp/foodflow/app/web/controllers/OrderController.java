@@ -80,7 +80,10 @@ public class OrderController {
                                         item.observations(),
                                         item.price(),
                                         item.status(),
-                                        item.waiterName()
+                                        item.waiterName(),
+                                        item.additions().stream()
+                                                .map(a -> new AddOnSummaryResponse(a.name(), a.price()))
+                                                .toList()
                                 ))
                                 .toList()
                 ))
@@ -230,7 +233,10 @@ public class OrderController {
                                 item.observations(),
                                 item.price(),
                                 item.status(),
-                                item.waiterName()
+                                item.waiterName(),
+                                item.additions().stream()
+                                        .map(a -> new AddOnSummaryResponse(a.name(), a.price()))
+                                        .toList()
                         ))
                         .toList()
         );
