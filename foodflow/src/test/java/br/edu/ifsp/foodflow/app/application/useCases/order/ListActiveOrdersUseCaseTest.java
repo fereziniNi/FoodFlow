@@ -1,8 +1,10 @@
-package br.edu.ifsp.foodflow.app.domain.order;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.application.useCases.order.ListActiveOrdersUseCase;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderDetailsDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.dto.OrderItemDetailsDTO;
