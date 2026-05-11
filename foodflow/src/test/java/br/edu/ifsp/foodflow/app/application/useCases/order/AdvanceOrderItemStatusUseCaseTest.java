@@ -1,16 +1,16 @@
-package br.edu.ifsp.foodflow.app.domain.order;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 
-import br.edu.ifsp.foodflow.app.application.useCases.order.AdvanceOrderItemStatusUseCase;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemAlreadyFinishedException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderItemNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.OrderNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AdvanceOrderItemStatusDTO;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
-import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 @Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 class AdvanceOrderItemStatusUseCaseTest {
-    private  Order order;
+    private br.edu.ifsp.foodflow.app.domain.order.Order order;
     private Table table;
     private User user;
     private OrderItem orderItem;

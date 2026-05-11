@@ -1,10 +1,11 @@
-package br.edu.ifsp.foodflow.app.domain.order;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.RemoveItemFromOrderDTO;
-import br.edu.ifsp.foodflow.app.application.useCases.order.RemoveItemFromOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemRepository;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItemStatus;
@@ -63,7 +64,7 @@ public class RemoveItemFromOrderUseCaseTest {
             Table table = new Table(10);
             User waiter = mock(User.class);
 
-            Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
 
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
             when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemXburguer));
@@ -95,7 +96,7 @@ public class RemoveItemFromOrderUseCaseTest {
             User waiter = mock(User.class);
 
             List<OrderItem> initialItems = new ArrayList<>(List.of(itemInPreparation));
-            Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
 
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
             when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemInPreparation));
@@ -127,7 +128,7 @@ public class RemoveItemFromOrderUseCaseTest {
             Table table = new Table(10);
             User waiter = mock(User.class);
 
-            Order order = new Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(orderId, table, initialItems, LocalDateTime.now(), true, waiter);
             assertEquals(55.0, order.getTotalPriceOfOrder(), "O total inicial da comanda deveria ser 55.0");
 
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -168,7 +169,7 @@ public class RemoveItemFromOrderUseCaseTest {
             Table table = new Table(10);
             User waiter = mock(User.class);
 
-            Order closedOrder = new Order(orderId, table, initialItems, LocalDateTime.now(), false, waiter);
+            br.edu.ifsp.foodflow.app.domain.order.Order closedOrder = new br.edu.ifsp.foodflow.app.domain.order.Order(orderId, table, initialItems, LocalDateTime.now(), false, waiter);
 
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(closedOrder));
             when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemToRemove));
@@ -200,7 +201,7 @@ public class RemoveItemFromOrderUseCaseTest {
             );
 
             List<OrderItem> items = new ArrayList<>(List.of(itemWithAddOn));
-            Order order = new Order(orderId, new Table(1), items, LocalDateTime.now(), true, mock(User.class));
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new Order(orderId, new Table(1), items, LocalDateTime.now(), true, mock(User.class));
 
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
             when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.of(itemWithAddOn));

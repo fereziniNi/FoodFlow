@@ -1,6 +1,8 @@
-package br.edu.ifsp.foodflow.app.domain.user;
+package br.edu.ifsp.foodflow.app.application.useCases.user;
 
-import br.edu.ifsp.foodflow.app.application.useCases.user.RegisterUserUseCase;
+import br.edu.ifsp.foodflow.app.domain.user.User;
+import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
+import br.edu.ifsp.foodflow.app.domain.user.UserRole;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
