@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { 
-  UtensilsCrossed, 
-  LogOut, 
-  LayoutDashboard, 
-  ClipboardList, 
-  Settings, 
+  UtensilsCrossed,
+  LogOut,
+  LayoutDashboard,
+  ClipboardList,
+  Settings,
   User as UserIcon,
   Plus,
   Search,
@@ -137,6 +137,16 @@ const Orders: React.FC = () => {
     }
   };
 
+  const handleAdvanceStatus = async (orderId: string, itemId: string) => {
+    try {
+      await orderService.advanceItemStatus(orderId, itemId);
+      fetchData();
+    } catch (error) {
+      console.error("Erro ao avançar status do item", error);
+      alert("Erro ao avançar status do item");
+    }
+  };
+
   const resetForm = () => {
     setSelectedMenuItem('');
     setObservations('');
@@ -241,11 +251,12 @@ const Orders: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 gap-6">
                 {orders.map((order) => (
-                  <OrderCard 
-                    key={order.orderId} 
-                    order={order} 
+                  <OrderCard
+                    key={order.orderId}
+                    order={order}
                     onAddItem={() => handleOpenAddItemModal(order.orderId, order.tableNumber)}
                     onCloseOrder={() => handleOpenCloseModal(order.orderId)}
+                    onAdvanceStatus={(itemId) => handleAdvanceStatus(order.orderId, itemId)}
                   />
                 ))}
               </div>
@@ -523,8 +534,8 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
   </Link>
 );
 
-const OrderCard = ({order, onAddItem, onCloseOrder}: {
-    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void}) => {
+const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus}: {
+    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void, onAdvanceStatus: (itemId: string) => void}) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
@@ -602,9 +613,25 @@ const OrderCard = ({order, onAddItem, onCloseOrder}: {
                     <p className="text-[10px] font-bold text-gray-400 uppercase">Anotado por: {item.waiterName}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <span className="text-sm font-bold text-gray-600">R$ {item.price.toFixed(2)}</span>
-                  <StatusBadge status={item.status} />
+                  {item.status === 'FINISHED' ? (
+                    <StatusBadge status={item.status} />
+                  ) : item.status === 'PENDING' ? (
+                    <button
+                      onClick={() => onAdvanceStatus(item.id)}
+                      className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors whitespace-nowrap"
+                    >
+                      Iniciar preparo
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => onAdvanceStatus(item.id)}
+                      className="text-sm font-bold text-orange-600 hover:text-orange-700 transition-colors whitespace-nowrap"
+                    >
+                      Marcar como pronto
+                    </button>
+                  )}
                 </div>
               </div>
             ))
