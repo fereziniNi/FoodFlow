@@ -1,12 +1,13 @@
-package br.edu.ifsp.foodflow.app.domain.order;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOn;
 import br.edu.ifsp.foodflow.app.domain.addOn.AddOnRepository;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItemRepository;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.AddItemToOrderDTO;
 import br.edu.ifsp.foodflow.app.domain.order.dto.OrderResultDTO;
-import br.edu.ifsp.foodflow.app.application.useCases.order.AddItemToOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.user.User;
@@ -63,7 +64,7 @@ public class AddItemToOrderUseCaseTest {
         void shouldAddItemAnExistingOrder(){
             Table table = new Table(10);
             User user = new User("Estrupicio", "Pereira", "estrupicio@gmail.com", "1234", br.edu.ifsp.foodflow.app.domain.user.UserRole.WAITER);
-            Order order = new Order(table, user);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(table, user);
 
             MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
             AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem milho", null, waiterId);
@@ -90,7 +91,7 @@ public class AddItemToOrderUseCaseTest {
         void shouldThrowExceptionWhenWaiterIsNotRegistered() {
             AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem milho", null, waiterId);
 
-            Order mockOrder = mock(Order.class);
+            br.edu.ifsp.foodflow.app.domain.order.Order mockOrder = mock(br.edu.ifsp.foodflow.app.domain.order.Order.class);
             when(mockOrder.getActive()).thenReturn(true);
             MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 10);
 
@@ -113,7 +114,7 @@ public class AddItemToOrderUseCaseTest {
         void shouldThrowExceptionWhenItemIsUnavailable(){
             AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem milho", null, waiterId);
 
-            Order mockOrder = mock(Order.class);
+            br.edu.ifsp.foodflow.app.domain.order.Order mockOrder = mock(br.edu.ifsp.foodflow.app.domain.order.Order.class);
             when(mockOrder.getActive()).thenReturn(true);
             MenuItem menuItem = new MenuItem(menuItemId, "X-Tudo", "Ingredientes", 40.0, 0);
 
@@ -149,7 +150,7 @@ public class AddItemToOrderUseCaseTest {
                 "comanda encerrada e a operação não será concluída.")
         void shouldThrowExceptionWhenAddOrderItemToAFinishedOrder(){
             AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem milho", null, waiterId);
-            Order mockOrder = mock(Order.class);
+            br.edu.ifsp.foodflow.app.domain.order.Order mockOrder = mock(br.edu.ifsp.foodflow.app.domain.order.Order.class);
             when(mockOrder.getActive()).thenReturn(false);
             when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
             OrderAlreadyClosedException exception = assertThrows(OrderAlreadyClosedException.class, () -> sut.execute(request));
@@ -169,7 +170,7 @@ public class AddItemToOrderUseCaseTest {
 
             Table table = new Table(10);
             User user = new User("Garçom", "Sobrenome", "garcom@email.com", "123", UserRole.WAITER);
-            Order order = new Order(table, user);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(table, user);
 
             MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
             AddOn addOn1 = mock(AddOn.class);
@@ -196,7 +197,7 @@ public class AddItemToOrderUseCaseTest {
             List<UUID> addOnIds = List.of(UUID.randomUUID(), UUID.randomUUID());
             AddItemToOrderDTO request = new AddItemToOrderDTO(orderId, menuItemId, "Sem molho", addOnIds, waiterId);
 
-            Order mockOrder = mock(Order.class);
+            br.edu.ifsp.foodflow.app.domain.order.Order mockOrder = mock(br.edu.ifsp.foodflow.app.domain.order.Order.class);
             when(mockOrder.getActive()).thenReturn(true);
 
             MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
@@ -223,7 +224,7 @@ public class AddItemToOrderUseCaseTest {
 
             Table table = new Table(10);
             User user = new User("Garçom", "Sobrenome", "garcom@email.com", "123", UserRole.WAITER);
-            Order order = new Order(table, user);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new Order(table, user);
 
             MenuItem menuItem = new MenuItem(menuItemId, "X-Bacon", "Ingredientes", 30.0, 5);
 

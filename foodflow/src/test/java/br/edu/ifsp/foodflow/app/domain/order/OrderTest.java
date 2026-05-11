@@ -23,7 +23,7 @@ class OrderTest {
 
         @DisplayName("Deve lançar IllegalArgumentException se mesa for nula")
         @Test
-        void deveLancarIllegalArgumentExceptionSeTableNula(){
+        void shouldThrowIllegalArgumentExceptionIfTableIsNull(){
             User user = new User(
                     UUID.randomUUID(),
                     "ana lívia",
@@ -36,11 +36,13 @@ class OrderTest {
 
         @Test
         @DisplayName("Deve lançar IllegalArgumentException se usuário for nulo")
-        void deveLancarIllegalArgumentExceptionSeUsuarioNulo() {
+        void shouldThrowIllegalArgumentExceptionIfUserIsNull() {
             Table table = new Table(1);
             assertThatIllegalArgumentException().isThrownBy(()->new Order(table,null));
         }
 
     }
 
+
 }
+

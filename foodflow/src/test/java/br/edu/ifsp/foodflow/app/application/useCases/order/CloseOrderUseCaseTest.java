@@ -1,10 +1,11 @@
-package br.edu.ifsp.foodflow.app.domain.order;
+package br.edu.ifsp.foodflow.app.application.useCases.order;
 
 
 import br.edu.ifsp.foodflow.app.domain.exceptions.EmptyOrderException;
 import br.edu.ifsp.foodflow.app.domain.menuItem.MenuItem;
+import br.edu.ifsp.foodflow.app.domain.order.Order;
+import br.edu.ifsp.foodflow.app.domain.order.OrderRepository;
 import br.edu.ifsp.foodflow.app.domain.order.dto.CloseOrderResultDTO;
-import br.edu.ifsp.foodflow.app.application.useCases.order.CloseOrderUseCase;
 import br.edu.ifsp.foodflow.app.domain.orderItem.OrderItem;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
@@ -46,7 +47,7 @@ public class CloseOrderUseCaseTest {
 
     private User user;
     private Table table;
-    private Order order;
+    private br.edu.ifsp.foodflow.app.domain.order.Order order;
     private UUID randomUUID;
 
     private MenuItem menuItem;
@@ -58,7 +59,7 @@ public class CloseOrderUseCaseTest {
         table = new Table(1);
         user = new User("João Silva","João","joao@gmail.com","1234", UserRole.WAITER);
 
-        order = new Order(table,user);
+        order = new br.edu.ifsp.foodflow.app.domain.order.Order(table,user);
         menuItem = new MenuItem(UUID.randomUUID(), "Prato", "desc", 80.0,1);
         item = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
 
@@ -284,14 +285,12 @@ public class CloseOrderUseCaseTest {
     @Nested
     @Tag("Mutation")
     @DisplayName("Testes de Mutação")
-    class mutationTests{
-
-
+    class MutationTests{
         @Test
         @DisplayName("Deve testar se mesa mudou status para disponível")
-        void deveTestarSeMesaMudouStatusParaDisponivel(){
+        void shouldSetTableStatusToAvailable(){
             Table table = new Table(1, TableStatus.OCCUPIED);
-            Order order = new Order(table, user);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new Order(table, user);
             order.addOrderItem(item);
             when(orderRepository.findById(randomUUID)).thenReturn(Optional.of(order));
             closeOrderUseCase.closeOrder(randomUUID, 1);
