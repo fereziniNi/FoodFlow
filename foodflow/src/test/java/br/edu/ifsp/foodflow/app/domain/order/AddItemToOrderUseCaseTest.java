@@ -240,4 +240,33 @@ public class AddItemToOrderUseCaseTest {
             verify(orderRepository, times(1)).save(order);
         }
     }
+
+    @Tag("Mutation")
+    @Nested
+    @DisplayName("Mutation Test")
+    class MutationTest {
+        @Test
+        @DisplayName("Deve lançar exceção quando o item do menu não existir")
+        void shouldThrowExceptionWhenMenuItemNotFound() {
+            AddItemToOrderDTO request =
+                    new AddItemToOrderDTO(orderId, menuItemId, "Sem milho", null, waiterId);
+
+            Order mockOrder = mock(Order.class);
+            when(mockOrder.getActive()).thenReturn(true);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(mockOrder));
+            when(menuItemRepository.findById(menuItemId)).thenReturn(Optional.empty());
+
+            NoSuchElementException exception =
+                    assertThrows(NoSuchElementException.class, () -> sut.execute(request));
+
+            assertEquals(
+                    "Item do menu não encontrado para o ID: " + menuItemId,
+                    exception.getMessage()
+            );
+
+            verify(mockOrder, never()).addOrderItem(any());
+            verify(orderRepository, never()).save(any());
+        }
+    }
 }
