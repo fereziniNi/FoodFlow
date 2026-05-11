@@ -5,6 +5,7 @@ import br.edu.ifsp.foodflow.app.domain.exceptions.TableNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.exceptions.UserNotFoundException;
 import br.edu.ifsp.foodflow.app.domain.table.Table;
 import br.edu.ifsp.foodflow.app.domain.table.TableRepository;
+import br.edu.ifsp.foodflow.app.domain.table.TableStatus;
 import br.edu.ifsp.foodflow.app.domain.user.User;
 import br.edu.ifsp.foodflow.app.domain.user.UserRepository;
 import br.edu.ifsp.foodflow.app.domain.user.UserRole;
@@ -171,6 +172,33 @@ class OpenTableOrderUseCaseTest {
                     () -> service.openOrder(invalidTableId, validUserId));
 
             assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @Tag("Mutation")
+    @DisplayName("Testes criados para matar mutantes")
+    class MutationTests {
+
+        @Test
+        @DisplayName("Deve criar um pedido quando a mesa e o usuário existirem")
+        void shouldCreateOrderWhenTableAndUserExist() {
+            Table table = new Table(1);
+            User user = createExistingUser();
+
+            when(tableRepository.findByTableNumber(1)).thenReturn(Optional.of(table));
+            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+            when(orderRepository.findActiveOrderByTable(table)).thenReturn(Optional.empty());
+            when(orderRepository.save(any(Order.class)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            Order order = service.openOrder(1, user.getId());
+
+            assertNotNull(order, "A ordem não deve ser nula");
+            assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");
+            assertEquals(user.getId(), order.getUser().getId(), "Usuário incorreto");
+
+            assertEquals(TableStatus.OCCUPIED, table.getStatus());
         }
     }
 }
