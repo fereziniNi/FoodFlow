@@ -155,23 +155,22 @@ class OpenTableOrderUseCaseTest {
             assertEquals(table.getTableNumber(), order.getTable().getTableNumber(), "Mesa incorreta");
             assertEquals(user.getId(), order.getUser().getId(), "Usuário incorreto");
         }
-
-        @Nested
-        @Tag("Functional")
-        @DisplayName("Testes criados com a técnica funcional")
-        class FunctionalTests {
-            @ParameterizedTest
-            @CsvSource({"-1", "0"})
-            @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for negativo ou zero")
-            void shouldThrowExceptionForInvalidTableId(int invalidTableId) {
-                UUID validUserId = UUID.randomUUID();
-
-                IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                        () -> service.openOrder(invalidTableId, validUserId));
-
-                assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
-            }
-        }
     }
 
+    @Nested
+    @Tag("Functional")
+    @DisplayName("Testes criados com a técnica funcional")
+    class FunctionalTests {
+        @ParameterizedTest
+        @CsvSource({"-1", "0"})
+        @DisplayName("Deve lançar IllegalArgumentException quando o ID da mesa for negativo ou zero")
+        void shouldThrowExceptionForInvalidTableId(int invalidTableId) {
+            UUID validUserId = UUID.randomUUID();
+
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                    () -> service.openOrder(invalidTableId, validUserId));
+
+            assertEquals("O ID da mesa deve ser positivo.", exception.getMessage());
+        }
+    }
 }
