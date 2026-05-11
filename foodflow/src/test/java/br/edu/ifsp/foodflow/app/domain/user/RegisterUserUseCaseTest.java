@@ -1,10 +1,7 @@
 package br.edu.ifsp.foodflow.app.domain.user;
 
 import br.edu.ifsp.foodflow.app.application.useCases.user.RegisterUserUseCase;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -21,6 +18,8 @@ import static org.mockito.Mockito.*;
 @Tag("UnitTest")
 @ExtendWith(MockitoExtension.class)
 class RegisterUserUseCaseTest {
+    private User user;
+
     @Mock
     private UserRepository userRepository;
 
@@ -30,6 +29,17 @@ class RegisterUserUseCaseTest {
     @InjectMocks
     private RegisterUserUseCase registerUserUseCase;
 
+    @BeforeEach
+    void setUp(){
+        user = new User(
+                UUID.randomUUID(),
+                "Bia alves",
+                "bia",
+                "bia@email.com",
+                "123",
+                UserRole.WAITER
+        );
+    }
 
     @Tag("Structural")
     @Nested
@@ -37,36 +47,36 @@ class RegisterUserUseCaseTest {
     class StructuralTests{
         @Test
         @DisplayName("Deve lançar exceção quando username já existe")
-        void deveLancarExcecaoQuandoUsernameJaExiste() {
-            User existing = new User(
-                    UUID.randomUUID(),
-                    "Bia alves",
-                    "bia",
-                    "bia@email.com",
-                    "senha",
-                    UserRole.WAITER
-            );
-            when(userRepository.findByUsername("bia")).thenReturn(Optional.of(existing));
+        void shouldThrowExceptionWhenUsernameAlreadyExists() {
+
+            when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
             assertThatThrownBy(() ->
                     registerUserUseCase.execute(
-                            "Bia Pereira",
-                            "bia",
-                            "bya@email.com",
-                            "123",
-                            UserRole.WAITER)
+                            user.getName(),
+                            user.getUsername(),
+                            user.getEmail(),
+                            user.getPassword(),
+                            user.getRole()
+                    )
             ).isInstanceOf(RuntimeException.class);
         }
 
         @Test
         @DisplayName("Deve salvar usuário com senha criptografada quando username não existe")
-        void deveSalvarUsuarioComSenhaCriptografada() {
-            when(userRepository.findByUsername("bia")).thenReturn(Optional.empty());
-            when(passwordEncoder.encode("123")).thenReturn("$2a$hash");
+        void shouldSaveUserWithEncryptedPassword() {
+            when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
+            when(passwordEncoder.encode(user.getPassword())).thenReturn("$2a$hash");
 
-            registerUserUseCase.execute("Bia", "bia", "bia@email.com", "123", UserRole.WAITER);
+            registerUserUseCase.execute(
+                    user.getName(),
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getPassword(),
+                    user.getRole()
+            );
 
-            verify(passwordEncoder).encode("123");
+            verify(passwordEncoder).encode(user.getPassword());
             verify(userRepository).save(any(User.class));
         }
     }

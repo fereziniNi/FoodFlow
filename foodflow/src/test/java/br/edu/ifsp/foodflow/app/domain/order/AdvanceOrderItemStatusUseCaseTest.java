@@ -166,10 +166,10 @@ class AdvanceOrderItemStatusUseCaseTest {
     @Nested
     @Tag("Mutation")
     @DisplayName("Testes de Mutação")
-    class mutationTests{
+    class MutationTests{
         @Test
         @DisplayName("Deve avançar o status do item correto independente da posição na lista ")
-        void deveMudarOStatusDoItemIndependenteDaPosicaoNaLista() {
+        void shouldChangeStatusRegardlessOfPositionInList() {
             OrderItem otherItem = new OrderItem(UUID.randomUUID(), menuItem, List.of(), user, "");
             order.addOrderItem(otherItem);
             order.addOrderItem(orderItem);

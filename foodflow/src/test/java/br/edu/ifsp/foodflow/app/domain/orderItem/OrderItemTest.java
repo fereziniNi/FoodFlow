@@ -23,7 +23,7 @@ class OrderItemTest {
         @Test
         @Tag("Mutation")
         @DisplayName("Deve calcular o preço somando o item e os adicionais no segundo construtor")
-        void deveCalcularPrecoComAdicionaisNoSegundoConsrutor() {
+        void shouldCalculatePriceWithAdditionsInSecondConstructor() {
 
             User user = new User(
                     UUID.randomUUID(),

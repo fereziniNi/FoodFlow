@@ -284,12 +284,10 @@ public class CloseOrderUseCaseTest {
     @Nested
     @Tag("Mutation")
     @DisplayName("Testes de Mutação")
-    class mutationTests{
-
-
+    class MutationTests{
         @Test
         @DisplayName("Deve testar se mesa mudou status para disponível")
-        void deveTestarSeMesaMudouStatusParaDisponivel(){
+        void shouldSetTableStatusToAvailable(){
             Table table = new Table(1, TableStatus.OCCUPIED);
             Order order = new Order(table, user);
             order.addOrderItem(item);
