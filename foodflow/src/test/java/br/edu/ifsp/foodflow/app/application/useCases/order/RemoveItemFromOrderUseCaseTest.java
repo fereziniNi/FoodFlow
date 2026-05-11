@@ -18,10 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -209,6 +206,61 @@ public class RemoveItemFromOrderUseCaseTest {
             sut.execute(new RemoveItemFromOrderDTO(orderId, orderItemId));
 
             assertEquals(0.0, order.getTotalPriceOfOrder(), "O total da comanda deveria ser 0.0 após remover o item e seus adicionais.");
+        }
+    }
+
+    @Tag("Mutation")
+    @Nested
+    @DisplayName("Testes criados para matar mutantes")
+    class MutationTests {
+        private UUID orderId;
+        private UUID orderItemId;
+
+        @Mock private OrderRepository orderRepository;
+        @Mock private OrderItemRepository orderItemRepository;
+        @InjectMocks private RemoveItemFromOrderUseCase sut;
+
+        @BeforeEach
+        void setup() {
+            orderId = UUID.randomUUID();
+            orderItemId = UUID.randomUUID();
+        }
+
+        @Test
+        @DisplayName("Dado que o ID da comanda não corresponde a nenhuma comanda existente, " +
+                "quando o usuário tentar remover um item, então o sistema deve lançar NoSuchElementException com a mensagem correta.")
+        void shouldThrowExceptionWhenOrderNotFound() {
+            when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+            RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(orderId, orderItemId);
+
+            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () ->
+                    sut.execute(request));
+
+            assertEquals("Pedido não encontrado para o ID: " + orderId, exception.getMessage());
+            verifyNoInteractions(orderItemRepository);
+            verify(orderRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Dado que o ID do item não corresponde a nenhum item existente, " +
+                "quando o usuário tentar remover o item, então o sistema deve lançar NoSuchElementException com a mensagem correta.")
+        void shouldThrowExceptionWhenOrderItemNotFound() {
+            Table table = new Table(10);
+            User waiter = mock(User.class);
+            br.edu.ifsp.foodflow.app.domain.order.Order order = new br.edu.ifsp.foodflow.app.domain.order.Order(
+                    orderId, table, new ArrayList<>(), LocalDateTime.now(), true, waiter);
+
+            when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+            when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.empty());
+
+            RemoveItemFromOrderDTO request = new RemoveItemFromOrderDTO(orderId, orderItemId);
+
+            NoSuchElementException exception = assertThrows(NoSuchElementException.class, () ->
+                    sut.execute(request));
+
+            assertEquals("Item solicitado não encontrado para o ID: " + orderItemId, exception.getMessage());
+            verify(orderRepository, never()).save(any());
         }
     }
 }
