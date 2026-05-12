@@ -13,6 +13,7 @@ import {
   ChevronRight,
   DollarSign
 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { orderService, OrderDetailsResponse, AddItemRequest, OrderItemResponse, CloseOrderResponse } from '../services/orderService';
 import { menuService, MenuItem, AddOn } from '../services/menuService';
 import { Link, useNavigate } from 'react-router-dom';
@@ -666,7 +667,29 @@ const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails}:
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-gray-600">R$ {item.price.toFixed(2)}</span>
+                  <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-gray-600">
+                        R$ {item.price.toFixed(2)}
+                      </span>
+
+                      {/* Botão remover */}
+                      <button
+                        onClick={() => onRemoveItem?.(order.orderId, item.id, item.status)}
+                        disabled={item.status === 'PREPARATION'}
+                        className={`p-2 rounded-xl transition-all flex items-center justify-center
+                          ${item.status === 'PREPARATION'
+                            ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                            : 'bg-red-50 text-red-600 hover:bg-red-100 active:scale-95'
+                          }`}
+                        title={
+                          item.status === 'PREPARATION'
+                            ? 'Item em preparo não pode ser removido'
+                            : 'Remover item'
+                        }
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   {item.status === 'FINISHED' ? (
                     <StatusBadge status={item.status} />
                   ) : item.status === 'PENDING' ? (
