@@ -96,5 +96,10 @@ export const orderService = {
   advanceItemStatus: async (orderId: string, itemId: string): Promise<AdvanceStatusResponse> => {
     const response = await api.post(`/orders/${orderId}/advance-status`, { itemId });
     return response.data;
-  }
+  },
+  
+  removeItemFromOrder: async (orderId: string, itemId: string) => {
+  const response = await api.delete(`/orders/${orderId}/items/${itemId}`);
+  return response.data;
+},
 };

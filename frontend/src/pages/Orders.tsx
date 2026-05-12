@@ -18,6 +18,10 @@ import { orderService, OrderDetailsResponse, AddItemRequest, OrderItemResponse, 
 import { menuService, MenuItem, AddOn } from '../services/menuService';
 import { Link, useNavigate } from 'react-router-dom';
 
+const isItemLocked = (status: string) => {
+  return status === 'PREPARATION' || status === 'FINISHED';
+};
+
 const Orders: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -139,6 +143,25 @@ const Orders: React.FC = () => {
       }
     }
   };
+
+  const handleRemoveItem = async (orderId: string, itemId: string, status: string) => {
+  if (status === 'PREPARATION') {
+    alert('Este item já está em preparo e não pode ser removido.');
+    return;
+  }
+
+  const confirmDelete = window.confirm('Tem certeza que deseja remover este item?');
+  if (!confirmDelete) return;
+
+  try {
+    await orderService.removeItemFromOrder(orderId, itemId);
+    await fetchData();
+  } catch (error: any) {
+  console.error("Erro completo:", error);
+  console.log("Resposta backend:", error?.response?.data);
+  alert(error?.response?.data?.message || "Erro ao remover item da comanda");
+}
+};
 
   const handleAdvanceStatus = async (orderId: string, itemId: string) => {
     try {
@@ -262,6 +285,7 @@ const Orders: React.FC = () => {
                     onCloseOrder={() => handleOpenCloseModal(order.orderId)}
                     onAdvanceStatus={(itemId) => handleAdvanceStatus(order.orderId, itemId)}
                     onDetails={() => setDetailsOrder(order)}
+                    onRemoveItem={handleRemoveItem}
                   />
                 ))}
               </div>
@@ -587,8 +611,8 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
   </Link>
 );
 
-const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails}: {
-    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void, onAdvanceStatus: (itemId: string) => void, onDetails: () => void}) => {
+const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails, onRemoveItem}: {
+    order: OrderDetailsResponse, onAddItem: () => void, onCloseOrder: () => void, onAdvanceStatus: (itemId: string) => void, onDetails: () => void, onRemoveItem?: (orderId: string, itemId: string, status: string) => void}) => {
   return (
     <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
@@ -671,19 +695,17 @@ const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails}:
                       <span className="text-sm font-bold text-gray-600">
                         R$ {item.price.toFixed(2)}
                       </span>
-
-                      {/* Botão remover */}
                       <button
                         onClick={() => onRemoveItem?.(order.orderId, item.id, item.status)}
-                        disabled={item.status === 'PREPARATION'}
+                        disabled={isItemLocked(item.status)}
                         className={`p-2 rounded-xl transition-all flex items-center justify-center
-                          ${item.status === 'PREPARATION'
+                          ${isItemLocked(item.status)
                             ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
                             : 'bg-red-50 text-red-600 hover:bg-red-100 active:scale-95'
                           }`}
                         title={
-                          item.status === 'PREPARATION'
-                            ? 'Item em preparo não pode ser removido'
+                          isItemLocked(item.status)
+                            ? 'Item não pode ser removido'
                             : 'Remover item'
                         }
                       >
@@ -713,7 +735,6 @@ const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails}:
           )}
         </div>
       </div>
-
       <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <Clock size={14} />
