@@ -42,7 +42,15 @@ const Orders: React.FC = () => {
 
   const [detailsOrder, setDetailsOrder] = useState<OrderDetailsResponse | null>(null);
   
-  // Form state for adding item
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<{
+    orderId: string;
+    itemId: string;
+    status: string;
+  } | null>(null);
+
+  const [isRemoveSuccessOpen, setIsRemoveSuccessOpen] = useState(false);
+
   const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
   const [observations, setObservations] = useState('');
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
@@ -144,23 +152,35 @@ const Orders: React.FC = () => {
     }
   };
 
-  const handleRemoveItem = async (orderId: string, itemId: string, status: string) => {
+  const handleRemoveItemRequest = (orderId: string, itemId: string, status: string) => {
   if (status === 'PREPARATION') {
     alert('Este item já está em preparo e não pode ser removido.');
     return;
   }
 
-  const confirmDelete = window.confirm('Tem certeza que deseja remover este item?');
-  if (!confirmDelete) return;
+  setItemToRemove({ orderId, itemId, status });
+  setIsRemoveModalOpen(true);
+};
+
+  const confirmRemoveItem = async () => {
+  if (!itemToRemove) return;
 
   try {
-    await orderService.removeItemFromOrder(orderId, itemId);
+    await orderService.removeItemFromOrder(
+      itemToRemove.orderId,
+      itemToRemove.itemId
+    );
+
+    setIsRemoveModalOpen(false);
+    setItemToRemove(null);
+
+    setIsRemoveSuccessOpen(true); // 👈 popup de sucesso
+
     await fetchData();
-  } catch (error: any) {
-  console.error("Erro completo:", error);
-  console.log("Resposta backend:", error?.response?.data);
-  alert(error?.response?.data?.message || "Erro ao remover item da comanda");
-}
+  } catch (error) {
+    console.error("Erro ao remover item", error);
+    alert("Erro ao remover item da comanda");
+  }
 };
 
   const handleAdvanceStatus = async (orderId: string, itemId: string) => {
@@ -285,7 +305,7 @@ const Orders: React.FC = () => {
                     onCloseOrder={() => handleOpenCloseModal(order.orderId)}
                     onAdvanceStatus={(itemId) => handleAdvanceStatus(order.orderId, itemId)}
                     onDetails={() => setDetailsOrder(order)}
-                    onRemoveItem={handleRemoveItem}
+                    onRemoveItem={handleRemoveItemRequest}
                   />
                 ))}
               </div>
@@ -593,7 +613,73 @@ const Orders: React.FC = () => {
           </div>
         </div>
       )}
+      {isRemoveModalOpen && itemToRemove && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+
+    <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 space-y-6 animate-in zoom-in-95">
+
+      <div className="space-y-2">
+        <h2 className="text-xl font-black text-gray-900">
+          Remover item
+        </h2>
+        <p className="text-sm text-gray-500">
+          Tem certeza que deseja remover este item da comanda?
+        </p>
+      </div>
+
+      <div className="flex gap-3">
+
+        <button
+          onClick={() => {
+            setIsRemoveModalOpen(false);
+            setItemToRemove(null);
+          }}
+          className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition"
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={confirmRemoveItem}
+          className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition shadow-lg"
+        >
+          Remover
+        </button>
+
+      </div>
+
     </div>
+  </div>
+)}
+      {isRemoveSuccessOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+
+    <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center space-y-4 animate-in zoom-in-95">
+
+      <div className="w-16 h-16 mx-auto bg-red-100 text-red-600 rounded-full flex items-center justify-center">
+        <Trash2 size={28} />
+      </div>
+
+      <h2 className="text-lg font-black text-gray-900">
+        Item removido
+      </h2>
+
+      <p className="text-sm text-gray-500">
+        O item foi removido da comanda com sucesso.
+      </p>
+
+      <button
+        onClick={() => setIsRemoveSuccessOpen(false)}
+        className="w-full py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition"
+      >
+        Ok
+      </button>
+
+    </div>
+  </div>
+)}  
+    </div>
+    
   );
 };
 
@@ -746,6 +832,7 @@ const OrderCard = ({order, onAddItem, onCloseOrder, onAdvanceStatus, onDetails, 
         </button>
       </div>
     </div>
+    
   );
 };
 

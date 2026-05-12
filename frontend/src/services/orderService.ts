@@ -98,8 +98,8 @@ export const orderService = {
     return response.data;
   },
   
-  removeItemFromOrder: async (orderId: string, itemId: string) => {
-  const response = await api.delete(`/orders/${orderId}/items/${itemId}`);
-  return response.data;
+  removeItemFromOrder: async (orderId: string, itemId: string): Promise<void> => {
+    const response = await api.delete(`/orders/${orderId}/items`, {data: { orderItemId: itemId }});
+    return response.data;
 },
 };
